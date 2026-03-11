@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vertex Bank | Secure Private Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .vx-red { background-color: #d71e28; }
+        .vx-text-red { color: #d71e28; }
+        .bg-institutional { 
+            background: linear-gradient(rgba(248,250,252,0.94), rgba(248,250,252,0.94)), 
+            url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070');
+            background-size: cover; background-position: center;
+        }
+        .ticker-wrap { width: 100%; overflow: hidden; background: #1a1a1a; padding: 10px 0; position: fixed; bottom: 0; }
+        .ticker { display: inline-block; white-space: nowrap; animation: ticker 45s linear infinite; color: #ffbf00; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; }
+        @keyframes ticker { 0% { transform: translate3d(0,0,0); } 100% { transform: translate3d(-100%,0,0); } }
+        #loadingOverlay { display: none; backdrop-filter: blur(10px); background: rgba(255,255,255,0.8); }
+    </style>
+</head>
+<body class="bg-institutional min-h-screen flex flex-col font-sans text-slate-800">
+
+    <div id="loadingOverlay" class="fixed inset-0 z-50 flex flex-col items-center justify-center">
+        <div class="w-12 h-12 border-4 border-slate-100 border-t-[#d71e28] rounded-full animate-spin mb-4"></div>
+        <p class="text-[10px] font-black uppercase tracking-[.4em] vx-text-red">Protocol Verification In Progress...</p>
+    </div>
+
+    <header class="pt-20 pb-10 text-center">
+        <h1 class="font-black italic text-4xl vx-text-red tracking-tighter">VERTEX BANK</h1>
+        <p class="text-[9px] text-slate-400 uppercase font-black tracking-[.5em] mt-2">Private Wealth Management • San Francisco • New York</p>
+    </header>
+
+    <main class="flex-grow flex items-center justify-center p-6 mb-20">
+        <div class="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl border border-slate-100 overflow-hidden">
+            <div class="p-12">
+                <form action="/login" method="POST" id="loginForm" onsubmit="handleLogin(event)">
+                    <div class="space-y-6">
+                        <div class="relative">
+                            <label class="absolute left-5 top-2 text-[8px] font-black uppercase text-slate-400 tracking-widest">Client Identifier</label>
+                            <input type="email" name="email" required placeholder="name@private.com" class="w-full pt-8 pb-4 px-5 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold outline-none focus:border-[#d71e28]">
+                        </div>
+                        <div class="relative">
+                            <label class="absolute left-5 top-2 text-[8px] font-black uppercase text-slate-400 tracking-widest">Access Password</label>
+                            <input type="password" name="password" required placeholder="••••••••" class="w-full pt-8 pb-4 px-5 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold outline-none focus:border-[#d71e28]">
+                        </div>
+                        <div class="flex justify-between items-center px-2">
+                            <label class="flex items-center gap-2"><input type="checkbox" class="accent-[#d71e28]"><span class="text-[9px] font-black uppercase text-slate-400">Remember Device</span></label>
+                            <a href="#" class="text-[9px] font-black uppercase vx-text-red">Forgot Password?</a>
+                        </div>
+                        <button type="submit" class="w-full py-5 vx-red text-white text-[11px] font-black uppercase tracking-[.3em] rounded-2xl shadow-xl hover:bg-red-700 transition-all">Sign In</button>
+                    </div>
+                </form>
+            </div>
+            <div class="bg-slate-50 p-8 border-t border-slate-100 flex justify-between items-center">
+                <span class="text-[8px] font-black text-slate-400 uppercase italic">Member FDIC</span>
+                <i class="fa-solid fa-house-chimney text-slate-200"></i>
+            </div>
+        </div>
+    </main>
+
+    <div class="ticker-wrap">
+        <div class="ticker">
+            VERTEX AWARDS 2026: #1 PRIVATE BANK • ASSET PROTECTION ACTIVE • GLOBAL PARTNERS: GULFSTREAM, SOTHEBY'S, LVMH • FEDWIRE SECURED • CALIF. LIC #7709-B • OCC REGULATED •
+            VERTEX AWARDS 2026: #1 PRIVATE BANK • ASSET PROTECTION ACTIVE • GLOBAL PARTNERS: GULFSTREAM, SOTHEBY'S, LVMH • FEDWIRE SECURED • CALIF. LIC #7709-B • OCC REGULATED •
+        </div>
+    </div>
+
+    <script>
+        function handleLogin(e) {
+            e.preventDefault();
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            setTimeout(() => { document.getElementById('loginForm').submit(); }, 5000);
+        }
+    </script>
+</body>
+</html>

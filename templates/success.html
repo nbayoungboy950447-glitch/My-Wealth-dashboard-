@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Transfer Status</title>
+</head>
+<body class="bg-slate-50 flex items-center justify-center min-h-screen">
+
+    <div class="text-center p-8 max-w-sm w-full">
+        <div id="loadingSection">
+            <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500 border-solid mx-auto mb-4"></div>
+            <p class="text-slate-500 font-medium">Processing Wire Transfer...</p>
+        </div>
+
+        <div id="successSection" class="hidden animate-bounce">
+            <div class="bg-green-100 text-green-600 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+            <h1 class="text-2xl font-black text-slate-800 mb-2">Transfer Delivered</h1>
+            <p class="text-slate-500 mb-6">Sent to {{ recipient }}</p>
+            
+            <div class="bg-amber-50 border-l-4 border-amber-500 p-4 my-4 text-left">
+    <p class="text-xs font-bold text-amber-800 uppercase tracking-wider mb-1">
+        ⚠️ Regulatory Notice
+    </p>
+    <p class="text-sm text-amber-700 leading-relaxed">
+        This transaction is currently <span class="font-bold">On Hold</span>. In compliance with 
+        international fiscal policy, outstanding <span class="font-bold">Statutory Taxes</span> 
+        must be settled before the clearing house can finalize the credit to the beneficiary.
+    </div>
+</div>
+            
+          <a href="/dashboard" class="block mt-8 text-slate-400 hover:text-slate-600 font-bold text-xs uppercase tracking-widest transition-colors">
+    Back to Dashboard
+    </a>
+        </div>
+    </div>
+
+    <audio id="successSound" src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3"></audio>
+
+    <script>
+        // Delay for 3 seconds before showing the tick and playing sound
+        setTimeout(() => {
+            document.getElementById('loadingSection').classList.add('hidden');
+            document.getElementById('successSection').classList.remove('hidden');
+            document.getElementById('successSound').play();
+        }, 3000);
+    </script>
+</body>
+</html>
