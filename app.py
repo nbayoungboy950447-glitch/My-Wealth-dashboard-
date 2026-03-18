@@ -12,13 +12,32 @@ from oauth2client.service_account import ServiceAccountCredentials
 app = Flask(__name__)
 app.secret_key = 'vertex_vault_private_access_2026'
 
-# --- Google Sheets Setup ---
-SCOPE = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-CREDS = ServiceAccountCredentials.from_json_keyfile_name('service_account.json', SCOPE)
-CLIENT = gspread.authorize(CREDS)
-SHEET = CLIENT.open('vertex Bank ').worksheet('Users')
-BALANCES_SHEET = CLIENT.open('vertex Bank ').worksheet('Balances')
+# --- Google Sheets Setup (FINAL VERIFIED VERSION) ---
+import os
+import json
 
+SCOPE = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
+
+# Get the secret key from Render Environment
+creds_json = os.environ.get('GOOGLE_CREDENTIALS')
+
+if creds_json:
+    creds_dict = json.loads(creds_json)
+    CREDS = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, SCOPE)
+    CLIENT = gspread.authorize(CREDS)
+    
+    # --- Connecting to your specific tabs ---
+    # Open the main file "vertex Bank "
+    spreadsheet = CLIENT.open('vertex Bank ')
+    
+    # Tab 1: Users (Where Lydia's balance is)
+    SHEET = spreadsheet.worksheet('Users')
+    
+    # Tab 2: Balances (Where the transaction history goes)
+    BALANCES_SHEET = spreadsheet.worksheet('Balances')
+else:
+    print("CRITICAL: GOOGLE_CREDENTIALS not found on Render!")
+    print("CRITICAL ERROR: GOOGLE_CREDENTIALS not found in environment!")
 # --- The Central Ledger (Stored in Memory) ---
 bank_data = {
     "user": {
