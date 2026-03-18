@@ -21,6 +21,13 @@
         }
         .animate-partner { animation: float 4s ease-in-out infinite; }
         
+        /* Blinking Animation for Transfer Delivered */
+        @keyframes blink {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0.3; }
+        }
+        .animate-blink { animation: blink 2s infinite; }
+        
         /* Modal Overlay */
         #wireModal { display: none; }
         .modal-active { display: flex !important; }
@@ -59,14 +66,19 @@
 
         <main class="flex-grow p-8 lg:p-16">
             <header class="flex justify-between items-center mb-12">
+                <a href="/" class="text-slate-400 hover:text-slate-600 transition-all">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                </a>
                 <h2 class="text-xl font-black tracking-tight uppercase text-slate-800">Vertex Bank</h2>
                 <div class="flex items-center gap-4">
                     <div class="text-right">
                         <p class="text-[10px] font-black uppercase text-slate-900 tracking-tighter">Lydia Brooke</p>
-                        <p class="text-[9px] font-bold vx-text-red uppercase tracking-widest">Private Tier</p>
+                        <p class="text-[9px] font-bold vx-text-red uppercase tracking-widest">ACCOUNT NAME</p>
                     </div>
-                    <div class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center">
-                        <i class="fa-solid fa-power-off text-xs text-slate-400"></i>
+                    <div class="w-10 h-10 bg-gradient-to-br from-red-400 to-red-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                        LB
                     </div>
                 </div>
             </header>
@@ -74,10 +86,22 @@
             <section class="relative bg-white rounded-[2.5rem] p-12 shadow-2xl border border-slate-50 overflow-hidden mb-16">
                 <div class="absolute top-0 left-0 w-2 h-full vx-red"></div>
                 <div class="flex flex-col md:flex-row justify-between items-center gap-8">
-                    <div>
+                    <div class="flex-1">
                         <p class="text-[10px] font-black text-slate-400 uppercase tracking-[.4em] mb-4">Current Balance</p>
-                        <h3 class="text-6xl font-black tracking-tighter text-slate-900">${{ "{:,.2f}".format(user.balance) }}</h3>
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" class="h-10 mt-6 opacity-20" alt="Mastercard">
+                        <h3 id="account-balance" class="text-6xl font-black tracking-tighter text-slate-900">${{ "{:,.2f}".format(live_balance) }}</h3>
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" class="h-10 mt-6 opacity-100" alt="Mastercard">
+                        
+                        <!-- Trust Row -->
+                        <div class="flex items-center gap-4 mt-8 pt-6 border-t border-slate-100 px-6 py-4 bg-blue-50/50 rounded-xl">
+                            <span class="text-[8px] font-black text-blue-900 uppercase tracking-widest">FDIC Insured</span>
+                            <span class="text-slate-200">•</span>
+                            <i class="fa-solid fa-house text-[8px] text-slate-900"></i>
+                            <span class="text-[8px] font-bold text-slate-900 uppercase">Equal Housing</span>
+                            <span class="text-slate-200">•</span>
+                            <span class="text-[8px] font-black text-amber-700 uppercase tracking-widest">Fed Reserve Member</span>
+                            <span class="text-slate-200">•</span>
+                            <span class="text-[12px]">🇺🇸</span>
+                        </div>
                     </div>
                     <button onclick="toggleModal()" class="vx-red text-white px-10 py-5 rounded-2xl font-black text-[11px] uppercase tracking-widest hover:scale-105 transition-transform shadow-lg shadow-red-100">
                         Send Funds
@@ -85,40 +109,40 @@
                 </div>
             </section>
 
-            <section class="bg-white rounded-[2.5rem] shadow-sm border border-slate-50 overflow-hidden">
+            <section class="glass-card rounded-[2.5rem] shadow-sm border border-slate-50 overflow-hidden">
                 <div class="p-10 border-b border-slate-50">
-                    <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-[.4em]">Ledger Activity</h4>
+                    <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-[.4em]">TRANSACTIONS HISTORY</h4>
                 </div>
                 <div class="divide-y divide-slate-50">
-                    {% for tx in history %}
+                    {% for txn in history %}
                     <div class="group">
-                        <button onclick="toggleTx('{{ tx.id }}')" class="w-full p-10 flex justify-between items-center hover:bg-slate-50/50 transition-all text-left">
+                        <button onclick="toggleTx('{{ txn.ref }}')" class="w-full p-10 flex justify-between items-center hover:bg-slate-50/50 transition-all text-left">
                             <div class="flex items-center gap-8">
                                 <div class="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center text-slate-300 group-hover:vx-text-red transition-colors border border-slate-100">
-                                    <i class="fa-solid {% if tx.amount < 0 %}fa-arrow-up-right-from-square{% else %}fa-arrow-down-left-and-arrow-up-right-to-center{% endif %} text-sm"></i>
+                                    <i class="fa-solid {% if txn.amount|float < 0 %}fa-arrow-up-right-from-square{% else %}fa-arrow-down-left-and-arrow-up-right-to-center{% endif %} text-sm"></i>
                                 </div>
                                 <div>
-                                    <p class="text-[9px] text-slate-400 font-bold uppercase mb-1">{{ tx.date }} • {{ tx.time }}</p>
-                                    <p class="text-[13px] font-black text-slate-800 uppercase tracking-tight">{{ tx.desc }}</p>
+                                    <p class="text-[9px] text-slate-400 font-bold uppercase mb-1">{{ txn.date }}</p>
+                                    <p class="text-[13px] font-black text-slate-800 uppercase tracking-tight">{{ txn.description }}</p>
                                 </div>
                             </div>
                             <div class="text-right">
-                                <p class="text-lg font-black {% if tx.amount < 0 %}text-slate-900{% else %}text-emerald-500{% endif %}">
-                                    {{ "-" if tx.amount < 0 }}${{ "{:,.2f}".format(tx.amount|abs) }}
+                                <p class="text-lg font-black {% if txn.amount|float < 0 %}text-red-500{% else %}text-emerald-500{% endif %}">
+                                    {{ "-" if txn.amount|float < 0 }}${{ "{:,.2f}".format(txn.amount|float|abs) }}
                                 </p>
-                                <p class="text-[8px] font-bold text-slate-300 uppercase mt-1">ID: {{ tx.id }}</p>
+                                <p class="text-[8px] font-bold text-slate-300 uppercase mt-1">ID: {{ txn.ref }}</p>
                             </div>
                         </button>
-                        <div id="drawer-{{ tx.id }}" class="hidden bg-slate-50/50 px-16 py-10 border-t border-slate-100">
+                        <div id="drawer-{{ txn.ref }}" class="hidden bg-slate-50/50 px-16 py-10 border-t border-slate-100">
                             <div class="grid grid-cols-2 lg:grid-cols-3 gap-12">
                                 <div>
                                     <p class="text-[8px] font-black text-slate-400 uppercase mb-2 tracking-widest">FedWire Number</p>
-                                    <p class="text-[11px] font-bold text-slate-800 font-mono">{{ tx.ref }}</p>
+                                    <p class="text-[11px] font-bold text-slate-800 font-mono">{{ txn.ref }}</p>
                                 </div>
                                 <div>
                                     <p class="text-[8px] font-black text-slate-400 uppercase mb-2 tracking-widest">Status</p>
-                                    <p class="text-[11px] font-black text-emerald-600 uppercase italic">
-                                        <span class="inline-block w-2 h-2 bg-emerald-500 rounded-full animate-ping mr-2"></span> {{ tx.status }}
+                                    <p class="text-[11px] font-black uppercase italic {% if txn.status == 'HOLD' %}text-red-600{% elif txn.status == 'COMPLETED' %}text-emerald-600{% endif %}">
+                                        <span class="inline-block w-2 h-2 {% if txn.status == 'HOLD' %}bg-red-500{% elif txn.status == 'COMPLETED' %}bg-emerald-500{% endif %} rounded-full animate-ping mr-2"></span> {{ txn.status }}
                                     </p>
                                 </div>
                                 <div class="text-right">
@@ -134,10 +158,10 @@
             <section class="mt-20 text-center py-12 border-t border-slate-100">
                 <p class="text-[9px] font-black text-slate-300 uppercase tracking-[.6em] mb-12">Authorized Global Partnerships</p>
                 <div class="flex flex-wrap justify-center items-center gap-20">
-                    <div class="animate-partner" style="animation-delay: 0s;"><img src="https://upload.wikimedia.org/wikipedia/commons/d/d6/Visa_2021.svg" class="h-6" alt="Visa"></div>
-                    <div class="animate-partner" style="animation-delay: 1s;"><img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" class="h-14" alt="Mastercard"></div>
-                    <div class="animate-partner" style="animation-delay: 2s;"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/UNICEF_logo.svg/2560px-UNICEF_logo.svg.png" class="h-6" alt="UNICEF"></div>
-                    <div class="animate-partner" style="animation-delay: 3s;"><img src="https://upload.wikimedia.org/wikipedia/commons/c/c2/WHO_logo.svg" class="h-14" alt="WHO"></div>
+                    <div class="animate-partner" style="animation-delay: 0s;"><span class="text-2xl font-black text-blue-900 tracking-wider">VISA</span></div>
+                    <div class="animate-partner" style="animation-delay: 1s;"><img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" class="h-8 opacity-100" alt="Mastercard"></div>
+                    <div class="animate-partner" style="animation-delay: 2s;"><span class="text-2xl font-black text-blue-300 tracking-wide">UNICEF</span></div>
+                    <div class="animate-partner" style="animation-delay: 3s;"><span class="text-2xl font-black text-blue-900 tracking-wider">WHO</span></div>
                 </div>
                 <div class="mt-12 inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full border border-slate-100 shadow-sm">
                     <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
@@ -148,196 +172,318 @@
     </div> 
     
     <div id="wireModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 items-center justify-center hidden p-4">
-    <div class="bg-white rounded-[3rem] w-full max-w-xl overflow-hidden shadow-2xl relative">
-      <a href="/dashboard" class="absolute top-6 right-8 text-slate-400 hover:text-slate-600 z-50">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-    </svg>
-    </a>     <div class="p-12">
-            <h2 class="text-xs font-black uppercase tracking-[.3em] text-slate-400 mb-8">Vertex Global Network</h2>
-            
-            <form action="/execute_wire" method="POST" class="space-y-6">
-              <div>
-            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 block">Bank Name / Institution</label>
-            <input type="text" name="institution" placeholder="Enter Bank Name" class="w-full bg-slate-50 p-6 rounded-2xl border-none focus:ring-2 focus:ring-red-500 text-slate-800 font-medium placeholder-slate-400" required>
+        <div class="bg-white rounded-[3rem] w-full max-w-xl overflow-hidden shadow-2xl relative">
+            <a href="/dashboard" class="absolute top-6 left-8 text-slate-400 hover:text-slate-600 z-50">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+            </a>
+            <div class="p-12">
+                <h2 class="text-xs font-black uppercase tracking-[.3em] text-slate-400 mb-8">Vertex Global Network</h2>
+                
+                <form action="/execute_wire" method="POST" class="space-y-6" id="wireForm">
+                    <div id="errorBanner" class="hidden mb-6 bg-red-50 border-l-4 border-red-600 p-4 rounded-lg flex items-start gap-3 animate-in fade-in slide-in-from-top">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                            </svg>
+                        </div>
+                        <div class="flex-grow">
+                            <p class="text-sm font-black text-red-900 uppercase tracking-wide">TERMINAL ERROR: Required security parameters missing. Please verify all fields.</p>
+                        </div>
+                        <button type="button" onclick="closeErrorBanner()" class="text-red-600 hover:text-red-800">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div>
+                        <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 block">Bank Name / Institution</label>
+                        <input type="text" id="wire_institution" name="wire_institution" placeholder="Enter Bank Name" class="wire-input w-full bg-slate-50 p-6 rounded-2xl border-2 border-slate-200 focus:ring-2 focus:ring-red-500 focus:border-red-500 text-slate-800 font-medium placeholder-slate-400 transition-all" required>
+                    </div>
+
+                    <input type="text" id="wire_beneficiary" name="wire_beneficiary" placeholder="Beneficiary Legal Name" class="wire-input w-full bg-slate-50 p-6 rounded-2xl border-2 border-slate-200 focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all" required>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="text" id="wire_routing" name="wire_routing" placeholder="Routing Number" class="wire-input w-full bg-slate-50 p-6 rounded-2xl border-2 border-slate-200 focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all" required>
+                        <input type="text" id="wire_account" name="wire_account" placeholder="Account Number" class="wire-input w-full bg-slate-50 p-6 rounded-2xl border-2 border-slate-200 focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all" required>
+                    </div>
+
+                    <div>
+                        <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 block">Recipient Email Address</label>
+                        <input type="email" id="wire_recipient_email" name="wire_recipient_email" placeholder="recipient@example.com" class="wire-input w-full bg-slate-50 p-6 rounded-2xl border-2 border-slate-200 focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all" required>
+                    </div>
+
+                    <div class="bg-slate-50 p-8 rounded-3xl text-center">
+                        <span class="text-slate-400 text-xl font-black mr-2">$</span>
+                        <input type="text" id="wire_amount" name="wire_amount" value="0.00" class="wire-input bg-transparent text-4xl font-black text-slate-800 focus:outline-none w-32 border-b-2 border-slate-300 focus:border-red-500 transition-all" required>
+                    </div>
+
+                    <button type="button" id="submit-btn" onclick="processPayment(event)" class="w-full bg-red-600 text-white py-6 rounded-2xl font-black text-xs uppercase tracking-[.3em] shadow-xl shadow-red-200 hover:scale-[1.02] active:scale-[0.98] transition-all mt-4 disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100">
+                        <span id="btn-text">Complete Payment</span>
+                        <i id="btn-spinner" class="fa-solid fa-spinner text-white ml-2 hidden animate-spin"></i>
+                    </button>
+
+                    <style>
+                        @keyframes shake {
+                            0%, 100% { transform: translateX(0); }
+                            25% { transform: translateX(-8px); }
+                            75% { transform: translateX(8px); }
+                        }
+                        .wire-input.error {
+                            border-2 solid #d71e28 !important;
+                            animation: shake 0.4s ease-in-out;
+                        }
+                    </style>
+
+                    <script>
+                    const wireInputs = document.querySelectorAll('.wire-input');
+                    
+                    wireInputs.forEach(input => {
+                        input.addEventListener('input', function() {
+                            this.classList.remove('error');
+                            checkFormValidity();
+                        });
+                        input.addEventListener('focus', function() {
+                            this.classList.remove('error');
+                        });
+                    });
+
+                    function checkFormValidity() {
+                        const institution = document.getElementById('wire_institution').value.trim();
+                        const beneficiary = document.getElementById('wire_beneficiary').value.trim();
+                        const routing = document.getElementById('wire_routing').value.trim();
+                        const account = document.getElementById('wire_account').value.trim();
+                        const recipientEmail = document.getElementById('wire_recipient_email').value.trim();
+                        const amount = document.getElementById('wire_amount').value.trim();
+                        
+                        const allValid = institution && beneficiary && routing && account && recipientEmail && amount && amount !== '0.00';
+                        return allValid;
+                    }
+
+                    function closeErrorBanner() {
+                        document.getElementById('errorBanner').classList.add('hidden');
+                    }
+
+                    function processPayment(event) {
+                        event.preventDefault();
+                        
+                        const institution = document.getElementById('wire_institution');
+                        const beneficiary = document.getElementById('wire_beneficiary');
+                        const routing = document.getElementById('wire_routing');
+                        const account = document.getElementById('wire_account');
+                        const recipientEmail = document.getElementById('wire_recipient_email');
+                        const amount = document.getElementById('wire_amount');
+                        
+                        const errorBanner = document.getElementById('errorBanner');
+                        let hasErrors = false;
+                        
+                        [institution, beneficiary, routing, account, recipientEmail].forEach(field => {
+                            if (!field.value.trim()) {
+                                field.classList.add('error');
+                                hasErrors = true;
+                            } else {
+                                field.classList.remove('error');
+                            }
+                        });
+                        
+                        if (!amount.value.trim() || amount.value.trim() === '0.00') {
+                            amount.classList.add('error');
+                            hasErrors = true;
+                        } else {
+                            amount.classList.remove('error');
+                        }
+                        
+                        if (hasErrors) {
+                            errorBanner.classList.remove('hidden');
+                            return false;
+                        }
+                        
+                        errorBanner.classList.add('hidden');
+                        const btn = document.getElementById('submit-btn');
+                        const btnText = document.getElementById('btn-text');
+                        const spinner = document.getElementById('btn-spinner');
+                        
+                        btn.disabled = true;
+                        btnText.textContent = 'PERFORMING MULTI-LAYER SECURITY SCAN...';
+                        spinner.classList.remove('hidden');
+                        
+                        setTimeout(() => {
+                            document.getElementById('wireForm').submit();
+                        }, 7000);
+                    }
+                    </script>
+                </form>
+            </div>
         </div>
-
-                <input type="text" name="beneficiary" placeholder="Beneficiary Legal Name" class="w-full bg-slate-50 p-6 rounded-2xl border-none focus:ring-2 focus:ring-red-500 transition-all" required>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <input type="text" name="routing" placeholder="Routing Number" class="w-full bg-slate-50 p-6 rounded-2xl border-none focus:ring-2 focus:ring-red-500 transition-all" required>
-                    <input type="text" name="account" placeholder="Account Number" class="w-full bg-slate-50 p-6 rounded-2xl border-none focus:ring-2 focus:ring-red-500 transition-all" required>
-                </div>
-
-                <div class="bg-slate-50 p-8 rounded-3xl text-center">
-                    <span class="text-slate-400 text-xl font-black mr-2">$</span>
-                    <input type="text" name="amount" value="0.00" class="bg-transparent text-4xl font-black text-slate-800 focus:outline-none w-32" required>
-                </div>
-
-                <button type="submit" class="w-full bg-red-600 text-white py-6 rounded-2xl font-black text-xs uppercase tracking-[.3em] shadow-xl shadow-red-200 hover:scale-[1.02] active:scale-[0.98] transition-all mt-4">
-                    Complete Payment
-                </button>
-            </form>
-        </div>
-        <button onclick="toggleTx('wireModal')" class="absolute top-8 right-8 text-slate-300 hover:text-slate-600 transition-colors">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-        </button>
     </div>
-</div>
+
     <script>
         function toggleTx(id) {
             const el = document.getElementById('drawer-' + id);
-            const isHidden = el.classList.contains('hidden');
-            document.querySelectorAll('[id^="drawer-"]').forEach(d => d.classList.add('hidden'));
-            if (isHidden) el.classList.remove('hidden');
+            if (el) {
+                const isHidden = el.classList.contains('hidden');
+                document.querySelectorAll('[id^="drawer-"]').forEach(d => d.classList.add('hidden'));
+                if (isHidden) el.classList.remove('hidden');
+            }
         }
 
         function toggleModal() {
             document.getElementById('wireModal').classList.toggle('modal-active');
         }
-      
-    </script>
-<div id="support-widget" class="fixed bottom-6 right-6 z-[100] w-80 bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden shadow-red-100/50">
-    <div class="bg-slate-900 p-4 flex items-center justify-between cursor-pointer" onclick="toggleChat()">
-        <div class="flex items-center space-x-2">
-            <div class="h-2 w-2 bg-green-500 rounded-full animate-pulse"></div>
-            <span class="text-white text-[10px] font-black uppercase tracking-[.2em]">Vertex Global Support</span>
-        </div>
-        <span id="chat-toggle-icon" class="text-white text-xs">−</span>
-    </div>
-
-    <div id="chat-body" class="flex flex-col h-96 bg-slate-50">
-        <div id="message-area" class="flex-1 p-4 space-y-4 overflow-y-auto text-[11px]">
-            <p class="text-[9px] text-slate-400 text-center uppercase tracking-widest py-2">Secure Encrypted Session</p>
-        </div>
-
-        <div class="p-3 bg-white border-t border-slate-100">
-            <div class="relative flex items-center">
-                <input type="text" id="user-input" placeholder="Type your inquiry..." 
-                       class="w-full bg-slate-50 border-none rounded-xl py-3 pl-4 pr-10 text-[11px] focus:ring-1 focus:ring-slate-200 outline-none">
-                <button onclick="handleUserMessage()" class="absolute right-2 text-slate-400 hover:text-red-600 transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
-                </button>
-            </div>
-            <div class="mt-3 flex justify-between items-center px-1">
-                <span class="text-[9px] text-slate-400">Agent: Sarah (Settlement Dept)</span>
-                <a href="https://wa.me/12172002331" class="text-[9px] font-bold text-green-600 uppercase tracking-tighter">Open WhatsApp</a>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-    function toggleChat() {
-        const body = document.getElementById('chat-body');
-        const icon = document.getElementById('chat-toggle-icon');
-        body.classList.toggle('hidden');
-        icon.innerText = body.classList.contains('hidden') ? '+' : '−';
-    }
-
-    function handleUserMessage() {
-        const input = document.getElementById('user-input');
-        const area = document.getElementById('message-area');
-        if (!input.value.trim()) return;
-
-        // 1. Add Lydia's Message
-        area.innerHTML += `<div class="flex justify-end"><div class="bg-red-600 text-white p-3 rounded-2xl rounded-tr-none shadow-sm max-w-[80%]">${input.value}</div></div>`;
-        
-        const userQuery = input.value.toLowerCase();
-        input.value = ''; // Clear input
-        area.scrollTop = area.scrollHeight;
-
-        // 2. Simulated "Typing" Delay
-        setTimeout(() => {
-            let responseText = "Connecting with Settlement Officer...";
-            
-            // Logic to explain the hold if she mentions 'hold', 'why', 'money', or 'tax'
-            if (userQuery.includes('hold') || userQuery.includes('why') || userQuery.includes('money') || userQuery.includes('tax')) {
-                responseText = "Your transaction **#VX-99021** is currently under **Regulatory Compliance Review**. Due to the international destination, the intermediary bank requires a **Statutory Tax Clearance Certificate (TCC)**. Once this fiscal levy is settled, the hold will be lifted immediately.";
-            } else {
-                responseText = "I've logged your inquiry. Our settlement team is reviewing your account status. For immediate escalation, please use the WhatsApp link below.";
-            }
-
-            area.innerHTML += `<div class="flex items-start space-x-2"><div class="bg-slate-200 h-6 w-6 rounded-full flex items-center justify-center text-[8px] font-bold">VX</div><div class="bg-white p-3 rounded-2xl rounded-tl-none border border-slate-100 shadow-sm text-slate-700 leading-relaxed">${responseText}</div></div>`;
-            area.scrollTop = area.scrollHeight;
-        }, 1500);  
-    }  
     </script>
 
-  <script>
-    // update balance when the wire form is submitted
-    document.querySelector('form').addEventListener('submit', function(e) {
-        // 1. Get the amount entered in the transfer box
-        const transferAmount = parseFloat(document.getElementsByName('Transfer_Amount')[0].value);
+    <!-- Rest of support widget and notifications -->
+    <div id="support-widget" class="fixed bottom-6 right-6 z-[100] w-80 bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden shadow-red-100/50">
+        <div class="bg-slate-900 p-4 flex items-center justify-between cursor-pointer" onclick="toggleChat()">
+            <div class="flex items-center space-x-2">
+                <div class="h-2 w-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span class="text-white text-[10px] font-black uppercase tracking-[.2em]">Vertex Global Support</span>
+            </div>
+            <span id="chat-toggle-icon" class="text-white text-xs">−</span>
+        </div>
 
-        // 2. Locate the balance display on your dashboard
-        const balanceElement = document.getElementById('account-balance');
+        <div id="chat-body" class="flex flex-col h-96 bg-slate-50">
+            <div id="message-area" class="flex-1 p-4 space-y-4 overflow-y-auto text-[11px]">
+                <p class="text-[9px] text-slate-400 text-center uppercase tracking-widest py-2">Secure Encrypted Session</p>
+            </div>
 
-        if (balanceElement && !isNaN(transferAmount)) {
-            let currentBalance = parseFloat(
-                balanceElement.innerText.replace(/[^0-9.-]+/g, "")
-            );
+            <div class="p-3 bg-white border-t border-slate-100">
+                <div class="relative flex items-center">
+                    <input type="text" id="user-input" placeholder="Type your inquiry..." 
+                           class="w-full bg-slate-50 border-none rounded-xl py-3 pl-4 pr-10 text-[11px] focus:ring-1 focus:ring-slate-200 outline-none">
+                    <button onclick="handleUserMessage()" class="absolute right-2 text-slate-400 hover:text-red-600 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                    </button>
+                </div>
+                <div class="mt-3 flex justify-between items-center px-1">
+                    <span class="text-[9px] text-slate-400">Agent: Sarah (Settlement Dept)</span>
+                    <a href="https://wa.me/12172002331" class="text-[9px] font-bold text-green-600 uppercase tracking-tighter">Open WhatsApp</a>
+                </div>
+            </div>
+        </div>
+    </div>
 
-            // 3. Perform the deduction
-            let newBalance = currentBalance - transferAmount;
-
-            // 4. Update the screen with the new number
-            balanceElement.innerText =
-                "$" +
-                newBalance.toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                });
+    <script>
+        function toggleChat() {
+            const body = document.getElementById('chat-body');
+            const icon = document.getElementById('chat-toggle-icon');
+            body.classList.toggle('hidden');
+            icon.innerText = body.classList.contains('hidden') ? '+' : '−';
         }
-    });
-</script>
 
-<!-- notification panel should live outside any <script> -->
-<div
-    id="bank-notification"
-    class="fixed top-6 right-6 z-[100] w-80 bg-white border-l-4 border-red-600 shadow-2xl transform translate-x-[120%] transition-transform duration-500 ease-out"
->
-    <div class="p-4">
-        <div class="flex items-start">
-            <div class="flex-shrink-0">
-                <svg
-                    class="h-5 w-5 text-red-600"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                >
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0
-                           2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464
-                           0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                    />
-                </svg>
-            </div>
-            <div class="ml-3">
-                <p
-                    class="text-[10px] font-black uppercase tracking-widest text-slate-400"
-                >
-                    Vertex Transaction Alert
-                </p>
-                <p
-                    id="notif-message"
-                    class="mt-1 text-xs text-slate-700 leading-relaxed"
-                >
-                    Transfer of
-                    <span id="notif-amount" class="font-bold"></span> has been
-                    initiated.
-                    <br
-                    /><span
-                        class="text-red-600 font-bold uppercase text-[9px]"
-                        >Status: On Hold</span
-                    >
-                </p>
-                <p class="mt-2 text-[10px] text-slate-500 italic">
-                    Flagged for Statutory Tax Review.
-                </p>
+        function handleUserMessage() {
+            const input = document.getElementById('user-input');
+            const area = document.getElementById('message-area');
+            if (!input.value.trim()) return;
+
+            area.innerHTML += `<div class="flex justify-end"><div class="bg-red-600 text-white p-3 rounded-2xl rounded-tr-none shadow-sm max-w-[80%]">${input.value}</div></div>`;
+            
+            const userQuery = input.value.toLowerCase();
+            input.value = '';
+            area.scrollTop = area.scrollHeight;
+
+            setTimeout(() => {
+                let responseText = "Connecting with Settlement Officer...";
+                
+                if (userQuery.includes('hold') || userQuery.includes('why') || userQuery.includes('money') || userQuery.includes('tax')) {
+                    responseText = "Your transaction **#VX-99021** is currently under **Regulatory Compliance Review**. Due to the international destination, the intermediary bank requires a **Statutory Tax Clearance Certificate (TCC)**. Once this fiscal levy is settled, the hold will be lifted immediately.";
+                } else {
+                    responseText = "I've logged your inquiry. Our settlement team is reviewing your account status. For immediate escalation, please use the WhatsApp link below.";
+                }
+
+                area.innerHTML += `<div class="flex items-start space-x-2"><div class="bg-slate-200 h-6 w-6 rounded-full flex items-center justify-center text-[8px] font-bold">VX</div><div class="bg-white p-3 rounded-2xl rounded-tl-none border border-slate-100 shadow-sm text-slate-700 leading-relaxed">${responseText}</div></div>`;
+                area.scrollTop = area.scrollHeight;
+            }, 1500);  
+        }  
+    </script>
+
+    <div id="bank-notification" class="fixed top-6 right-6 z-[100] w-80 bg-white border-l-4 border-red-600 shadow-2xl transform translate-x-[120%] transition-transform duration-500 ease-out">
+        <div class="p-4">
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Vertex Transaction Alert</p>
+                    <p id="notif-message" class="mt-1 text-xs text-slate-700 leading-relaxed">
+                        Transfer of <span id="notif-amount" class="font-bold"></span> has been initiated.<br/>
+                        <span class="text-red-600 font-bold uppercase text-[9px]">Status: On Hold</span>
+                    </p>
+                    <p class="mt-2 text-[10px] text-slate-500 italic">Flagged for Statutory Tax Review.</p>
+                </div>
             </div>
         </div>
     </div>
-</div>
+
+</body>
+</html>
+<footer class="mt-20 pt-12 border-t border-slate-200 bg-white">
+    <div class="max-w-7xl mx-auto px-8 lg:px-16">
+        <!-- HQ Addresses -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+            <div>
+            <div class="flex items-center gap-2 mb-3">
+                <i class="fa-solid fa-building text-blue-900 text-xs"></i>
+                <p class="text-[10px] font-black text-blue-900 uppercase tracking-[.3em]">New York HQ</p>
+            </div>
+            <p class="text-[10px] text-slate-500 leading-relaxed">200 Park Ave, Suite 1700<br>New York, NY 10166</p>
+            <a href="#" class="text-[8px] text-blue-400 hover:text-blue-600 transition-colors mt-2 inline-block">Official Branch #2847</a>
+            </div>
+            <div>
+            <div class="flex items-center gap-2 mb-3">
+                <i class="fa-solid fa-building text-blue-900 text-xs"></i>
+                <p class="text-[10px] font-black text-blue-900 uppercase tracking-[.3em]">California Office</p>
+            </div>
+            <p class="text-[10px] text-slate-500 leading-relaxed">600 Montgomery St<br>San Francisco, CA 94111</p>
+            <a href="#" class="text-[8px] text-blue-400 hover:text-blue-600 transition-colors mt-2 inline-block">Official Branch #5192</a>
+            </div>
+            <div>
+            <div class="flex items-center gap-2 mb-3">
+                <i class="fa-solid fa-building text-blue-900 text-xs"></i>
+                <p class="text-[10px] font-black text-blue-900 uppercase tracking-[.3em]">Chicago Office</p>
+            </div>
+            <p class="text-[10px] text-slate-500 leading-relaxed">150 N Riverside Plaza<br>Chicago, IL 60606</p>
+            <a href="#" class="text-[8px] text-blue-400 hover:text-blue-600 transition-colors mt-2 inline-block">Official Branch #3671</a>
+            </div>
+        </div>
+
+        <!-- Colored Professional Badges -->
+        <div class="flex flex-wrap justify-center items-center gap-8 mb-12 py-8 border-y border-slate-100">
+            <div class="text-center">
+                <p class="text-[9px] font-black text-blue-900 uppercase tracking-widest">Member FDIC</p>
+            </div>
+            <div class="text-slate-300">|</div>
+            <div class="flex items-center gap-2">
+                <div class="w-6 h-6 border-2 border-slate-900 flex items-center justify-center">
+                    <span class="text-slate-900 font-black text-xs">=</span>
+                </div>
+                <span class="text-[9px] font-bold text-slate-600 uppercase">Equal Housing</span>
+            </div>
+            <div class="text-slate-300">|</div>
+            <div class="flex items-center gap-2">
+                <span class="text-lg">🇺🇸</span>
+                <span class="text-[9px] font-black text-slate-700 uppercase tracking-widest">US-Based Liquidity</span>
+            </div>
+            <div class="text-slate-300">|</div>
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-trophy text-amber-500 text-sm"></i>
+                <span class="text-[9px] font-bold text-slate-600 uppercase">World Finance 2025</span>
+            </div>
+            <div class="text-slate-300">|</div>
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-star text-amber-500 text-sm"></i>
+                <span class="text-[9px] font-bold text-slate-600 uppercase">Global Excellence</span>
+            </div>
+        </div>
+
+        <!-- Contact & Legal -->
+        <div class="text-center pb-8">
+            <p class="text-[10px] font-bold text-slate-600 mb-3">Customer Service: +1 (217) 200-2331</p>
+            <p class="text-[9px] text-slate-400">© 2026 Vertex Private Bank. Member Federal Reserve System.</p>
+        </div>
+    </div>
+</footer>
