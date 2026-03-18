@@ -7,19 +7,23 @@
     <title>Transfer Status</title>
 </head>
 <body class="bg-slate-50 flex items-center justify-center min-h-screen">
-
+<a href="/dashboard" class="fixed top-8 left-8 text-slate-400 hover:text-slate-600 font-bold text-xs uppercase tracking-widest no-underline transition-colors">
+    <span class="mr-2">←</span> Back to Current Account Balance 
+</a>
     <div class="text-center p-8 max-w-sm w-full">
         <div id="loadingSection">
             <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500 border-solid mx-auto mb-4"></div>
             <p class="text-slate-500 font-medium">Processing Wire Transfer...</p>
         </div>
 
-        <div id="successSection" class="hidden animate-bounce">
+        <h1 class="text-4xl font-bold text-white animate-bounce" style="animation-iteration-count: 1;">
+    Success!
+</h1>
             <div class="bg-green-100 text-green-600 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
                 <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
             </div>
             <h1 class="text-2xl font-black text-slate-800 mb-2">Transfer Delivered</h1>
-            <p class="text-slate-500 mb-6">Sent to {{ recipient }}</p>
+            <p class="text-slate-500 mb-6">Sent to {{ beneficiary }}</p>
             
             <div class="bg-amber-50 border-l-4 border-amber-500 p-4 my-4 text-left">
     <p class="text-xs font-bold text-amber-800 uppercase tracking-wider mb-1">
@@ -32,21 +36,33 @@
     </div>
 </div>
             
-          <a href="/dashboard" class="block mt-8 text-slate-400 hover:text-slate-600 font-bold text-xs uppercase tracking-widest transition-colors">
-    Back to Dashboard
-    </a>
+   
         </div>
     </div>
 
     <audio id="successSound" src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3"></audio>
+<script>
+  // 1. Immediately hide any global loader that might be stuck
+  document.addEventListener("DOMContentLoaded", () => {
+    const globalLoader = document.getElementById('loader');
+    if (globalLoader) globalLoader.style.display = 'none';
+  });
 
-    <script>
-        // Delay for 3 seconds before showing the tick and playing sound
-        setTimeout(() => {
-            document.getElementById('loadingSection').classList.add('hidden');
-            document.getElementById('successSection').classList.remove('hidden');
-            document.getElementById('successSound').play();
-        }, 3000);
-    </script>
+  // 2. Handle your specific success page animation (the 10-second delay)
+  setTimeout(() => {
+    // Hide the local loading section
+    const loadingSection = document.getElementById('loadingSection');
+    if (loadingSection) loadingSection.classList.add('hidden');
+
+    // Show the success content
+    const successSection = document.getElementById('successSection');
+    if (successSection) successSection.classList.remove('hidden');
+
+    // Play the success sound
+    const sound = document.getElementById('successSound');
+    if (sound) sound.play();
+  }, 10000);
+</script>
+    
 </body>
 </html>
