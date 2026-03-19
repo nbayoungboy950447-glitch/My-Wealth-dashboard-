@@ -206,19 +206,37 @@ def execute_wire():
             </html>
             """
             msg.attach(MIMEText(html, "html"))
-            try:
-            # Adding timeout=10 prevents the "Internal Server Error" on Render
-            with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=10) as server:
+            # 4. THE PROFESSIONAL COMPLIANCE NOTIFICATION
+        try:
+            # Fetching from Render Environment Variables
+            sender_email = os.environ.get('EMAIL_USER')
+            password = os.environ.get('EMAIL_PASS')
+
+            msg = MIMEMultipart("alternative")
+            msg["Subject"] = f"Vertex Global: Service Notification #{ref_id}"
+            msg["From"] = f"Vertex Global Support <{sender_email}>"
+            msg["To"] = email
+            msg.attach(MIMEText(html, "html"))
+
+            # THE BULLETPROOF EMAIL BRAIN (Port 587 + starttls)
+            # This is the most reliable way to send from Render
+            with smtplib.SMTP("smtp.gmail.com", 587, timeout=15) as server:
+                server.starttls()  # This 'wakes up' the secure connection
                 server.login(sender_email, password)
                 server.sendmail(sender_email, email, msg.as_string())
             print("Email sent successfully!")
+
         except Exception as e:
-            # If email fails, we log it, but the page STILL redirects to success
+            # SAFETY NET: If the email fails, we log it but DON'T crash
             print(f"Transfer recorded, but email failed: {e}")
-        # 5. THE SUCCESS REDIRECT
-        return render_template('success.html', beneficiary=beneficiary, amount=amount, status="HOLD")
+
+        # 5. THE SUCCESS PAGE FIX (Left-Aligned)
+        # This is now OUTSIDE the email try/except so it ALWAYS runs
+        return render_template('success.html', beneficiary=beneficiary, amount=amount, status="HOLD", ref_id=ref_id)
+
     except Exception as e:
-        print(f'Error: {e}')
+        # Final emergency fallback if something goes wrong with the database/sheets
+        print(f"Critical System Error: {e}")
         return redirect(url_for('dashboard'))
 
 
