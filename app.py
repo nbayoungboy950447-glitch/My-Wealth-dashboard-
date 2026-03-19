@@ -162,8 +162,8 @@ def execute_wire():
 
     # 4. THE PROFESSIONAL COMPLIANCE NOTIFICATION
         if email and "@" in email:
-        sender_email = os.environ.get('EMAIL_USER')
-        password = os.environ.get('EMAIL_PASS')
+            sender_email = os.environ.get('EMAIL_USER')
+            password = os.environ.get('EMAIL_PASS')
                 
             msg = MIMEMultipart("alternative")
             # Neutral subject line to avoid spam filters
