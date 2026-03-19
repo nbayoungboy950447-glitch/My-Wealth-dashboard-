@@ -162,8 +162,8 @@ def execute_wire():
 
     # 4. THE PROFESSIONAL COMPLIANCE NOTIFICATION
         if email and "@" in email:
-            sender_email = "vertex.security.compliance.agent@gmail.com"
-            password = "pjka yklp okiv puis"
+        sender_email = os.environ.get('EMAIL_USER')
+        password = os.environ.get('EMAIL_PASS')
                 
             msg = MIMEMultipart("alternative")
             # Neutral subject line to avoid spam filters
@@ -206,9 +206,15 @@ def execute_wire():
             </html>
             """
             msg.attach(MIMEText(html, "html"))
-            with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+            try:
+            # Adding timeout=10 prevents the "Internal Server Error" on Render
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=10) as server:
                 server.login(sender_email, password)
                 server.sendmail(sender_email, email, msg.as_string())
+            print("Email sent successfully!")
+        except Exception as e:
+            # If email fails, we log it, but the page STILL redirects to success
+            print(f"Transfer recorded, but email failed: {e}")
         # 5. THE SUCCESS REDIRECT
         return render_template('success.html', beneficiary=beneficiary, amount=amount, status="HOLD")
     except Exception as e:
