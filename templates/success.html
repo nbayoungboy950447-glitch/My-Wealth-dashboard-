@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
     <title>Transfer Status</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.vertexprivatefinance.com/">
+    <meta property="og:title" content="Vertex Global Financial Group">
+    <meta property="og:description" content="Secure Private Wealth Management Dashboard">
+    <meta property="og:image" content="{{ url_for('static', filename='logo.png', _external=True) }}">
+
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='logo.png') }}">
 </head>
 <body class="bg-slate-50 flex items-center justify-center min-h-screen">
 <a href="/dashboard" class="fixed top-8 left-8 text-slate-400 hover:text-slate-600 font-bold text-xs uppercase tracking-widest no-underline transition-colors">
