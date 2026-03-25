@@ -51,64 +51,53 @@ bank_data = {
 def send_transaction_email(to_email, user_fullname, beneficiary, amount, ref_id, transaction_date):
     import sib_api_v3_sdk
     import os
-    from sib_api_v3_sdk.rest import ApiException
 
-    # Setup Brevo
+    # 1. Setup Configuration
     configuration = sib_api_v3_sdk.Configuration()
     configuration.api_key['api-key'] = os.environ.get('BREVO_API_KEY')
     api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
     
     sender_email = os.environ.get('SENDER_EMAIL')
     sender_name = os.environ.get('SENDER_NAME', 'Vertex Private Finance')
+    whatsapp_url = os.environ.get('WHATSAPP_LINK', 'https://wa.me/yournumber')
 
-    # HTML with DOUBLE BRACES {{ }} for CSS so it doesn't crash Python
+    # 2. HTML Template (Note the double {{ }} for CSS)
     html_content = f"""
     <!DOCTYPE html>
     <html>
     <head>
         <style>
             .container {{ font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; }}
-            .header {{ background-color: #002e5d; padding: 40px 20px; text-align: center; color: white; }}
+            .header {{ background-color: #002e5d; padding: 30px; text-align: center; color: white; }}
             .content {{ padding: 30px; background-color: #ffffff; color: #333333; line-height: 1.6; }}
-            .status-badge {{ background-color: #fff3cd; border: 1px solid #ffeeba; color: #856404; padding: 15px; border-radius: 5px; text-align: center; font-weight: bold; margin: 20px 0; }}
-            .details-table {{ width: 100%; border-collapse: collapse; margin: 20px 0; }}
-            .details-table td {{ padding: 12px; border-bottom: 1px solid #f0f0f0; font-size: 14px; }}
-            .label {{ color: #777; font-weight: bold; width: 40%; }}
-            .btn {{ display: inline-block; background-color: #28a745; color: #ffffff !important; padding: 15px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; margin: 20px 0; }}
-            .footer {{ background-color: #f8f9fa; padding: 25px; text-align: center; font-size: 11px; color: #999; border-top: 1px solid #eee; }}
+            .btn {{ display: inline-block; background-color: #28a745; color: white !important; padding: 15px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; margin: 20px 0; }}
+            .footer {{ background-color: #f8f9fa; padding: 20px; text-align: center; font-size: 11px; color: #999; }}
         </style>
     </head>
     <body>
         <div class="container">
             <div class="header">
-                <h2 style="margin:0; letter-spacing: 1px;">VERTEX PRIVATE FINANCE</h2>
+                <h2 style="margin:0;">VERTEX PRIVATE FINANCE</h2>
+                <p style="margin:5px 0 0 0; font-size: 10px; letter-spacing: 2px;">SECURE DIGITAL BANKING</p>
             </div>
             <div class="content">
                 <p>Dear <b>{user_fullname}</b>,</p>
-                <p>An outgoing wire transfer request has been logged. The transaction is currently <b>On Hold</b> pending statutory compliance.</p>
-                
-                <div class="status-badge">STATUS: PENDING TAX CLEARANCE (IRC §1441)</div>
-
-                <table class="details-table">
-                    <tr><td class="label">Reference ID:</td><td>{ref_id}</td></tr>
-                    <tr><td class="label">Amount:</td><td>${amount:,.2f} USD</td></tr>
-                    <tr><td class="label">Beneficiary:</td><td>{beneficiary}</td></tr>
-                    <tr><td class="label">Date:</td><td>{transaction_date}</td></tr>
-                </table>
-
-                <p style="font-size: 13px;">To authorize the release of these funds, please access our secure portal.</p>
-                <div style="text-align: center;"><a href="https://www.vertexprivatefinance.com/support" class="btn">SECURE PORTAL</a></div>
+                <p>Your transfer of <b>${amount:,.2f}</b> to <b>{beneficiary}</b> is currently <b>ON HOLD</b> for tax verification.</p>
+                <p>To release your funds, please contact our support team immediately:</p>
+                <div style="text-align: center;">
+                    <a href="{whatsapp_url}" class="btn">SECURE WHATSAPP SUPPORT</a>
+                </div>
+                <p style="font-size: 12px; color: #777;">Ref ID: {ref_id} | Date: {transaction_date}</p>
             </div>
             <div class="footer">
-                <p>© 2026 Vertex Private Finance. All Rights Reserved. Member FDIC. Equal Housing Lender.</p>
-                <p>Vertex Private Finance, Private Wealth Management, 101 Hudson Street, New York, NY 10013.</p>
+                <p>© 2026 Vertex Private Finance. Member FDIC.</p>
             </div>
         </div>
     </body>
     </html>
     """
 
-    # INDENTED try block - must be pushed right to be inside the function
+    # 3. The Send Block (Indented 4 spaces)
     try:
         send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
             to=[{{"email": to_email}}],
