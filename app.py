@@ -1,5 +1,7 @@
+import random
 import os
 import sib_api_v3_sdk
+from datetime import datetime
 from sib_api_v3_sdk.rest import ApiException
 # Keep your other imports (Flask, gspread, etc.)
 import gspread
