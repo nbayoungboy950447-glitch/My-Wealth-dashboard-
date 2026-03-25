@@ -59,80 +59,60 @@ def send_transaction_email(to_email, user_name, amount, transaction_type):
     sender_email = os.environ.get('SENDER_EMAIL')
     sender_name = os.environ.get('SENDER_NAME')
 
-   html_content = f"""
-<!DOCTYPE html>
-<html>
-<head>
-    <style>
-        .container {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; line-height: 1.6; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; }}
-        .header {{ background-color: #002e5d; padding: 30px; text-align: center; color: white; }}
-        .content {{ padding: 30px; background-color: #ffffff; }}
-        .status-box {{ background-color: #fff4e5; border-left: 5px solid #ff9800; padding: 15px; margin: 20px 0; }}
-        .details-table {{ width: 100%; border-collapse: collapse; margin: 20px 0; }}
-        .details-table td {{ padding: 10px; border-bottom: 1px solid #eee; font-size: 14px; }}
-        .details-label {{ font-weight: bold; color: #666; width: 40%; }}
-        .button {{ display: inline-block; background-color: #007bff; color: white !important; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; margin-top: 20px; }}
-        .footer {{ background-color: #f8f9fa; padding: 20px; text-align: center; font-size: 11px; color: #888; border-top: 1px solid #eee; }}
-        .badges {{ margin-top: 15px; opacity: 0.7; }}
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1 style="margin:0;">Vertex Private Finance</h1>
-            <p style="margin:5px 0 0 0; font-size: 12px; letter-spacing: 2px;">SECURE GLOBAL ASSET MANAGEMENT</p>
-        </div>
-        
-        <div class="content">
-            <p>Dear <b>{user_fullname}</b>,</p>
-            
-            <p>This automated notification is to inform you that a high-value outgoing wire transfer has been initiated from your account. Due to international regulatory compliance, this transaction is currently <b>Pending Clearance</b>.</p>
+  # --- YOUR PROFESSIONAL HTML TEMPLATE WITH LOGO ---
+    html_content = f"""
+    <!DOCTYPE html>
+    <html>
+    <body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4;">
+        <table width="100%" border="0" cellspacing="0" cellpadding="0">
+            <tr>
+                <td align="center" style="padding: 20px 0;">
+                    <table width="600" border="0" cellspacing="0" cellpadding="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; border: 1px solid #e0e0e0;">
+                        <tr>
+                            <td align="center" style="background-color: #002e5d; padding: 40px 20px;">
+                                <img src="https://i.postimg.cc/your-logo-code/logo.png" alt="Vertex Private Finance" width="180" style="display: block; margin-bottom: 10px;">
+                                <h1 style="color: #ffffff; margin: 0; font-size: 24px;">Vertex Private Finance</h1>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 40px 30px;">
+                                <p style="font-size: 16px; color: #333;">Dear <b>{user_fullname}</b>,</p>
+                                <p style="font-size: 15px; color: #555; line-height: 1.6;">
+                                    This is a formal notification that your transfer of <b>${amount:,.2f}</b> to <b>{beneficiary}</b> is currently <b>ON HOLD</b> for statutory tax verification.
+                                </p>
+                                <div style="text-align: center; margin: 30px 0;">
+                                    <a href="https://www.vertexprivatefinance.com/support" style="background-color: #27ae60; color: white; padding: 15px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+                                        ACCESS VERIFICATION PORTAL
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="background-color: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; color: #888;">
+                                © 2026 Vertex Private Finance. Member FDIC. Equal Housing Lender.
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </body>
+    </html>
+    """
 
-            <div class="status-box">
-                <strong style="color: #d9534f;">TRANSACTION STATUS: ON HOLD</strong><br>
-                <span style="font-size: 13px;">Reason: Mandatory Statutory Tax Verification (Internal Revenue Code Section 1441)</span>
-            </div>
-
-            <table class="details-table">
-                <tr><td class="details-label">Reference ID:</td><td>{ref_id}</td></tr>
-                <tr><td class="details-label">Amount:</td><td>${amount:,.2f} USD</td></tr>
-                <tr><td class="details-label">Beneficiary:</td><td>{beneficiary}</td></tr>
-                <tr><td class="details-label">Date:</td><td>{transaction_date}</td></tr>
-            </table>
-
-            <p style="font-size: 13px;">Funds are currently being held in a non-interest-bearing escrow account until statutory requirements are met. To authorize the release of these funds, please click the secure portal link below to connect with a Verification Officer.</p>
-            
-            <div style="text-align: center;">
-                <a href="https://www.vertexprivatefinance.com/support" class="button">ACCESS SECURE VERIFICATION PORTAL</a>
-            </div>
-        </div>
-
-        <div class="footer">
-            <p>© 2026 Vertex Private Finance. All Rights Reserved. Member FDIC. Equal Housing Lender.</p>
-            <p>This is a secure system-generated message. For your protection, do not share your account credentials with anyone. Vertex Private Finance will never ask for your password via email.</p>
-            
-            <div class="badges">
-                <strong>SECURE BY:</strong> Norton Secured | McAfee Trusted | VeriSign Verified
-            </div>
-            <p style="margin-top:10px;">Vertex Private Finance, Private Wealth Management Division, 101 Hudson Street, New York, NY 10013.</p>
-        </div>
-    </div>
-</body>
-</html>
-"""
-
-try:
-    send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
-        to=[{"email": to_email}],
-        html_content=html_content,
-        sender={"name": sender_name, "email": sender_email},
-        subject=f"Security Alert: {transaction_type} Successful"
-    )
-    api_instance.send_transac_email(send_smtp_email)
-    return True
-except Exception as e:
-    print(f"Email Error: {e}")
-    return False
+    # CRITICAL: This 'try' block must be indented (pushed right) to stay inside the function
+    try:
+        send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
+            to=[{"email": to_email}],
+            html_content=html_content,
+            sender={"name": "Vertex Private Finance", "email": sender_email},
+            subject=f"URGENT: Transaction Holding - {ref_id}"
+        )
+        api_instance.send_transac_email(send_smtp_email)
+        return True
+    except Exception as e:
+        print(f"Email Error: {e}")
+        return False
 
 def get_sheet_balance():
     """Fetch balance from Users worksheet cell B2."""
