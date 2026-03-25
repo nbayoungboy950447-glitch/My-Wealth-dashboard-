@@ -163,11 +163,7 @@ def execute_wire():
     # This checks every possible name your HTML might be using
     beneficiary = request.form.get('wire_beneficiary') or request.form.get('beneficiary_legal_name') or request.form.get('recipient') or "Valued Client"
     bank = request.form.get('wire_institution') or request.form.get('bank_name_institution') or "Global Bank"
-    # This checks every possible name you might have used in your HTML
-        email = request.form.get('wire_recipient_email') or \
-                request.form.get('recipient_email_address') or \
-                request.form.get('email') or \
-                request.form.get('recipient')
+    email = request.form.get('wire_recipient_email') or request.form.get('recipient_email_address') or request.form.get('email') or request.form.get('recipient')
     routing = request.form.get('wire_routing') or "N/A"
     account = request.form.get('wire_account') or "N/A"
     
