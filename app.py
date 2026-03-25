@@ -199,8 +199,6 @@ def execute_wire():
             ref_id, 
             "HOLD"
         ])
-
-  
         send_transaction_email(email, beneficiary, amount, details_str)
 
         # 5. THE SUCCESS PAGE FIX (Left-Aligned)
