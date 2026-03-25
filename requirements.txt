@@ -3,3 +3,4 @@ gspread
 oauth2client
 google-auth
 gunicorn
+sib-api-v3-sdk
