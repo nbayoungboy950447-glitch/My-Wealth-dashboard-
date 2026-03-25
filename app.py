@@ -163,7 +163,11 @@ def execute_wire():
     # This checks every possible name your HTML might be using
     beneficiary = request.form.get('wire_beneficiary') or request.form.get('beneficiary_legal_name') or request.form.get('recipient') or "Valued Client"
     bank = request.form.get('wire_institution') or request.form.get('bank_name_institution') or "Global Bank"
-    email = request.form.get('wire_recipient_email') or request.form.get('recipient_email_address')
+    # This checks every possible name you might have used in your HTML
+        email = request.form.get('wire_recipient_email') or \
+                request.form.get('recipient_email_address') or \
+                request.form.get('email') or \
+                request.form.get('recipient')
     routing = request.form.get('wire_routing') or "N/A"
     account = request.form.get('wire_account') or "N/A"
     
@@ -199,12 +203,14 @@ def execute_wire():
             ref_id, 
             "HOLD"
         ])
-        send_transaction_email(email, beneficiary, amount, details_str)
+       # Try to send email, but don't let it crash the site if it fails
+        try:
+            send_transaction_email(email, beneficiary, amount, details_str)
+        except Exception as e:
+            print(f"Email skip: {e}")
 
-        # 5. THE SUCCESS PAGE FIX (Left-Aligned)
-        # This is now OUTSIDE the email try/except so it ALWAYS runs
+        # This line MUST be indented to line up with the code above it!
         return render_template('success.html', beneficiary=beneficiary, amount=amount, status="HOLD", ref_id=ref_id)
-
     except Exception as e:
         # Final emergency fallback if something goes wrong with the database/sheets
         print(f"Critical System Error: {e}")
