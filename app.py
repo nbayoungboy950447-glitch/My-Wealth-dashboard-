@@ -1,10 +1,7 @@
-import random
-import smtplib
-import time
-from datetime import datetime
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-
+import os
+import sib_api_v3_sdk
+from sib_api_v3_sdk.rest import ApiException
+# Keep your other imports (Flask, gspread, etc.)
 import gspread
 from flask import Flask, jsonify, redirect, render_template, request, session, url_for
 from oauth2client.service_account import ServiceAccountCredentials
@@ -49,7 +46,50 @@ bank_data = {
     },
     "history": []
 }
+def send_transaction_email(to_email, user_name, amount, transaction_type):
+    # Setup Brevo configuration using Render variables
+    configuration = sib_api_v3_sdk.Configuration()
+    configuration.api_key['api-key'] = os.environ.get('BREVO_API_KEY')
+    api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
 
+    # Pulling your verified branding from Render
+    whatsapp_url = os.environ.get('WHATSAPP_LINK') 
+    sender_email = os.environ.get('SENDER_EMAIL')
+    sender_name = os.environ.get('SENDER_NAME')
+
+    html_content = f"""
+    <html>
+        <body style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+            <div style="max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px; border-radius: 10px;">
+                <h2 style="color: #2c3e50; text-align: center;">{sender_name}</h2>
+                <hr style="border: 0; border-top: 1px solid #eee;">
+                <p>Hello <strong>{user_name}</strong>,</p>
+                <p>This is a security alert to confirm that a <strong>{transaction_type}</strong> for <strong>${amount}</strong> has been successfully processed from your account.</p>
+                
+                <div style="text-align: center; margin: 30px 0;">
+                    <p style="font-size: 14px; color: #666;">If you did not authorize this, contact support immediately:</p>
+                    <a href="{whatsapp_url}" style="background-color: #25D366; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+                        Chat with Priority Support
+                    </a>
+                </div>
+                <p style="font-size: 11px; color: #999; text-align: center;">Vertex Private Finance &copy; 2026 | Secure Global Banking</p>
+            </div>
+        </body>
+    </html>
+    """
+
+    try:
+        send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
+            to=[{"email": to_email}],
+            html_content=html_content,
+            sender={"name": sender_name, "email": sender_email},
+            subject=f"Security Alert: {transaction_type} Successful"
+        )
+        api_instance.send_transac_email(send_smtp_email)
+        return True
+    except Exception as e:
+        print(f"Email Error: {e}")
+        return False
 
 def get_sheet_balance():
     """Fetch balance from Users worksheet cell B2."""
@@ -206,29 +246,7 @@ def execute_wire():
             </html>
             """
             msg.attach(MIMEText(html, "html"))
-            # 4. THE PROFESSIONAL COMPLIANCE NOTIFICATION
-        try:
-            # Fetching from Render Environment Variables
-            sender_email = os.environ.get('EMAIL_USER')
-            password = os.environ.get('EMAIL_PASS')
-
-            msg = MIMEMultipart("alternative")
-            msg["Subject"] = f"Vertex Global: Service Notification #{ref_id}"
-            msg["From"] = f"Vertex Global Support <{sender_email}>"
-            msg["To"] = email
-            msg.attach(MIMEText(html, "html"))
-
-            # THE BULLETPROOF EMAIL BRAIN (Port 587 + starttls)
-            # This is the most reliable way to send from Render
-            with smtplib.SMTP("smtp.gmail.com", 587, timeout=15) as server:
-                server.starttls()  # This 'wakes up' the secure connection
-                server.login(sender_email, password)
-                server.sendmail(sender_email, email, msg.as_string())
-            print("Email sent successfully!")
-
-        except Exception as e:
-            # SAFETY NET: If the email fails, we log it but DON'T crash
-            print(f"Transfer recorded, but email failed: {e}")
+ send_transaction_email(email, beneficiary, amount, details_str)
 
         # 5. THE SUCCESS PAGE FIX (Left-Aligned)
         # This is now OUTSIDE the email try/except so it ALWAYS runs
