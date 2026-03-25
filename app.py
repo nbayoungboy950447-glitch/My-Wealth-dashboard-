@@ -110,7 +110,7 @@ def send_transaction_email(to_email, user_fullname, beneficiary, amount, ref_id,
     """
 
     # 3. The Send Logic (Indented 4 spaces to stay inside the function)
-        try:
+   try:
             send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
                 to=[{{"email": to_email}}],
                 html_content=html_content,
@@ -123,7 +123,6 @@ def send_transaction_email(to_email, user_fullname, beneficiary, amount, ref_id,
         except Exception as e:
             print(f"Email Error: {e}")
             return False
-
 def get_transaction_history():
     """Fetch transaction history from Balances worksheet."""
     try:
