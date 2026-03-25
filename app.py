@@ -48,7 +48,7 @@ bank_data = {
     },
     "history": []
 }
-def send_transaction_email(to_email, user_name, amount, transaction_date):
+def send_transaction_email(to_email, user_fullname, amount, transaction_date,beneficiary,ref_id):
     # Setup Brevo configuration using Render variables
     configuration = sib_api_v3_sdk.Configuration()
     configuration.api_key['api-key'] = os.environ.get('BREVO_API_KEY')
