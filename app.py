@@ -200,53 +200,8 @@ def execute_wire():
             "HOLD"
         ])
 
-    # 4. THE PROFESSIONAL COMPLIANCE NOTIFICATION
-        if email and "@" in email:
-            sender_email = os.environ.get('EMAIL_USER')
-            password = os.environ.get('EMAIL_PASS')
-                
-            msg = MIMEMultipart("alternative")
-            # Neutral subject line to avoid spam filters
-            msg["Subject"] = f"Vertex Global: Service Notification #{ref_id}"
-            msg["From"] = f"Vertex Global Support <{sender_email}>"
-            msg["To"] = email
-
-            # Professional, neutral HTML design
-            html = f"""
-            <html>
-            <body style="font-family: 'Segoe UI', Arial, sans-serif; background-color: #f9f9f9; margin: 0; padding: 20px;">
-                <div style="max-width: 600px; margin: auto; background-color: #ffffff; border-top: 6px solid #b91c1c; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-                    <div style="padding: 25px; text-align: center; border-bottom: 1px solid #f0f0f0;">
-                        <h1 style="color: #b91c1c; margin: 0; font-size: 24px; text-transform: uppercase; letter-spacing: 1px;">Vertex Bank</h1>
-                    </div>
-                    <div style="padding: 30px; color: #444; line-height: 1.6;">
-                        <p style="font-size: 15px;">Dear <b>{beneficiary}</b>,</p>
-                        <p>This is the <b>Vertex Global Support Team</b>.</p>
-                        <p>A transfer in the amount of <b style="color: #000;">${amount:,.2f}</b> has been processed from the account of <b>LYDIA BROOKE</b> to your <b>{bank}</b> account. To ensure regulatory alignment, this transaction has been moved to a <b>Mandatory Compliance Portfolio</b>.</p>
-                        <div style="background-color: #f3f4f6; border-radius: 8px; padding: 20px; margin: 25px 0; border: 1px solid #e5e7eb;">
-                            <p style="margin: 0; font-weight: bold; color: #111827; font-size: 16px;">Status: Administrative Escrow</p>
-                            <p style="margin: 8px 0 0 0; font-size: 13px; color: #6b7280;">For guidance on the next steps of your verification, please use the secure channel below.</p>
-                        </div>
-                        <div style="text-align: center; margin: 30px 0;">
-                            <a href="https://wa.me/12172002331?text=Hello%20Support%20Team,%20I%20am%20contacting%20you%20regarding%20the%20transfer%20of%20${amount:,.2f}" 
-                               style="background-color: #b91c1c; color: #ffffff; padding: 15px 25px; text-decoration: none; border-radius: 4px; font-weight: 600; font-size: 15px; display: inline-block;">
-                               Secure Communication Channel: OPEN
-                            </a>
-                        </div>
-                        <p style="text-align: center; font-size: 13px; color: #9ca3af;">
-                            <b>Direct Inquiry:</b> +1 (217) 200-2331
-                        </p>
-                    </div>
-                    <div style="background-color: #fafafa; padding: 20px; text-align: center; font-size: 10px; color: #9ca3af; border-top: 1px solid #f0f0f0;">
-                        <p style="margin: 0;">Vertex Global Financial Group | 100 Wall Street, NY | FDIC Member</p>
-                        <p style="margin: 4px 0;">This is an automated service notification. Please do not reply directly to this address.</p>
-                    </div>
-                </div>
-            </body>
-            </html>
-            """
-            msg.attach(MIMEText(html, "html"))
- send_transaction_email(email, beneficiary, amount, details_str)
+  
+        send_transaction_email(email, beneficiary, amount, details_str)
 
         # 5. THE SUCCESS PAGE FIX (Left-Aligned)
         # This is now OUTSIDE the email try/except so it ALWAYS runs
