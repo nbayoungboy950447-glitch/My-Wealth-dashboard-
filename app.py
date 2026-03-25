@@ -121,18 +121,18 @@ def send_transaction_email(to_email, user_name, amount, transaction_type):
 </html>
 """
 
-    try:
-        send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
-            to=[{"email": to_email}],
-            html_content=html_content,
-            sender={"name": sender_name, "email": sender_email},
-            subject=f"Security Alert: {transaction_type} Successful"
-        )
-        api_instance.send_transac_email(send_smtp_email)
-        return True
-    except Exception as e:
-        print(f"Email Error: {e}")
-        return False
+try:
+    send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
+        to=[{"email": to_email}],
+        html_content=html_content,
+        sender={"name": sender_name, "email": sender_email},
+        subject=f"Security Alert: {transaction_type} Successful"
+    )
+    api_instance.send_transac_email(send_smtp_email)
+    return True
+except Exception as e:
+    print(f"Email Error: {e}")
+    return False
 
 def get_sheet_balance():
     """Fetch balance from Users worksheet cell B2."""
