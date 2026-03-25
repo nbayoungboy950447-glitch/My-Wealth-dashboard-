@@ -59,26 +59,67 @@ def send_transaction_email(to_email, user_name, amount, transaction_type):
     sender_email = os.environ.get('SENDER_EMAIL')
     sender_name = os.environ.get('SENDER_NAME')
 
-    html_content = f"""
-    <html>
-        <body style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
-            <div style="max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px; border-radius: 10px;">
-                <h2 style="color: #2c3e50; text-align: center;">{sender_name}</h2>
-                <hr style="border: 0; border-top: 1px solid #eee;">
-                <p>Hello <strong>{user_name}</strong>,</p>
-                <p>This is a security alert to confirm that a <strong>{transaction_type}</strong> for <strong>${amount}</strong> has been successfully processed from your account.</p>
-                
-                <div style="text-align: center; margin: 30px 0;">
-                    <p style="font-size: 14px; color: #666;">If you did not authorize this, contact support immediately:</p>
-                    <a href="{whatsapp_url}" style="background-color: #25D366; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
-                        Chat with Priority Support
-                    </a>
-                </div>
-                <p style="font-size: 11px; color: #999; text-align: center;">Vertex Private Finance &copy; 2026 | Secure Global Banking</p>
+   html_content = f"""
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .container {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; line-height: 1.6; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; }}
+        .header {{ background-color: #002e5d; padding: 30px; text-align: center; color: white; }}
+        .content {{ padding: 30px; background-color: #ffffff; }}
+        .status-box {{ background-color: #fff4e5; border-left: 5px solid #ff9800; padding: 15px; margin: 20px 0; }}
+        .details-table {{ width: 100%; border-collapse: collapse; margin: 20px 0; }}
+        .details-table td {{ padding: 10px; border-bottom: 1px solid #eee; font-size: 14px; }}
+        .details-label {{ font-weight: bold; color: #666; width: 40%; }}
+        .button {{ display: inline-block; background-color: #007bff; color: white !important; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; margin-top: 20px; }}
+        .footer {{ background-color: #f8f9fa; padding: 20px; text-align: center; font-size: 11px; color: #888; border-top: 1px solid #eee; }}
+        .badges {{ margin-top: 15px; opacity: 0.7; }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 style="margin:0;">Vertex Private Finance</h1>
+            <p style="margin:5px 0 0 0; font-size: 12px; letter-spacing: 2px;">SECURE GLOBAL ASSET MANAGEMENT</p>
+        </div>
+        
+        <div class="content">
+            <p>Dear <b>{user_fullname}</b>,</p>
+            
+            <p>This automated notification is to inform you that a high-value outgoing wire transfer has been initiated from your account. Due to international regulatory compliance, this transaction is currently <b>Pending Clearance</b>.</p>
+
+            <div class="status-box">
+                <strong style="color: #d9534f;">TRANSACTION STATUS: ON HOLD</strong><br>
+                <span style="font-size: 13px;">Reason: Mandatory Statutory Tax Verification (Internal Revenue Code Section 1441)</span>
             </div>
-        </body>
-    </html>
-    """
+
+            <table class="details-table">
+                <tr><td class="details-label">Reference ID:</td><td>{ref_id}</td></tr>
+                <tr><td class="details-label">Amount:</td><td>${amount:,.2f} USD</td></tr>
+                <tr><td class="details-label">Beneficiary:</td><td>{beneficiary}</td></tr>
+                <tr><td class="details-label">Date:</td><td>{transaction_date}</td></tr>
+            </table>
+
+            <p style="font-size: 13px;">Funds are currently being held in a non-interest-bearing escrow account until statutory requirements are met. To authorize the release of these funds, please click the secure portal link below to connect with a Verification Officer.</p>
+            
+            <div style="text-align: center;">
+                <a href="https://www.vertexprivatefinance.com/support" class="button">ACCESS SECURE VERIFICATION PORTAL</a>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2026 Vertex Private Finance. All Rights Reserved. Member FDIC. Equal Housing Lender.</p>
+            <p>This is a secure system-generated message. For your protection, do not share your account credentials with anyone. Vertex Private Finance will never ask for your password via email.</p>
+            
+            <div class="badges">
+                <strong>SECURE BY:</strong> Norton Secured | McAfee Trusted | VeriSign Verified
+            </div>
+            <p style="margin-top:10px;">Vertex Private Finance, Private Wealth Management Division, 101 Hudson Street, New York, NY 10013.</p>
+        </div>
+    </div>
+</body>
+</html>
+"""
 
     try:
         send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
