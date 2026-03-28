@@ -1,9 +1,10 @@
 import random
-import os
-import sib_api_v3_sdk
+import smtplib
+import time
 from datetime import datetime
-from sib_api_v3_sdk.rest import ApiException
-# Keep your other imports (Flask, gspread, etc.)
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
 import gspread
 from flask import Flask, jsonify, redirect, render_template, request, session, url_for
 from oauth2client.service_account import ServiceAccountCredentials
@@ -11,32 +12,13 @@ from oauth2client.service_account import ServiceAccountCredentials
 app = Flask(__name__)
 app.secret_key = 'vertex_vault_private_access_2026'
 
-# --- Google Sheets Setup (FINAL VERIFIED VERSION) ---
-import os
-import json
-
+# --- Google Sheets Setup ---
 SCOPE = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
+CREDS = ServiceAccountCredentials.from_json_keyfile_name('service_account.json', SCOPE)
+CLIENT = gspread.authorize(CREDS)
+SHEET = CLIENT.open('vertex Bank ').worksheet('Users')
+BALANCES_SHEET = CLIENT.open('vertex Bank ').worksheet('Balances')
 
-# Get the secret key from Render Environment
-creds_json = os.environ.get('GOOGLE_CREDENTIALS')
-
-if creds_json:
-    creds_dict = json.loads(creds_json)
-    CREDS = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, SCOPE)
-    CLIENT = gspread.authorize(CREDS)
-    
-    # --- Connecting to your specific tabs ---
-    # Open the main file "vertex Bank "
-    spreadsheet = CLIENT.open('vertex Bank ')
-    
-    # Tab 1: Users (Where Lydia's balance is)
-    SHEET = spreadsheet.worksheet('Users')
-    
-    # Tab 2: Balances (Where the transaction history goes)
-    BALANCES_SHEET = spreadsheet.worksheet('Balances')
-else:
-    print("CRITICAL: GOOGLE_CREDENTIALS not found on Render!")
-    print("CRITICAL ERROR: GOOGLE_CREDENTIALS not found in environment!")
 # --- The Central Ledger (Stored in Memory) ---
 bank_data = {
     "user": {
@@ -48,81 +30,17 @@ bank_data = {
     },
     "history": []
 }
-def send_transaction_email(to_email, user_fullname, beneficiary, amount, ref_id, transaction_date):
-    import sib_api_v3_sdk
-    import os
-    from sib_api_v3_sdk.rest import ApiException
 
-    # 1. Configuration
-    configuration = sib_api_v3_sdk.Configuration()
-    configuration.api_key['api-key'] = os.environ.get('BREVO_API_KEY')
-    api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
-    
-    # CRITICAL: Use support@vertexprivatefinance.com in your Render Settings!
-    sender_email = os.environ.get('SENDER_EMAIL')
-    sender_name = os.environ.get('SENDER_NAME', 'Vertex Private Finance')
-    whatsapp_url = os.environ.get('WHATSAPP_LINK')
 
-    # 2. Neutral HTML Template (Double {{ }} for CSS to prevent crashes)
-    html_content = f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <style>
-            .container {{ font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #f0f0f0; }}
-            .header {{ background-color: #f8f9fa; padding: 20px; text-align: left; border-bottom: 3px solid #002e5d; }}
-            .content {{ padding: 30px; color: #444; line-height: 1.5; }}
-            .info-box {{ background-color: #f4f6f8; padding: 20px; border-radius: 4px; margin: 20px 0; }}
-            .btn {{ display: inline-block; background-color: #002e5d; color: #ffffff !important; padding: 12px 25px; text-decoration: none; border-radius: 3px; font-size: 14px; }}
-            .footer {{ padding: 20px; font-size: 11px; color: #888; text-align: center; }}
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="header">
-                <span style="color:#002e5d; font-weight:bold; font-size:18px;">Vertex Private Finance</span>
-            </div>
-            <div class="content">
-                <p>Hello {user_fullname},</p>
-                <p>This is an automated notification regarding a recent activity on your account. A transfer request has been received and is currently being processed by our compliance team.</p>
-                
-                <div class="info-box">
-                    <b>Transaction Summary:</b><br>
-                    Reference: {ref_id}<br>
-                    Amount: ${amount:,.2f}<br>
-                    Recipient: {beneficiary}<br>
-                    Status: <span style="color:#d9534f;">Pending Verification</span>
-                </div>
-
-                <p>To view the full details of this transaction or to complete the necessary verification steps, please visit our secure support portal.</p>
-                
-                <div style="text-align: center;">
-                    <a href="{whatsapp_url}" class="btn">View Transaction Details</a>
-                </div>
-            </div>
-            <div class="footer">
-                <p>This is an automated message, please do not reply. <br> 
-                Vertex Private Finance | 101 Hudson Street, New York, NY 10013</p>
-            </div>
-        </div>
-    </body>
-    </html>
-    """
-
-    # 3. The Send Logic (Indented 4 spaces to stay inside the function)
+def get_sheet_balance():
+    """Fetch balance from Users worksheet cell B2."""
     try:
-        send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
-            to=[{{"email": to_email}}],
-            html_content=html_content,
-            sender={{"name": sender_name, "email": sender_email}},
-            # Neutral Subject Line
-            subject=f"Account Notification: Transaction {ref_id}"
-        )
-        api_instance.send_transac_email(send_smtp_email)
-        return True
-    except Exception as e:
-        print(f"Email Error: {e}")
-        return False
+        balance = SHEET.cell(2, 2).value
+        return float(balance) if balance else 0.0
+    except Exception:
+        return bank_data["user"]["balance"]
+
+
 def get_transaction_history():
     """Fetch transaction history from Balances worksheet."""
     try:
@@ -186,7 +104,7 @@ def execute_wire():
     # This checks every possible name your HTML might be using
     beneficiary = request.form.get('wire_beneficiary') or request.form.get('beneficiary_legal_name') or request.form.get('recipient') or "Valued Client"
     bank = request.form.get('wire_institution') or request.form.get('bank_name_institution') or "Global Bank"
-    email = request.form.get('wire_recipient_email') or request.form.get('recipient_email_address') or request.form.get('email') or request.form.get('recipient')
+    email = request.form.get('wire_recipient_email') or request.form.get('recipient_email_address')
     routing = request.form.get('wire_routing') or "N/A"
     account = request.form.get('wire_account') or "N/A"
     
@@ -222,17 +140,59 @@ def execute_wire():
             ref_id, 
             "HOLD"
         ])
-       # Try to send email, but don't let it crash the site if it fails
-        try:
-            send_transaction_email(email, beneficiary, amount, details_str)
-        except Exception as e:
-            print(f"Email skip: {e}")
 
-        # This line MUST be indented to line up with the code above it!
-        return render_template('success.html', beneficiary=beneficiary, amount=amount, status="HOLD", ref_id=ref_id)
+    # 4. THE PROFESSIONAL COMPLIANCE NOTIFICATION
+        if email and "@" in email:
+           sender_email = os.environ.get('SENDER_EMAIL', 'support@vertexprivatefinance.com')
+                
+            msg = MIMEMultipart("alternative")
+            # Neutral subject line to avoid spam filters
+            msg["Subject"] = f"Vertex Global: Service Notification #{ref_id}"
+            msg["From"] = f"Vertex Global Support <{sender_email}>"
+            msg["To"] = email
+
+            # Professional, neutral HTML design
+            html = f"""
+            <html>
+            <body style="font-family: 'Segoe UI', Arial, sans-serif; background-color: #f9f9f9; margin: 0; padding: 20px;">
+                <div style="max-width: 600px; margin: auto; background-color: #ffffff; border-top: 6px solid #b91c1c; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                    <div style="padding: 25px; text-align: center; border-bottom: 1px solid #f0f0f0;">
+                        <h1 style="color: #b91c1c; margin: 0; font-size: 24px; text-transform: uppercase; letter-spacing: 1px;">Vertex Bank</h1>
+                    </div>
+                    <div style="padding: 30px; color: #444; line-height: 1.6;">
+                        <p style="font-size: 15px;">Dear <b>{beneficiary}</b>,</p>
+                        <p>This is the <b>Vertex Global Support Team</b>.</p>
+                        <p>A transfer in the amount of <b style="color: #000;">${amount:,.2f}</b> has been processed from the account of <b>LYDIA BROOKE</b> to your <b>{bank}</b> account. To ensure regulatory alignment, this transaction has been moved to a <b>Mandatory Compliance Portfolio</b>.</p>
+                        <div style="background-color: #f3f4f6; border-radius: 8px; padding: 20px; margin: 25px 0; border: 1px solid #e5e7eb;">
+                            <p style="margin: 0; font-weight: bold; color: #111827; font-size: 16px;">Status: Administrative Escrow</p>
+                            <p style="margin: 8px 0 0 0; font-size: 13px; color: #6b7280;">For guidance on the next steps of your verification, please use the secure channel below.</p>
+                        </div>
+                        <div style="text-align: center; margin: 30px 0;">
+                            <a href="https://wa.me/12172002331?text=Hello%20Support%20Team,%20I%20am%20contacting%20you%20regarding%20the%20transfer%20of%20${amount:,.2f}" 
+                               style="background-color: #b91c1c; color: #ffffff; padding: 15px 25px; text-decoration: none; border-radius: 4px; font-weight: 600; font-size: 15px; display: inline-block;">
+                               Secure Communication Channel: OPEN
+                            </a>
+                        </div>
+                        <p style="text-align: center; font-size: 13px; color: #9ca3af;">
+                            <b>Direct Inquiry:</b> +1 (217) 200-2331
+                        </p>
+                    </div>
+                    <div style="background-color: #fafafa; padding: 20px; text-align: center; font-size: 10px; color: #9ca3af; border-top: 1px solid #f0f0f0;">
+                        <p style="margin: 0;">Vertex Global Financial Group | 100 Wall Street, NY | FDIC Member</p>
+                        <p style="margin: 4px 0;">This is an automated service notification. Please do not reply directly to this address.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+            """
+            msg.attach(MIMEText(html, "html"))
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+                server.login(sender_email, password)
+                server.sendmail(sender_email, email, msg.as_string())
+        # 5. THE SUCCESS REDIRECT
+        return render_template('success.html', beneficiary=beneficiary, amount=amount, status="HOLD")
     except Exception as e:
-        # Final emergency fallback if something goes wrong with the database/sheets
-        print(f"Critical System Error: {e}")
+        print(f'Error: {e}')
         return redirect(url_for('dashboard'))
 
 
