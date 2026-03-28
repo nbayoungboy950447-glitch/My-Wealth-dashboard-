@@ -1,5 +1,6 @@
 import random
 import os
+import json
 import requests        # ← new
 import time
 from datetime import datetime
@@ -11,7 +12,9 @@ app.secret_key = 'vertex_vault_private_access_2026'
 
 # --- Google Sheets Setup ---
 SCOPE = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-CREDS = ServiceAccountCredentials.from_json_keyfile_name('service_account.json', SCOPE)
+credentials_json = os.environ.get('GOOGLE_CREDENTIALS')
+credentials_dict = json.loads(credentials_json)
+CREDS = ServiceAccountCredentials.from_json_keyfile_dict(credentials_dict, SCOPE)
 CLIENT = gspread.authorize(CREDS)
 SHEET = CLIENT.open('vertex Bank ').worksheet('Users')
 BALANCES_SHEET = CLIENT.open('vertex Bank ').worksheet('Balances')
