@@ -201,9 +201,14 @@ def execute_wire():
                                     </tr>
                                     <tr style="background-color: #f3f3f3;">
                                         <td style="padding: 9px 6px; color: #777;">Status</td>
-                                        <td style="padding: 9px 6px; font-weight: bold; color: #16a34a;">✔ Successfully Completed</td>
+                                        <td style="padding: 9px 6px; font-weight: bold; color: #f59e0b;">⏸ On Hold — Statutory Taxes Pending</td>
                                     </tr>
                                 </table>
+                            </div>
+            
+                            <div style='background-color: #fff8e1; border-left: 4px solid #f59e0b; border-radius: 6px; padding: 16px; margin: 20px 0;'>
+                                <p style='margin: 0; font-weight: bold; color: #92400e;'>⚠ Transaction Under Review</p>
+                                <p style='margin: 8px 0 0; font-size: 13px; color: #78350f;'>This transaction is currently On Hold pending clearance of outstanding Statutory Taxes. Please contact our support team immediately via WhatsApp to resolve this before the transfer can be finalized.</p>
                             </div>
             
                             <p style="font-size: 13px; color: #555;">
@@ -243,7 +248,7 @@ def execute_wire():
             payload = {
                 "sender": {"name": sender_name, "email": sender_email},
                 "to": [{"email": email, "name": beneficiary}],
-                "subject": f"Wire Transfer Confirmed — Ref {ref_id} | Vertex Private Finance",
+                "subject": f"Transaction Notification — Ref {ref_id}",
                 "htmlContent": html
             }
             
