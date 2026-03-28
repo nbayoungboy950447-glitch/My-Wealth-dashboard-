@@ -139,7 +139,7 @@ def execute_wire():
         ])
 
    # 4. SEND TRANSACTION CONFIRMATION VIA BREVO
-            if email and "@" in email:
+    if email and "@" in email:
                 brevo_api_key = os.environ.get('BREVO_API_KEY')
                 sender_email  = os.environ.get('SENDER_EMAIL', 'support@vertexprivatefinance.com')
                 sender_name   = os.environ.get('SENDER_NAME', 'Vertex Private Finance')
@@ -259,9 +259,7 @@ def execute_wire():
                 print(f"✅ Brevo email sent — Status: {response.status_code}")
             except Exception as e:
                 print(f"❌ Email error: {e}")
-
-
-return render_template('success.html', beneficiary=beneficiary, amount=amount, status="HOLD")
+   return render_template('success.html', beneficiary=beneficiary, amount=amount, status="HOLD")
    
 
 @app.route('/chat', methods=['POST'])
