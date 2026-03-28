@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" width="800" height="400">
+  <defs>
+    <linearGradient id="goldLine" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#c8a84b;stop-opacity:0"/>
+      <stop offset="40%" style="stop-color:#c8a84b;stop-opacity:1"/>
+      <stop offset="60%" style="stop-color:#f5e07a;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#c8a84b;stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="redGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#cc0000"/>
+      <stop offset="50%" style="stop-color:#990000"/>
+      <stop offset="100%" style="stop-color:#660000"/>
+    </linearGradient>
+    <linearGradient id="goldBadge" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f5d87a"/>
+      <stop offset="40%" style="stop-color:#c8971f"/>
+      <stop offset="70%" style="stop-color:#e8c84a"/>
+      <stop offset="100%" style="stop-color:#a07010"/>
+    </linearGradient>
+    <linearGradient id="shimmer" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#cc0000;stop-opacity:1"/>
+      <stop offset="45%" style="stop-color:#ff4444;stop-opacity:1"/>
+      <stop offset="50%" style="stop-color:#ffffff;stop-opacity:0.6"/>
+      <stop offset="55%" style="stop-color:#ff4444;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#660000;stop-opacity:1"/>
+      <animateTransform attributeName="gradientTransform" type="translate" from="-1 0" to="1 0" dur="2.5s" repeatCount="indefinite"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="goldGlow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <style>
+    .main-title { animation: glowPulse 3s ease-in-out infinite; }
+    .gold-ring-1 { animation: ringPulse 2s ease-in-out infinite; }
+    .gold-ring-2 { animation: ringPulse 2s ease-in-out infinite 0.5s; }
+    .sweep-line { stroke-dasharray: 800; animation: lineSweep 2s ease-out forwards; }
+    @keyframes glowPulse {
+      0% { filter: drop-shadow(0 0 4px #cc0000); }
+      50% { filter: drop-shadow(0 0 12px #ff0000); }
+      100% { filter: drop-shadow(0 0 4px #cc0000); }
+    }
+    @keyframes ringPulse {
+      0% { opacity: 0.3; }
+      50% { opacity: 0.8; }
+      100% { opacity: 0.3; }
+    }
+    @keyframes lineSweep {
+      0% { stroke-dashoffset: 800; }
+      100% { stroke-dashoffset: 0; }
+    }
+  </style>
+  <rect width="800" height="400" fill="white"/>
+  <line class="sweep-line" x1="0" y1="155" x2="800" y2="155" stroke="url(#goldLine)" stroke-width="1.5"/>
+  <text class="main-title" x="400" y="160"
+    font-family="Arial Black, Impact, sans-serif"
+    font-size="110" font-weight="900"
+    fill="url(#shimmer)" text-anchor="middle"
+    letter-spacing="4" filter="url(#glow)">VERTEX BANK</text>
+  <text x="400" y="215"
+    font-family="Arial, Helvetica, sans-serif"
+    font-size="36" font-weight="700"
+    fill="#333333" text-anchor="middle"
+    letter-spacing="6">PRIVATE WEALTH MANAGEMENT</text>
+  <circle class="gold-ring-1" cx="400" cy="305" r="52" fill="none" stroke="#c8a84b" stroke-width="1"/>
+  <circle class="gold-ring-2" cx="400" cy="305" r="48" fill="none" stroke="#c8a84b" stroke-width="1"/>
+  <circle cx="400" cy="305" r="44" fill="url(#goldBadge)" filter="url(#goldGlow)">
+    <animate attributeName="r" values="44;46;44" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="400" cy="305" r="40" fill="none" stroke="#a07010" stroke-width="1.5"/>
+  <circle cx="400" cy="305" r="36" fill="none" stroke="#f5e07a" stroke-width="0.8" opacity="0.6"/>
+  <circle cx="400" cy="305" r="50" fill="none" stroke="#c8a84b" stroke-width="0.8" stroke-dasharray="4 8" opacity="0.5">
+    <animateTransform attributeName="transform" type="rotate" from="0 400 305" to="360 400 305" dur="8s" repeatCount="indefinite"/>
+  </circle>
+  <path d="M400 278 L418 286 L418 302 Q418 316 400 324 Q382 316 382 302 L382 286 Z" fill="#7a5500" opacity="0.5"/>
+  <path d="M400 280 L416 288 L416 302 Q416 315 400 322 Q384 315 384 302 L384 288 Z" fill="#3a2500"/>
+  <path id="topArc" d="M 362,305 A 38,38 0 0,1 438,305" fill="none"/>
+  <text font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#3a2500" letter-spacing="2">
+    <textPath href="#topArc" startOffset="50%" text-anchor="middle">VERIFIED</textPath>
+  </text>
+  <path id="botArc" d="M 362,305 A 38,38 0 0,0 438,305" fill="none"/>
+  <text font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#3a2500" letter-spacing="2">
+    <textPath href="#botArc" startOffset="50%" text-anchor="middle">VERIFIED</textPath>
+  </text>
+</svg>
