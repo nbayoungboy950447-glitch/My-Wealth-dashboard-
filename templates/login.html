@@ -14,82 +14,927 @@
 
     <link rel="apple-touch-icon" href="{{ url_for('static', filename='logo.png') }}">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Font Awesome loaded non-render-blocking -->
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
     <style>
         .vx-red { background-color: #d71e28; }
         .vx-text-red { color: #d71e28; }
-        .bg-institutional { 
-            background: linear-gradient(rgba(248,250,252,0.94), rgba(248,250,252,0.94)), 
-            url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070');
-            background-size: cover; background-position: center;
+        .bg-video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background-color: #0b0b10;
+            z-index: -1;
+            pointer-events: none;
+        }
+        .bg-video-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 0;
+            pointer-events: none;
+        }
+        .page-content {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
         .ticker-wrap { width: 100%; overflow: hidden; background: #1a1a1a; padding: 10px 0; position: fixed; bottom: 0; }
         .ticker { display: inline-block; white-space: nowrap; animation: ticker 45s linear infinite; color: #ffbf00; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; }
         @keyframes ticker { 0% { transform: translate3d(0,0,0); } 100% { transform: translate3d(-100%,0,0); } }
         #loadingOverlay { display: none; backdrop-filter: blur(10px); background: rgba(255,255,255,0.8); }
+        .reset-modal-backdrop { background: rgba(15, 9, 9, 0.72); backdrop-filter: blur(6px); }
+        .reset-modal {
+            background: linear-gradient(160deg, #2b0f12 0%, #4a1318 100%);
+            border: 1px solid rgba(212, 175, 55, 0.5);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(212, 175, 55, 0.2);
+        }
+        .reset-modal-icon {
+            width: 3.25rem;
+            height: 3.25rem;
+            border-radius: 9999px;
+            background: radial-gradient(circle at 30% 25%, #f5d77f, #d4af37);
+            color: #4a1318;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 25px rgba(212, 175, 55, 0.35);
+        }
+        .menu-toggle {
+            position: fixed;
+            top: 1.25rem;
+            left: 1.25rem;
+            z-index: 35;
+            width: 2.9rem;
+            height: 2.9rem;
+            border-radius: 0.85rem;
+            border: 1px solid rgba(212, 175, 55, 0.6);
+            background: linear-gradient(145deg, rgba(74, 19, 24, 0.92), rgba(43, 15, 18, 0.95));
+            color: #f5d77f;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+            transition: transform 0.25s ease, filter 0.25s ease;
+        }
+        .menu-toggle:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.08);
+        }
+        .sidebar-backdrop {
+            background: rgba(0, 0, 0, 0.45);
+            backdrop-filter: blur(2px);
+        }
+        .sidebar-panel {
+            background: rgba(255,255,255,0.12);
+            backdrop-filter: blur(25px) saturate(180%);
+            -webkit-backdrop-filter: blur(25px) saturate(180%);
+            border-right: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 4px 0 30px rgba(0,0,0,0.3);
+            height: 100vh;
+        }
+        .sidebar-kicker {
+            color: #c08b0d;
+            font-size: 0.6rem;
+            font-weight: 900;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            margin-top: 0.35rem;
+        }
+        .sidebar-search {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+        .sidebar-search i {
+            position: absolute;
+            left: 0.85rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.8rem;
+            color: #9ca3af;
+        }
+        .sidebar-search input {
+            width: 100%;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.15);
+            color: #ffffff;
+            font-size: 0.78rem;
+            border-radius: 0.85rem;
+            padding: 0.7rem 0.8rem 0.7rem 2.3rem;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .sidebar-search input::placeholder {
+            color: rgba(255,255,255,0.72);
+        }
+        .sidebar-search input:focus {
+            border-color: rgba(200,151,31,0.6);
+            box-shadow: 0 0 0 3px rgba(200,151,31,0.22);
+        }
+        .sidebar-section {
+            margin-bottom: 1rem;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.16);
+            border-radius: 0.95rem;
+            overflow: hidden;
+        }
+        .sidebar-section-title {
+            background: rgba(200,151,31,0.25);
+            color: #f3d37a;
+            font-size: 0.62rem;
+            font-weight: 900;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            padding: 0.62rem 0.95rem;
+        }
+        .sidebar-about {
+            color: #f8fafc;
+            font-size: 0.75rem;
+            line-height: 1.6;
+            padding: 0.95rem;
+        }
+        .sidebar-list {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+        .sidebar-link {
+            color: #ffffff;
+            font-size: 0.73rem;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            padding: 0.75rem 0.95rem;
+            border-bottom: 1px solid rgba(255,255,255,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            background: transparent;
+            text-align: left;
+            font-weight: 800;
+            cursor: pointer;
+            transition: background-color 0.2s ease, color 0.2s ease, padding-left 0.2s ease;
+        }
+        .sidebar-link:hover,
+        .sidebar-link:focus-visible {
+            background: rgba(200,151,31,0.2);
+            color: #ffffff;
+            padding-left: 1.1rem;
+            outline: none;
+        }
+        .sidebar-link-main {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.62rem;
+        }
+        .sidebar-link-main i {
+            width: 0.95rem;
+            color: rgba(255,255,255,0.82);
+            font-size: 0.8rem;
+            text-align: center;
+        }
+        .sidebar-link-arrow {
+            color: rgba(255,255,255,0.78);
+            font-size: 0.9rem;
+            line-height: 1;
+        }
+        .sidebar-link:hover .sidebar-link-main i,
+        .sidebar-link:hover .sidebar-link-arrow,
+        .sidebar-link:focus-visible .sidebar-link-main i,
+        .sidebar-link:focus-visible .sidebar-link-arrow {
+            color: #f3d37a;
+        }
+        .sidebar-list li:last-child .sidebar-link {
+            border-bottom: 0;
+        }
+        .sidebar-contact {
+            display: flex;
+            flex-direction: column;
+            gap: 0.55rem;
+            padding: 0.95rem;
+        }
+        .sidebar-promo-wrap {
+            margin-top: 1.1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.7rem;
+        }
+        .sidebar-promo {
+            border-radius: 0.95rem;
+            padding: 0.85rem 0.95rem;
+            border: 1px solid rgba(200,151,31,0.4);
+            background: rgba(255,255,255,0.1);
+            color: #f3d37a;
+            font-size: 0.72rem;
+            line-height: 1.45;
+            font-weight: 800;
+            text-decoration: none;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .sidebar-promo:hover,
+        .sidebar-promo:focus-visible {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 18px rgba(0,0,0,0.3);
+            outline: none;
+        }
+        .info-modal-backdrop {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(3px);
+        }
+        .info-modal-card {
+            background: #ffffff;
+            border: 1px solid rgba(15, 23, 42, 0.1);
+            box-shadow: 0 24px 50px rgba(0, 0, 0, 0.32);
+        }
+        .info-modal-head {
+            background: linear-gradient(150deg, #4a1318, #7a1e24);
+        }
+        /* ── Scroll-reveal animation ── */
+        .reveal {
+            opacity: 0;
+            transform: translateY(36px);
+            transition: opacity 0.65s ease, transform 0.65s ease;
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+        .landing-shell {
+            max-width: 1120px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+        .hero-wrap {
+            padding-top: 5.75rem;
+            padding-bottom: 4rem;
+        }
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.75rem;
+            align-items: start;
+        }
+        .hero-panel {
+            background: linear-gradient(145deg, rgba(33, 12, 15, 0.78), rgba(68, 18, 24, 0.65));
+            border: 1px solid rgba(212, 175, 55, 0.35);
+            border-radius: 1.75rem;
+            padding: 2rem;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
+        }
+        .hero-kicker {
+            color: #f4cd62;
+            font-size: 0.65rem;
+            font-weight: 900;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            margin-bottom: 0.85rem;
+        }
+        .hero-title {
+            color: #ffffff;
+            font-size: clamp(2rem, 4.6vw, 3.45rem);
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            line-height: 1.05;
+        }
+        .hero-copy {
+            color: rgba(255, 255, 255, 0.83);
+            font-size: 0.9rem;
+            line-height: 1.7;
+            margin-top: 1rem;
+            max-width: 40ch;
+        }
+        .hero-meta {
+            display: flex;
+            gap: 1.15rem;
+            flex-wrap: wrap;
+            margin-top: 1.4rem;
+        }
+        .hero-chip {
+            font-size: 0.62rem;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            font-weight: 900;
+            color: #f6d37d;
+            background: rgba(212, 175, 55, 0.16);
+            border: 1px solid rgba(212, 175, 55, 0.35);
+            border-radius: 999px;
+            padding: 0.48rem 0.75rem;
+        }
+        .login-shell {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(241, 245, 249, 0.6);
+            border-radius: 2rem;
+            box-shadow: 0 20px 45px rgba(12, 10, 9, 0.4);
+            overflow: hidden;
+        }
+        .trust-bar {
+            margin-top: 1rem;
+            background: linear-gradient(90deg, rgba(189, 139, 22, 0.95), rgba(224, 182, 73, 0.96));
+            border: 1px solid rgba(245, 209, 120, 0.55);
+            border-radius: 1rem;
+            color: #301810;
+            padding: 0.9rem 1.15rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem 1.2rem;
+            font-size: 0.68rem;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+        .trust-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .content-section {
+            margin-top: 2.6rem;
+            border-radius: 1.7rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(6px);
+            padding: 2rem;
+        }
+        .section-glass {
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .section-dark {
+            background: linear-gradient(150deg, rgba(28, 9, 12, 0.92), rgba(50, 16, 20, 0.9));
+            border-color: rgba(212, 175, 55, 0.24);
+        }
+        .section-gold {
+            background: linear-gradient(120deg, rgba(191, 141, 18, 0.95), rgba(227, 191, 95, 0.95));
+            border-color: rgba(255, 240, 196, 0.5);
+        }
+        .section-label {
+            color: #f4cf77;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.26em;
+            font-weight: 900;
+            margin-bottom: 0.8rem;
+        }
+        .section-label-dark {
+            color: #2d160f;
+        }
+        .section-title {
+            font-size: clamp(1.5rem, 3vw, 2.2rem);
+            font-weight: 900;
+            line-height: 1.15;
+            letter-spacing: -0.02em;
+            color: #ffffff;
+        }
+        .section-title-dark {
+            color: #2d160f;
+        }
+        .section-copy {
+            margin-top: 0.75rem;
+            color: rgba(248, 250, 252, 0.82);
+            font-size: 0.9rem;
+            line-height: 1.7;
+        }
+        .section-copy-dark {
+            color: rgba(45, 22, 15, 0.85);
+        }
+        .card-grid-3 {
+            margin-top: 1.3rem;
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: 1fr;
+        }
+        .card-grid-6 {
+            margin-top: 1.3rem;
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+        }
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.24);
+            border-radius: 1rem;
+            padding: 1rem;
+            color: #ffffff;
+        }
+        .feature-card h3 {
+            font-size: 0.95rem;
+            font-weight: 800;
+            letter-spacing: 0.02em;
+            margin: 0.55rem 0 0.4rem;
+        }
+        .feature-card p {
+            font-size: 0.82rem;
+            color: rgba(248, 250, 252, 0.82);
+            line-height: 1.6;
+        }
+        .feature-icon {
+            width: 2.2rem;
+            height: 2.2rem;
+            border-radius: 0.75rem;
+            border: 1px solid rgba(212, 175, 55, 0.35);
+            background: rgba(212, 175, 55, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #f4cf77;
+        }
+        .stats-grid {
+            margin-top: 1.3rem;
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+        }
+        .stat-item {
+            background: rgba(45, 22, 15, 0.12);
+            border: 1px solid rgba(45, 22, 15, 0.18);
+            border-radius: 1rem;
+            padding: 1rem;
+        }
+        .stat-value {
+            color: #2d160f;
+            font-size: clamp(1.35rem, 4vw, 2.1rem);
+            font-weight: 900;
+            letter-spacing: -0.02em;
+        }
+        .stat-label {
+            color: rgba(45, 22, 15, 0.85);
+            margin-top: 0.35rem;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+        .testimonials {
+            margin-top: 1.3rem;
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: 1fr;
+        }
+        .testimonial-card {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 1rem;
+            padding: 1.1rem;
+        }
+        .testimonial-stars {
+            color: #f4cf77;
+            font-size: 0.76rem;
+            letter-spacing: 0.14em;
+            margin-bottom: 0.7rem;
+        }
+        .testimonial-quote {
+            color: rgba(248, 250, 252, 0.88);
+            font-size: 0.86rem;
+            line-height: 1.7;
+        }
+        .testimonial-name {
+            margin-top: 0.8rem;
+            color: #ffffff;
+            font-size: 0.74rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.09em;
+        }
+        .contact-footer {
+            margin-top: 2.6rem;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, rgba(66, 16, 20, 0.95), rgba(39, 11, 14, 0.96));
+            border: 1px solid rgba(212, 175, 55, 0.28);
+            border-radius: 1.7rem;
+            padding: 1.7rem;
+            color: #ffffff;
+        }
+        .contact-grid {
+            display: grid;
+            gap: 1.2rem;
+            grid-template-columns: 1fr;
+            align-items: start;
+        }
+        .contact-kicker {
+            color: #f4cf77;
+            font-size: 0.65rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            margin-bottom: 0.45rem;
+        }
+        .contact-title {
+            font-size: 1.45rem;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+        }
+        .contact-copy {
+            margin-top: 0.55rem;
+            color: rgba(248, 250, 252, 0.84);
+            font-size: 0.86rem;
+            line-height: 1.7;
+        }
+        .contact-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.7rem;
+            margin-top: 1rem;
+        }
+        .contact-email {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.45);
+            color: #ffffff;
+            padding: 0.58rem 0.9rem;
+            font-size: 0.74rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+        .contact-locations {
+            margin-top: 1rem;
+            font-size: 0.75rem;
+            color: rgba(248, 250, 252, 0.85);
+            line-height: 1.7;
+        }
+        .copyright {
+            margin-top: 1.2rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            color: rgba(248, 250, 252, 0.72);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        @media (min-width: 768px) {
+            .hero-grid {
+                grid-template-columns: 1.15fr 0.95fr;
+                gap: 1.5rem;
+            }
+            .card-grid-3 {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+            .card-grid-6 {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+            .stats-grid {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+            .testimonials {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+            .contact-grid {
+                grid-template-columns: 1.2fr 1fr;
+            }
+        }
     </style>
 </head>
-<body class="bg-institutional min-h-screen flex flex-col font-sans text-slate-800">
+<body class="min-h-screen font-sans text-slate-800">
+    <video class="bg-video" autoplay muted loop playsinline preload="none">
+        <source src="{{ url_for('static', filename='office.mp4') }}" type="video/mp4">
+    </video>
+    <div class="bg-video-overlay" aria-hidden="true"></div>
+
+    <div class="page-content">
+
+    <button type="button" class="menu-toggle font-black text-lg" onclick="openSidebar()" aria-label="Open menu" aria-controls="sidebarBackdrop" aria-expanded="false" id="menuToggleBtn">&#9776;</button>
 
     <div id="loadingOverlay" class="fixed inset-0 z-50 flex flex-col items-center justify-center">
         <div class="w-12 h-12 border-4 border-slate-100 border-t-[#d71e28] rounded-full animate-spin mb-4"></div>
         <p class="text-[10px] font-black uppercase tracking-[.4em] vx-text-red">Protocol Verification In Progress...</p>
     </div>
 
-    <header class="pt-20 pb-10 text-center">
-        <h1 class="font-black italic text-4xl vx-text-red tracking-tighter">VERTEX BANK</h1>
-        <p class="text-[9px] text-slate-400 uppercase font-black tracking-[.5em] mt-2">Private Wealth Management • San Francisco • New York</p>
-    </header>
-
-    <main class="flex-grow flex items-center justify-center p-6 mb-20">
-        <div class="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl border border-slate-100 overflow-hidden">
-            <div class="p-12">
-                <form action="/login" method="POST" id="loginForm" onsubmit="handleLogin(event)">
-                    <div class="space-y-6">
-                        <div class="relative">
-                            <label class="absolute left-5 top-2 text-[8px] font-black uppercase text-slate-400 tracking-widest">Client Identifier</label>
-                            <input type="email" name="email" required placeholder="name@private.com" class="w-full pt-8 pb-4 px-5 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold outline-none focus:border-[#d71e28]">
-                        </div>
-                        <div class="relative">
-                            <label class="absolute left-5 top-2 text-[8px] font-black uppercase text-slate-400 tracking-widest">Access Password</label>
-                            <input type="password" name="password" required placeholder="••••••••" class="w-full pt-8 pb-4 px-5 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold outline-none focus:border-[#d71e28]">
-                        <div class="mt-8 pt-6 border-t border-slate-100 text-center">
-    <div class="flex justify-center items-center gap-2 mb-3">
-        <i class="fas fa-lock text-slate-400 text-[10px]"></i>
-        <p class="text-[10px] text-slate-400 uppercase tracking-tighter">
-            SECURE 256-BIT ENCRYPTION ACTIVE
-        </p>
-    </div>
-    
-    <div class="flex justify-center gap-4 text-[9px] text-slate-400 font-medium uppercase tracking-widest">
-        <a href="#" class="hover:text-slate-600 transition-colors">Privacy Policy</a>
-        <span class="text-slate-200">|</span>
-        <a href="#" class="hover:text-slate-600 transition-colors">Security Agreement</a>
-        <span class="text-slate-200">|</span>
-        <a href="#" class="hover:text-slate-600 transition-colors">Contact Support</a>
-    </div>
-</div>
-                        </div>
-                        <div class="flex justify-between items-center px-2">
-                            <label class="flex items-center gap-2"><input type="checkbox" class="accent-[#d71e28]"><span class="text-[9px] font-black uppercase text-slate-400">Remember Device</span></label>
-                            <a href="javascript:void(0)" onclick="alert('For security reasons, please contact your Relationship Manager to reset your access.')" 
-   class="text-red-600 hover:text-red-800 text-[10px] font-bold uppercase tracking-widest transition-all cursor-pointer">
-   Forgot Password?
-</a>
-                        </div>
-                        <button type="submit" class="w-full py-5 vx-red text-white text-[11px] font-black uppercase tracking-[.3em] rounded-2xl shadow-xl hover:bg-red-700 transition-all">Sign In</button>
+    <div id="sidebarBackdrop" class="sidebar-backdrop fixed inset-0 z-40 hidden" aria-hidden="true">
+        <aside id="sidebarPanel" class="sidebar-panel h-screen w-[88%] max-w-md -translate-x-full transform transition-transform duration-500 ease-out overflow-y-auto">
+            <div class="p-6 pb-24">
+                <div class="flex items-start justify-between mb-5">
+                    <div>
+                        <h2 class="text-white text-sm font-black uppercase tracking-[.28em]">Menu</h2>
+                        <p class="sidebar-kicker">Est. 2008 &#8226; Serving clients for 18 years</p>
                     </div>
-                </form>
+                    <button type="button" onclick="closeSidebar()" class="w-9 h-9 rounded-lg border border-white/60 text-white hover:bg-white/10 transition-all" aria-label="Close menu">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <div class="sidebar-search">
+                    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                    <input type="text" placeholder="Search private services">
+                </div>
+
+                <section class="sidebar-section">
+                    <h3 class="sidebar-section-title">About Us</h3>
+                    <p class="sidebar-about">Founded in 2008, Vertex Private Finance has been a trusted pillar of private wealth management for 18 years, serving high-net-worth individuals and institutional clients across San Francisco, New York and London. With over $2.4 billion in assets under management, we have built a legacy of trust, discretion and exceptional financial performance.</p>
+                </section>
+
+                <section class="sidebar-section">
+                    <h3 class="sidebar-section-title">Private Banking</h3>
+                    <ul class="sidebar-list">
+                        <li><button type="button" class="sidebar-link info-item" data-title="Private Vault" data-info="Secure encrypted storage for your most valuable assets with 256-bit protection"><span class="sidebar-link-main"><i class="fa-solid fa-vault"></i><span>Private Vault</span></span><span class="sidebar-link-arrow" aria-hidden="true">&#8250;</span></button></li>
+                        <li><button type="button" class="sidebar-link info-item" data-title="High-Yield Savings" data-info="Earn premium returns with our exclusive high-yield savings accounts, up to 8.5% APY"><span class="sidebar-link-main"><i class="fa-solid fa-piggy-bank"></i><span>High-Yield Savings</span></span><span class="sidebar-link-arrow" aria-hidden="true">&#8250;</span></button></li>
+                        <li><button type="button" class="sidebar-link info-item" data-title="Wire Transfers" data-info="Instant global wire transfers to 180+ countries with zero fees"><span class="sidebar-link-main"><i class="fa-solid fa-arrows-left-right"></i><span>Wire Transfers</span></span><span class="sidebar-link-arrow" aria-hidden="true">&#8250;</span></button></li>
+                    </ul>
+                </section>
+
+                <section class="sidebar-section">
+                    <h3 class="sidebar-section-title">Wealth Services</h3>
+                    <ul class="sidebar-list">
+                        <li><button type="button" class="sidebar-link info-item" data-title="Asset Management" data-info="Expert portfolio management tailored to your wealth goals"><span class="sidebar-link-main"><i class="fa-solid fa-chart-line"></i><span>Asset Management</span></span><span class="sidebar-link-arrow" aria-hidden="true">&#8250;</span></button></li>
+                        <li><button type="button" class="sidebar-link info-item" data-title="Liquidity Loans" data-info="Access instant liquidity against your portfolio without liquidating assets"><span class="sidebar-link-main"><i class="fa-solid fa-hand-holding-dollar"></i><span>Liquidity Loans</span></span><span class="sidebar-link-arrow" aria-hidden="true">&#8250;</span></button></li>
+                        <li><button type="button" class="sidebar-link info-item" data-title="Commodity Investments" data-info="Invest in cocoa and coffee commodity markets with guaranteed returns"><span class="sidebar-link-main"><i class="fa-solid fa-seedling"></i><span>Commodity Investments</span></span><span class="sidebar-link-arrow" aria-hidden="true">&#8250;</span></button></li>
+                    </ul>
+                </section>
+
+                <section class="sidebar-section">
+                    <h3 class="sidebar-section-title">Legal &amp; Compliance</h3>
+                    <ul class="sidebar-list">
+                        <li><button type="button" class="sidebar-link info-item" data-title="Privacy Policy" data-info="Your data is protected under strict financial privacy laws including GLBA and GDPR"><span class="sidebar-link-main"><i class="fa-solid fa-user-shield"></i><span>Privacy Policy</span></span><span class="sidebar-link-arrow" aria-hidden="true">&#8250;</span></button></li>
+                        <li><button type="button" class="sidebar-link info-item" data-title="AML Compliance" data-info="Fully compliant with Anti-Money Laundering regulations and FinCEN requirements"><span class="sidebar-link-main"><i class="fa-solid fa-scale-balanced"></i><span>AML Compliance</span></span><span class="sidebar-link-arrow" aria-hidden="true">&#8250;</span></button></li>
+                        <li><button type="button" class="sidebar-link info-item" data-title="FDIC Insured" data-info="Deposits insured up to $250,000 per depositor by the Federal Deposit Insurance Corporation"><span class="sidebar-link-main"><i class="fa-solid fa-building-shield"></i><span>FDIC Insured</span></span><span class="sidebar-link-arrow" aria-hidden="true">&#8250;</span></button></li>
+                    </ul>
+                </section>
+
+                <section class="sidebar-section">
+                    <h3 class="sidebar-section-title">Locations</h3>
+                    <ul class="sidebar-list">
+                        <li><button type="button" class="sidebar-link info-item" data-title="San Francisco CA" data-info="1 Market Street, Suite 500, San Francisco, CA 94105"><span class="sidebar-link-main"><i class="fa-solid fa-location-dot"></i><span>San Francisco CA</span></span><span class="sidebar-link-arrow" aria-hidden="true">&#8250;</span></button></li>
+                        <li><button type="button" class="sidebar-link info-item" data-title="New York NY" data-info="425 Park Avenue, Floor 12, New York, NY 10022"><span class="sidebar-link-main"><i class="fa-solid fa-location-dot"></i><span>New York NY</span></span><span class="sidebar-link-arrow" aria-hidden="true">&#8250;</span></button></li>
+                        <li><button type="button" class="sidebar-link info-item" data-title="London UK" data-info="30 St Mary Axe, London EC3A 8BF, United Kingdom"><span class="sidebar-link-main"><i class="fa-solid fa-location-dot"></i><span>London UK</span></span><span class="sidebar-link-arrow" aria-hidden="true">&#8250;</span></button></li>
+                    </ul>
+                </section>
+
+                <section class="sidebar-section">
+                    <h3 class="sidebar-section-title">Contact Us</h3>
+                    <div class="sidebar-contact">
+                        <a href="https://wa.me/233536506672" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-between gap-2 px-4 py-3 rounded-lg bg-[#25D366] text-white text-[10px] font-black uppercase tracking-[.15em] hover:brightness-105 transition-all">
+                            <span class="inline-flex items-center gap-2">
+                                <i class="fa-brands fa-whatsapp"></i>
+                                WhatsApp
+                            </span>
+                            <span aria-hidden="true">&#8250;</span>
+                        </a>
+                        <a href="mailto:support@vertexprivatefinance.com" class="w-full inline-flex items-center justify-between gap-2 px-4 py-3 rounded-lg border border-white/70 bg-transparent text-white text-[10px] font-black uppercase tracking-[.15em] hover:bg-white/10 transition-all">
+                            <span class="inline-flex items-center gap-2">
+                                <i class="fa-solid fa-envelope"></i>
+                                Email
+                            </span>
+                            <span aria-hidden="true">&#8250;</span>
+                        </a>
+                    </div>
+                </section>
+
+                <div class="sidebar-promo-wrap">
+                    <a href="#" class="sidebar-promo info-item" data-title="Exclusive APY" data-info="Exclusive: 8.5% APY on Private Vault for eligible private banking clients.">Exclusive: 8.5% APY on Private Vault &#8212; Learn more &#8250;</a>
+                    <a href="#" class="sidebar-promo info-item" data-title="New Client Bonus" data-info="New clients may qualify for a $500 welcome credit after account onboarding and verification.">New Client Bonus: $500 welcome credit &#8212; See details &#8250;</a>
+                </div>
             </div>
-            <div class="bg-slate-50 p-6 border-t border-slate-100 flex justify-between items-center px-4">
-    <div class="flex items-center gap-2">
-        <span class="text-[9px] font-black text-slate-400 uppercase italic">Member FDIC</span>
-        <i class="fa-solid fa-house-chimney text-slate-300 text-[10px]"></i>
+        </aside>
     </div>
-    <p class="text-[8px] text-slate-300 uppercase tracking-widest">© 2026 Vertex Global Financial Group</p>
-</div>
+
+    <div id="infoModalBackdrop" class="info-modal-backdrop fixed inset-0 z-50 hidden items-center justify-center p-5" aria-hidden="true">
+        <div id="infoModalCard" class="info-modal-card w-full max-w-md rounded-2xl overflow-hidden" role="dialog" aria-modal="true" aria-labelledby="infoModalTitle" aria-describedby="infoModalBody">
+            <div class="info-modal-head px-6 py-4 flex items-center justify-between">
+                <h3 id="infoModalTitle" class="text-sm font-black tracking-[.16em] uppercase text-white">Details</h3>
+                <button type="button" onclick="closeInfoModal()" class="w-8 h-8 rounded-md border border-white/35 text-white hover:bg-white/10 transition-all" aria-label="Close information popup">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="px-6 py-5 bg-white">
+                <p id="infoModalBody" class="text-sm text-slate-700 leading-relaxed"></p>
+                <div class="mt-5 text-right">
+                    <button type="button" onclick="closeInfoModal()" class="px-4 py-2 rounded-lg bg-slate-100 text-slate-700 text-[11px] font-bold uppercase tracking-widest hover:bg-slate-200 transition-all">Close</button>
+                </div>
+            </div>
         </div>
+    </div>
+
+    <main class="hero-wrap">
+        <section class="landing-shell">
+            <div class="hero-grid">
+                <div class="hero-panel">
+                    <p class="hero-kicker">Private Wealth Management</p>
+                    <h1 class="hero-title">Vertex Private Finance</h1>
+                    <p class="hero-copy">Premium private banking for high-net-worth clients and institutions. Access secure vaulting, global liquidity, and relationship-led advisory from our San Francisco, New York, and London teams.</p>
+                    <div class="hero-meta">
+                        <span class="hero-chip">FDIC Insured</span>
+                        <span class="hero-chip">OCC Authorized</span>
+                        <span class="hero-chip">Global Coverage</span>
+                    </div>
+                </div>
+
+                <div class="login-shell">
+                    <div class="p-10 sm:p-12">
+                        <form action="/login" method="POST" id="loginForm" onsubmit="handleLogin(event)">
+                            <div class="space-y-6">
+                                <div class="relative">
+                                    <label class="absolute left-5 top-2 text-[8px] font-black uppercase text-slate-400 tracking-widest">Client Identifier</label>
+                                    <input type="email" name="email" required placeholder="name@private.com" class="w-full pt-8 pb-4 px-5 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold outline-none focus:border-[#d71e28]">
+                                </div>
+                                <div class="relative">
+                                    <label class="absolute left-5 top-2 text-[8px] font-black uppercase text-slate-400 tracking-widest">Access Password</label>
+                                    <input type="password" name="password" required placeholder="********" class="w-full pt-8 pb-4 px-5 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold outline-none focus:border-[#d71e28]">
+                                </div>
+
+                                <div class="mt-1 pt-5 border-t border-slate-100 text-center">
+                                    <div class="flex justify-center items-center gap-2 mb-3">
+                                        <i class="fas fa-lock text-slate-400 text-[10px]"></i>
+                                        <p class="text-[10px] text-slate-400 uppercase tracking-tighter">Secure 256-bit encryption active</p>
+                                    </div>
+                                    <div class="flex justify-center gap-4 text-[9px] text-slate-400 font-medium uppercase tracking-widest">
+                                        <a href="#" class="hover:text-slate-600 transition-colors">Privacy Policy</a>
+                                        <span class="text-slate-200">|</span>
+                                        <a href="#" class="hover:text-slate-600 transition-colors">Security Agreement</a>
+                                        <span class="text-slate-200">|</span>
+                                        <a href="#" class="hover:text-slate-600 transition-colors">Contact Support</a>
+                                    </div>
+                                </div>
+
+                                <div class="flex justify-between items-center px-2">
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="accent-[#d71e28]"><span class="text-[9px] font-black uppercase text-slate-400">Remember Device</span></label>
+                                    <a href="javascript:void(0)" onclick="openResetModal()" class="text-red-600 hover:text-red-800 text-[10px] font-bold uppercase tracking-widest transition-all cursor-pointer">Forgot Password?</a>
+                                </div>
+
+                                <button type="submit" class="w-full py-5 vx-red text-white text-[11px] font-black uppercase tracking-[.3em] rounded-2xl shadow-xl hover:bg-red-700 transition-all">Sign In</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="bg-slate-50 p-6 border-t border-slate-100 flex justify-between items-center px-4">
+                        <div class="flex items-center gap-2">
+                            <span class="text-[9px] font-black text-slate-400 uppercase italic">Member FDIC</span>
+                            <i class="fa-solid fa-house-chimney text-slate-300 text-[10px]"></i>
+                        </div>
+                        <p class="text-[8px] text-slate-300 uppercase tracking-widest">Client Login Portal</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="trust-bar reveal">
+                <span class="trust-item"><i class="fa-solid fa-building-columns"></i> FDIC Insured</span>
+                <span class="trust-item"><i class="fa-solid fa-landmark"></i> OCC Authorized</span>
+                <span class="trust-item"><i class="fa-solid fa-shield-halved"></i> 256-bit SSL</span>
+                <span class="trust-item"><i class="fa-solid fa-calendar-check"></i> Est. 2008</span>
+                <span class="trust-item"><i class="fa-solid fa-chart-line"></i> $2.4B AUM</span>
+            </div>
+
+            <section class="content-section section-glass reveal" id="why-vertex">
+                <p class="section-label">Why Vertex</p>
+                <h2 class="section-title">A private banking model built around discretion and performance</h2>
+                <div class="card-grid-3">
+                    <article class="feature-card">
+                        <div class="feature-icon"><i class="fa-solid fa-lock"></i></div>
+                        <h3>Private Vault</h3>
+                        <p>Institution-grade custody architecture that protects your capital with multi-layered controls and continuous monitoring.</p>
+                    </article>
+                    <article class="feature-card">
+                        <div class="feature-icon"><i class="fa-solid fa-globe"></i></div>
+                        <h3>Global Reach</h3>
+                        <p>Cross-border wealth execution through dedicated desks in San Francisco, New York, and London.</p>
+                    </article>
+                    <article class="feature-card">
+                        <div class="feature-icon"><i class="fa-solid fa-user-tie"></i></div>
+                        <h3>Expert Advisors</h3>
+                        <p>Senior wealth strategists delivering bespoke portfolio allocation and long-horizon risk management.</p>
+                    </article>
+                </div>
+            </section>
+
+            <section class="content-section section-dark reveal" id="our-services">
+                <p class="section-label">Our Services</p>
+                <h2 class="section-title">Comprehensive products for private and institutional clients</h2>
+                <div class="card-grid-6">
+                    <article class="feature-card">
+                        <div class="feature-icon"><i class="fa-solid fa-vault"></i></div>
+                        <h3>Private Vault</h3>
+                        <p>High-security digital and asset custody with client-level controls and periodic assurance reviews.</p>
+                    </article>
+                    <article class="feature-card">
+                        <div class="feature-icon"><i class="fa-solid fa-piggy-bank"></i></div>
+                        <h3>High-Yield Savings</h3>
+                        <p>Premium savings structures designed to maximize liquidity while maintaining competitive annual returns.</p>
+                    </article>
+                    <article class="feature-card">
+                        <div class="feature-icon"><i class="fa-solid fa-briefcase"></i></div>
+                        <h3>Asset Management</h3>
+                        <p>Actively managed portfolios aligned to your risk tolerance, horizon, and global macro opportunities.</p>
+                    </article>
+                    <article class="feature-card">
+                        <div class="feature-icon"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+                        <h3>Liquidity Loans</h3>
+                        <p>Rapid access to credit lines secured against portfolio holdings without forced asset liquidation.</p>
+                    </article>
+                    <article class="feature-card">
+                        <div class="feature-icon"><i class="fa-solid fa-seedling"></i></div>
+                        <h3>Commodity Investments</h3>
+                        <p>Diversified commodity exposure across curated cocoa and coffee opportunities with disciplined oversight.</p>
+                    </article>
+                    <article class="feature-card">
+                        <div class="feature-icon"><i class="fa-solid fa-arrows-left-right"></i></div>
+                        <h3>Wire Transfers</h3>
+                        <p>Priority global transfers with compliance-first routing and settlement support across major markets.</p>
+                    </article>
+                </div>
+            </section>
+
+            <section class="content-section section-gold reveal" id="stats">
+                <p class="section-label section-label-dark">Vertex At A Glance</p>
+                <h2 class="section-title section-title-dark">The scale behind our private client platform</h2>
+                <div class="stats-grid">
+                    <article class="stat-item">
+                        <p class="stat-value">$2.4B</p>
+                        <p class="stat-label">Assets Under Management</p>
+                    </article>
+                    <article class="stat-item">
+                        <p class="stat-value">18+</p>
+                        <p class="stat-label">Years Experience</p>
+                    </article>
+                    <article class="stat-item">
+                        <p class="stat-value">50,000+</p>
+                        <p class="stat-label">Clients Worldwide</p>
+                    </article>
+                    <article class="stat-item">
+                        <p class="stat-value">180+</p>
+                        <p class="stat-label">Countries Served</p>
+                    </article>
+                </div>
+            </section>
+
+            <section class="content-section section-glass reveal" id="testimonials">
+                <p class="section-label">Client Testimonials</p>
+                <h2 class="section-title">Trusted by families, founders, and institutions globally</h2>
+                <div class="testimonials">
+                    <article class="testimonial-card">
+                        <p class="testimonial-stars">★★★★★</p>
+                        <p class="testimonial-quote">"Vertex has become a critical strategic partner for our family office. Their advisory discipline and execution quality are exceptional across every market cycle."</p>
+                        <p class="testimonial-name">Sophia R. • Family Office Principal</p>
+                    </article>
+                    <article class="testimonial-card">
+                        <p class="testimonial-stars">★★★★★</p>
+                        <p class="testimonial-quote">"The responsiveness, discretion, and technical depth of the Vertex team gave us confidence during complex cross-border liquidity operations."</p>
+                        <p class="testimonial-name">Daniel T. • Institutional Treasury Lead</p>
+                    </article>
+                </div>
+            </section>
+
+            <footer class="contact-footer reveal" id="contact">
+                <div class="contact-grid">
+                    <div>
+                        <p class="contact-kicker">Contact Footer</p>
+                        <h2 class="contact-title">Connect with Vertex Private Finance</h2>
+                        <p class="contact-copy">Our private client support desk is available for account guidance, onboarding, and secure transfer coordination.</p>
+                        <div class="contact-actions">
+                            <a href="https://wa.me/233536506672" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-4 py-3 rounded-lg bg-[#25D366] text-white text-[10px] font-black uppercase tracking-[.15em] hover:brightness-105 transition-all">
+                                <i class="fa-brands fa-whatsapp"></i>
+                                WhatsApp
+                            </a>
+                            <a href="mailto:support@vertexprivatefinance.com" class="contact-email">
+                                <i class="fa-solid fa-envelope"></i>
+                                support@vertexprivatefinance.com
+                            </a>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="contact-kicker">Locations</p>
+                        <p class="contact-locations">San Francisco, California<br>New York, New York<br>London, United Kingdom</p>
+                    </div>
+                </div>
+                <p class="copyright">Copyright 2026 Vertex Private Finance. All rights reserved.</p>
+            </footer>
+        </section>
     </main>
+
+    <div id="resetModalBackdrop" class="reset-modal-backdrop fixed inset-0 z-50 hidden items-center justify-center p-5" aria-hidden="true">
+        <div id="resetModal" class="reset-modal w-full max-w-md rounded-[2rem] p-8 text-white" role="dialog" aria-modal="true" aria-labelledby="resetModalTitle" aria-describedby="resetModalMessage">
+            <div class="flex items-start justify-between gap-4 mb-5">
+                <div class="flex items-center gap-3">
+                    <div class="reset-modal-icon">
+                        <i class="fa-solid fa-lock text-lg"></i>
+                    </div>
+                    <h2 id="resetModalTitle" class="text-sm font-black uppercase tracking-[.2em] text-[#f5d77f]">Password Reset Request</h2>
+                </div>
+                <button type="button" onclick="closeResetModal()" class="text-[#f5d77f] hover:text-white transition-colors" aria-label="Close password reset dialog">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <p id="resetModalMessage" class="text-sm leading-relaxed text-rose-100 mb-8">
+                For security reasons, please contact your Relationship Manager to process your password reset request at
+                <span class="font-bold text-[#f5d77f]">support@vertexprivatefinance.com</span>.
+            </p>
+
+            <div class="flex gap-3">
+                <a href="mailto:support@vertexprivatefinance.com?subject=Password%20Reset%20Request" class="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-[#d4af37] to-[#f5d77f] text-[#3a0f13] text-[10px] font-black uppercase tracking-[.2em] hover:brightness-105 transition-all">
+                    <i class="fa-solid fa-envelope"></i>
+                    Email Support
+                </a>
+                <button type="button" onclick="closeResetModal()" class="px-5 py-3 rounded-xl border border-[#f5d77f]/40 text-[10px] font-black uppercase tracking-[.2em] text-[#f5d77f] hover:bg-[#f5d77f]/10 transition-all">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
 
     <div class="ticker-wrap">
         <div class="ticker">
@@ -98,12 +943,7 @@
         </div>
     </div>
 
-    <script>
-        function handleLogin(e) {
-            e.preventDefault();
-            document.getElementById('loadingOverlay').style.display = 'flex';
-            setTimeout(() => { document.getElementById('loginForm').submit(); }, 5000);
-        }
-    </script>
+    <script src="{{ url_for('static', filename='login.js') }}" defer></script>
+</div>
 </body>
 </html>

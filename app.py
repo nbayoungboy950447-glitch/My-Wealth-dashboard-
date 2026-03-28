@@ -9,6 +9,16 @@ from flask import Flask, jsonify, redirect, render_template, request, session, u
 from oauth2client.service_account import ServiceAccountCredentials
 app = Flask(__name__)
 app.secret_key = 'vertex_vault_private_access_2026'
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 86400
+
+
+@app.after_request
+def add_static_cache_headers(response):
+    """Cache static assets for 24 hours to reduce repeat load time."""
+    if request.path.startswith('/static/') and response.status_code == 200:
+        response.cache_control.public = True
+        response.cache_control.max_age = 86400
+    return response
 
 # --- Google Sheets Setup ---
 SCOPE = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
@@ -307,7 +317,8 @@ def loans():
 
 
 @app.route('/investments')
-def investments():
+@app.route('/investment')
+def investment():
     return render_template('investment.html', user=bank_data["user"])
 
 
