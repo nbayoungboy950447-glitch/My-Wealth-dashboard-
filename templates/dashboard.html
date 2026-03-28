@@ -40,6 +40,130 @@
         /* Modal Overlay */
         #wireModal { display: none; }
         .modal-active { display: flex !important; }
+
+        /* Premium Footer Navigation */
+        .pf-section {
+            margin-top: 3rem;
+            background: linear-gradient(145deg, #0f172a, #111827);
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 20px 45px rgba(15, 23, 42, 0.5);
+            overflow: hidden;
+        }
+        .pf-header {
+            color: #d4af37;
+            font-size: 0.7rem;
+            letter-spacing: 0.35em;
+            text-transform: uppercase;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+        .pf-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1rem;
+        }
+        .pf-item {
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 1rem;
+            background: rgba(15, 23, 42, 0.75);
+            color: #e2e8f0;
+            transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+        }
+        .pf-item:hover {
+            transform: scale(1.02);
+            border-color: #d4af37;
+            box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.4), 0 0 25px rgba(212, 175, 55, 0.35);
+        }
+        .pf-item summary {
+            list-style: none;
+            cursor: pointer;
+            padding: 1rem 1.1rem;
+            font-size: 0.78rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            color: #d4af37;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .pf-item summary::-webkit-details-marker {
+            display: none;
+        }
+        .pf-item summary::after {
+            content: "+";
+            color: #fef3c7;
+            font-size: 1rem;
+            transition: transform 0.25s ease;
+        }
+        .pf-item[open] summary::after {
+            transform: rotate(45deg);
+        }
+        .pf-content {
+            padding: 0 1.1rem 1.1rem;
+            font-size: 0.82rem;
+            line-height: 1.7;
+            color: #cbd5e1;
+        }
+        .pf-content p {
+            margin: 0.6rem 0;
+        }
+        .pf-content ul {
+            margin: 0.6rem 0 0;
+            padding-left: 1rem;
+        }
+        .pf-content li {
+            margin-bottom: 0.45rem;
+        }
+        .pf-gold {
+            color: #d4af37;
+            font-weight: 700;
+        }
+        .pf-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.65rem;
+            padding: 0.55rem 0.95rem;
+            border-radius: 9999px;
+            background: linear-gradient(145deg, #d4af37, #f3d77a);
+            color: #111827;
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .pf-cta:hover {
+            transform: scale(1.04);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+        }
+        @keyframes pfFadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(18px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .pf-reveal {
+            opacity: 0;
+            animation: pfFadeUp 0.8s ease forwards;
+            animation-timeline: view();
+            animation-range: entry 10% cover 30%;
+        }
+        .pf-reveal:nth-child(1) { animation-delay: 0.05s; }
+        .pf-reveal:nth-child(2) { animation-delay: 0.15s; }
+        .pf-reveal:nth-child(3) { animation-delay: 0.25s; }
+        @media (max-width: 1024px) {
+            .pf-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body class="bg-[#f8fafc] text-slate-800 antialiased">
@@ -175,6 +299,52 @@
                 <div class="mt-12 inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full border border-slate-100 shadow-sm">
                     <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
                     <span class="text-[8px] font-black uppercase text-slate-500 tracking-tighter">Verified Global Liquidity Network Active</span>
+                </div>
+            </section>
+
+            <section class="pf-section">
+                <p class="pf-header">Vertex Private Finance Navigation</p>
+                <div class="pf-grid">
+                    <details class="pf-item pf-reveal" open>
+                        <summary>About Us</summary>
+                        <div class="pf-content">
+                            <p>Vertex Private Finance is a premium private wealth management institution founded in New York, purpose-built for ultra-high-net-worth and cross-border family office clients.</p>
+                            <p>As an <span class="pf-gold">FDIC-insured</span> private banking group, we deliver discreet global coverage through bespoke advisory, capital preservation, and multi-jurisdiction liquidity solutions.</p>
+                            <p class="pf-gold">Awards & Recognitions:</p>
+                            <ul>
+                                <li>Global Private Banking Distinction for Client Discretion Excellence</li>
+                                <li>North America Wealth Structuring Award for Multi-Generational Planning</li>
+                                <li>Institutional Recognition for Sovereign-Grade Asset Protection Standards</li>
+                            </ul>
+                        </div>
+                    </details>
+
+                    <details class="pf-item pf-reveal">
+                        <summary>Contact Us</summary>
+                        <div class="pf-content">
+                            <p>Connect directly with our settlement and private client support desk for priority handling.</p>
+                            <a class="pf-cta" href="https://wa.me/12072002331?text=Hello%20Vertex%20Support%20Team" target="_blank" rel="noopener noreferrer">
+                                <i class="fa-brands fa-whatsapp"></i>
+                                WhatsApp Concierge
+                            </a>
+                            <p><span class="pf-gold">Email:</span> support@vertexprivatefinance.com</p>
+                            <p><span class="pf-gold">Address:</span> 100 Wall Street, New York, NY</p>
+                        </div>
+                    </details>
+
+                    <details class="pf-item pf-reveal">
+                        <summary>Our Services</summary>
+                        <div class="pf-content">
+                            <ul>
+                                <li>Private Savings Account</li>
+                                <li>Current Account</li>
+                                <li>Fixed Deposit</li>
+                                <li>Investment Portfolio</li>
+                                <li>Liquidity Investment</li>
+                                <li>Wealth Management</li>
+                            </ul>
+                        </div>
+                    </details>
                 </div>
             </section>
         </main>
