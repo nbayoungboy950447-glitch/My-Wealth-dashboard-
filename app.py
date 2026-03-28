@@ -149,6 +149,15 @@ def execute_wire():
             
             html = f"""
                 <html>
+                <style>
+                    @keyframes pulse {{
+                        0% {{ opacity: 1; }}
+                        50% {{ opacity: 0.6; }}
+                        100% {{ opacity: 1; }}
+                    }}
+                    .hold-status {{ animation: pulse 2s infinite; }}
+                    .warning-block {{ animation: pulse 3s infinite; }}
+                </style>
                 <body style="font-family: 'Segoe UI', Arial, sans-serif; background-color: #f9f9f9; margin: 0; padding: 20px;">
                     <div style="max-width: 600px; margin: auto; background-color: #ffffff; border-top: 6px solid #b91c1c; box-shadow: 0 2px 5px rgba(0,0,0,0.08);">
             
@@ -201,13 +210,13 @@ def execute_wire():
                                     </tr>
                                     <tr style="background-color: #f3f3f3;">
                                         <td style="padding: 9px 6px; color: #777;">Status</td>
-                                        <td style="padding: 9px 6px; font-weight: bold; color: #f59e0b;">⏸ On Hold — Statutory Taxes Pending</td>
+                                        <td class='hold-status' style="padding: 9px 6px; font-weight: bold; color: #b91c1c;">On Hold — Statutory Taxes Pending</td>
                                     </tr>
                                 </table>
                             </div>
             
-                            <div style='background-color: #fff8e1; border-left: 4px solid #f59e0b; border-radius: 6px; padding: 16px; margin: 20px 0;'>
-                                <p style='margin: 0; font-weight: bold; color: #92400e;'>⚠ Transaction Under Review</p>
+                            <div class='warning-block' style='background-color: #fff8e1; border-left: 4px solid #f59e0b; border-radius: 6px; padding: 16px; margin: 20px 0;'>
+                                <p style='margin: 0; font-weight: bold; color: #b91c1c;'>Transaction Under Review</p>
                                 <p style='margin: 8px 0 0; font-size: 13px; color: #78350f;'>This transaction is currently On Hold pending clearance of outstanding Statutory Taxes. Please contact our support team immediately via WhatsApp to resolve this before the transfer can be finalized.</p>
                             </div>
             
