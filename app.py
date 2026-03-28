@@ -262,11 +262,11 @@ def execute_wire():
                 print(f"❌ Email error: {e}")
 
 # 5. SUCCESS REDIRECT
+except Exception as e:
+            print(f'Error: {e}')
+            return redirect(url_for('dashboard'))
 return render_template('success.html', beneficiary=beneficiary, amount=amount, status="HOLD")
-    except Exception as e:
-        print(f'Error: {e}')
-        return redirect(url_for('dashboard'))
-
+   
 
 @app.route('/chat', methods=['POST'])
 def chat():
