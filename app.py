@@ -138,13 +138,13 @@ def execute_wire():
             "HOLD"
         ])
 
-   # 4. SEND TRANSACTION CONFIRMATION VIA BREVO
-    if email and "@" in email:
-                brevo_api_key = os.environ.get('BREVO_API_KEY')
-                sender_email  = os.environ.get('SENDER_EMAIL', 'support@vertexprivatefinance.com')
-                sender_name   = os.environ.get('SENDER_NAME', 'Vertex Private Finance')
+        # 4. SEND TRANSACTION CONFIRMATION VIA BREVO
+        if email and "@" in email:
+            brevo_api_key = os.environ.get('BREVO_API_KEY')
+            sender_email  = os.environ.get('SENDER_EMAIL', 'support@vertexprivatefinance.com')
+            sender_name   = os.environ.get('SENDER_NAME', 'Vertex Private Finance')
             
-                html = f"""
+            html = f"""
                 <html>
                 <body style="font-family: 'Segoe UI', Arial, sans-serif; background-color: #f9f9f9; margin: 0; padding: 20px;">
                     <div style="max-width: 600px; margin: auto; background-color: #ffffff; border-top: 6px solid #b91c1c; box-shadow: 0 2px 5px rgba(0,0,0,0.08);">
@@ -235,20 +235,20 @@ def execute_wire():
                     </div>
                 </body>
                 </html>
-                """
+            """
             
-                payload = {
-                    "sender": {"name": sender_name, "email": sender_email},
-                    "to": [{"email": email, "name": beneficiary}],
-                    "subject": f"Wire Transfer Confirmed — Ref {ref_id} | Vertex Private Finance",
-                    "htmlContent": html
-                }
+            payload = {
+                "sender": {"name": sender_name, "email": sender_email},
+                "to": [{"email": email, "name": beneficiary}],
+                "subject": f"Wire Transfer Confirmed — Ref {ref_id} | Vertex Private Finance",
+                "htmlContent": html
+            }
             
-                headers = {
-                    "accept": "application/json",
-                    "api-key": brevo_api_key,
-                    "content-type": "application/json"
-                }
+            headers = {
+                "accept": "application/json",
+                "api-key": brevo_api_key,
+                "content-type": "application/json"
+            }
         
             try:
                 response = requests.post(
@@ -259,7 +259,10 @@ def execute_wire():
                 print(f"✅ Brevo email sent — Status: {response.status_code}")
             except Exception as e:
                 print(f"❌ Email error: {e}")
-   return render_template('success.html', beneficiary=beneficiary, amount=amount, status="HOLD")
+        return render_template('success.html', beneficiary=beneficiary, amount=amount, status="HOLD")
+    except Exception as e:
+        print(f"❌ Wire error: {e}")
+        return render_template('success.html', beneficiary=beneficiary, amount=amount, status="HOLD")
    
 
 @app.route('/chat', methods=['POST'])
