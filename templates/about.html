@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us | Cater Allen Private Bank</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .macey-blue { background-color: #002147; }
+        .card-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card-hover:hover { transform: translateY(-6px); box-shadow: 0 20px 25px -5px rgba(0, 33, 71, 0.1), 0 10px 10px -5px rgba(0, 33, 71, 0.04); }
+        
+        /* Subtle Eagle Watermark Background */
+        body {
+            background-color: #f8fafc;
+            background-image: linear-gradient(rgba(248, 250, 252, 0.97), rgba(248, 250, 252, 0.97)), url('https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?q=80&w=1600&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+    </style>
+</head>
+<body class="text-slate-800 font-sans selection:bg-blue-900 selection:text-white">
+    
+    <!-- Header -->
+    <header class="macey-blue text-white p-6 shadow-md flex justify-between items-center sticky top-0 z-50">
+        <a href="{{ url_for('login') }}" class="text-xs font-black uppercase tracking-widest text-blue-300 hover:text-white transition-colors"><i class="fa-solid fa-chevron-left mr-1"></i> Back to Home</a>
+        <h1 class="text-xs font-black uppercase tracking-[0.25em]">Cater Allen Private Bank</h1>
+        <a href="{{ url_for('contact') }}" class="text-xs font-bold text-white hover:underline">Contact Us</a>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-6 py-12 space-y-16 relative z-10">
+        
+        <!-- Hero Section with Motion Animation -->
+        <div class="bg-white/95 backdrop-blur-xs p-8 md:p-12 rounded-3xl shadow-sm border border-slate-100 space-y-6 card-hover">
+            <div class="flex flex-wrap items-center gap-3">
+                <span class="bg-blue-50 text-[#002147] text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border border-blue-100">Established Heritage</span>
+                <span class="bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border border-emerald-100"><i class="fa-solid fa-shield-check mr-1"></i> FCA Regulated No. 178737</span>
+            </div>
+            
+            <h2 class="text-3xl md:text-4xl font-black text-[#002147] uppercase tracking-tight">Centuries of Private Wealth &amp; Banking Excellence</h2>
+            
+            <p class="text-sm md:text-base text-slate-600 leading-relaxed max-w-4xl">
+                Cater Allen Private Bank has a distinguished history of providing specialist private banking services. Operating from our principal London headquarters, we cater exclusively to high-net-worth individuals, international families, trusts, and corporate entities requiring sophisticated liquidity management, bespoke lending, and multi-jurisdictional asset protection.
+            </p>
+
+            <!-- Corporate Address Badge Card -->
+            <div class="bg-slate-50 border border-slate-200 p-5 rounded-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div class="space-y-1">
+                    <p class="text-[11px] font-black uppercase tracking-widest text-[#002147]">Registered UK Office Location</p>
+                    <p class="text-xs text-slate-600"><i class="fa-solid fa-location-dot text-red-600 mr-1.5"></i> 2 Triton Square, Regent's Place, London, NW1 3AN, United Kingdom</p>
+                </div>
+                <div class="text-[11px] font-bold text-slate-500 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-2xs">
+                    Company No. 383032
+                </div>
+            </div>
+        </div>
+
+        <!-- Trust Badges & Awards Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white/95 backdrop-blur-xs p-6 rounded-3xl shadow-sm border border-slate-100 card-hover space-y-3">
+                <div class="w-12 h-12 rounded-2xl bg-blue-50 text-[#002147] flex items-center justify-center text-lg font-bold"><i class="fa-solid fa-shield-halved"></i></div>
+                <h3 class="font-extrabold text-slate-900 uppercase text-sm">FSCS Eligible Protection</h3>
+                <p class="text-xs text-slate-500 leading-relaxed">Eligible deposits are protected up to £85,000 by the Financial Services Compensation Scheme (FSCS) for absolute peace of mind.</p>
+            </div>
+
+            <div class="bg-white/95 backdrop-blur-xs p-6 rounded-3xl shadow-sm border border-slate-100 card-hover space-y-3">
+                <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-700 flex items-center justify-center text-lg font-bold"><i class="fa-solid fa-award"></i></div>
+                <h3 class="font-extrabold text-slate-900 uppercase text-sm">Private Bank of the Year</h3>
+                <p class="text-xs text-slate-500 leading-relaxed">Recognized repeatedly for excellence in high-net-worth client servicing, digital security, and seamless global asset transfers.</p>
+            </div>
+
+            <div class="bg-white/95 backdrop-blur-xs p-6 rounded-3xl shadow-sm border border-slate-100 card-hover space-y-3">
+                <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center text-lg font-bold"><i class="fa-solid fa-landmark"></i></div>
+                <h3 class="font-extrabold text-slate-900 uppercase text-sm">PRA &amp; FCA Authorized</h3>
+                <p class="text-xs text-slate-500 leading-relaxed">Authorized by the Prudential Regulation Authority and regulated by the Financial Conduct Authority and PRA.</p>
+            </div>
+        </div>
+
+        <!-- Core Services Section -->
+        <div class="space-y-6">
+            <div class="text-center space-y-2">
+                <span class="text-[10px] font-black uppercase tracking-widest text-blue-600 bg-blue-50 px-3 py-1 rounded-full">Comprehensive Solutions</span>
+                <h3 class="text-2xl font-black text-[#002147] uppercase tracking-tight">Our Core Private Banking Services</h3>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Service 1 -->
+                <div class="bg-white/95 backdrop-blur-xs p-6 rounded-3xl shadow-sm border border-slate-100 card-hover space-y-3 flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 rounded-xl bg-blue-50 text-[#002147] flex items-center justify-center mb-3 font-bold"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+                        <h4 class="font-black text-slate-900 text-sm uppercase mb-1">Private Loans &amp; Mortgages</h4>
+                        <p class="text-xs text-slate-500 leading-relaxed">Bespoke borrowing solutions tailored for prime residential property acquisition, Lombard lending against investment portfolios, and cash flow liquidity.</p>
+                    </div>
+                    <span class="text-[10px] font-bold text-blue-600 uppercase tracking-widest pt-2 border-t border-slate-50">Custom Terms</span>
+                </div>
+
+                <!-- Service 2 -->
+                <div class="bg-white/95 backdrop-blur-xs p-6 rounded-3xl shadow-sm border border-slate-100 card-hover space-y-3 flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 rounded-xl bg-blue-50 text-[#002147] flex items-center justify-center mb-3 font-bold"><i class="fa-solid fa-chart-candlestick"></i></div>
+                        <h4 class="font-black text-slate-900 text-sm uppercase mb-1">Structured Investments</h4>
+                        <p class="text-xs text-slate-500 leading-relaxed">Access to sophisticated domestic and international equity markets, treasury bonds, structured deposit accounts, and managed wealth portfolios.</p>
+                    </div>
+                    <span class="text-[10px] font-bold text-blue-600 uppercase tracking-widest pt-2 border-t border-slate-50">Global Portfolios</span>
+                </div>
+
+                <!-- Service 3 -->
+                <div class="bg-white/95 backdrop-blur-xs p-6 rounded-3xl shadow-sm border border-slate-100 card-hover space-y-3 flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 rounded-xl bg-blue-50 text-[#002147] flex items-center justify-center mb-3 font-bold"><i class="fa-solid fa-vault"></i></div>
+                        <h4 class="font-black text-slate-900 text-sm uppercase mb-1">Pension &amp; Retirement</h4>
+                        <p class="text-xs text-slate-500 leading-relaxed">Specialist SIPP (Self-Invested Personal Pension) and SSAS administration services designed to protect, compound, and structure long-term generational wealth.</p>
+                    </div>
+                    <span class="text-[10px] font-bold text-blue-600 uppercase tracking-widest pt-2 border-t border-slate-50">Tax Efficient</span>
+                </div>
+
+                <!-- Service 4 -->
+                <div class="bg-white/95 backdrop-blur-xs p-6 rounded-3xl shadow-sm border border-slate-100 card-hover space-y-3 flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 rounded-xl bg-blue-50 text-[#002147] flex items-center justify-center mb-3 font-bold"><i class="fa-solid fa-earth-europe"></i></div>
+                        <h4 class="font-black text-slate-900 text-sm uppercase mb-1">Multi-Currency Vaults</h4>
+                        <p class="text-xs text-slate-500 leading-relaxed">Seamlessly hold, convert, and execute institutional settlements across GBP, EUR, USD, and CHF with dedicated relationship manager support.</p>
+                    </div>
+                    <span class="text-[10px] font-bold text-blue-600 uppercase tracking-widest pt-2 border-t border-slate-50">Instant Settlement</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Client Feedback & Reviews Section (20 Total: 17 Positive, 3 Constructive) -->
+        <div class="space-y-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-slate-200 pb-4">
+                <div>
+                    <span class="text-[10px] font-black uppercase tracking-widest text-blue-600 bg-blue-50 px-3 py-1 rounded-full">Client Testimonials</span>
+                    <h3 class="text-2xl font-black text-[#002147] uppercase tracking-tight mt-2">Verified Private Client Reviews</h3>
+                </div>
+                <div class="flex items-center gap-2 text-xs font-bold text-slate-600 bg-white/95 backdrop-blur-xs px-4 py-2 rounded-xl border border-slate-200">
+                    <span class="text-amber-500"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star-half-stroke"></i></span>
+                    <span>4.8 / 5.0 Overall Rating (2,400+ Clients)</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                
+                <!-- Positive 1 -->
+                <div class="bg-white/95 backdrop-blur-xs p-6 rounded-3xl shadow-sm border border-slate-100 card-hover space-y-3">
+                    <div class="flex justify-between items-center"><span class="text-xs font-black text-[#002147]">Lord Alistair Sterling</span><span class="text-amber-400 text-xs"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></span></div>
+                    <p class="text-xs text-slate-600 italic">"The multi-currency wealth vault handled our cross-border family estate transfers impeccably. Top-tier private banking."</p>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">Verified Private Client • London</p>
+                </div>
+
+                <!-- Positive 2 -->
+                <div class="bg-white/95 backdrop-blur-xs p-6 rounded-3xl shadow-sm border border-slate-100 card-hover space-y-3">
+                    <div class="flex justify-between items-center"><span class="text-xs font-black text-[#002147]">Dr. Beatrice Vance</span><span class="text-amber-400 text-xs"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></span></div>
+                    <p class="text-xs text-slate-600 italic">"Their Lombard lending speed saved our commercial real estate acquisition. My relationship manager is exceptionally professional."</p>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">Verified Corporate Client • Edinburgh</p>
+                </div>
+
+                <!-- Positive 3 -->
+                <div class="bg-white/95 backdrop-blur-xs p-6 rounded-3xl shadow-sm border border-slate-100 card-hover space-y-3">
+                    <div class="flex justify-between items-center"><span class="text-xs font-black text-[#002147]">Marcus Holloway</span><span class="text-amber-400 text-xs"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></span></div>
+                    <p class="text-xs text-slate-600 italic">"Secure 2FA authentication and prompt wire executions make Cater Allen our family office's preferred institution."</p>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">Verified Wealth Client • Geneva</p>
+                </div>
+
+                <!-- Positive 4 -->
+                <div class="bg-white/95 backdrop-blur-xs p-6 rounded-3xl shadow-sm border border-slate-100 card-hover space-y-3">
+                    <div class="flex justify-between items-center"><span class="text-xs font-black text-[#002147]">Lady Genevieve Dupont</span><span class="text-amber-400 text-xs"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></span></div>
+                    <p class="text-xs text-slate-600 italic">"Exquisite customer service. Setting up our SIPP retirement portfolio was smooth and handled with expert compliance."</p>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">Verified Pension Holder • London</p>
+                </div>
+
+                <!-- Negative 1 (Constructive) -->
+                <div class="bg-white/95 backdrop-blur-xs p-6 rounded-3xl shadow-sm border border-slate-100 card-hover space-y-3 border-l-4 border-l-amber-500">
+                    <div class="flex justify-between items-center"><span class="text-xs font-black text-[#002147]">Julian Thorne</span><span class="text-amber-400 text-xs"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i></span></div>
+                    <p class="text-xs text-slate-600 italic">"Initial digital onboarding took an extra 48 hours due to strict compliance checks, though my RM was helpful once verified."</p>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">Verified Client • Manchester</p>
+                </div>
+
+                <!-- Positive 5 -->
+                <div class="bg-white/95 backdrop-blur-xs p-6 rounded-3xl shadow-sm border border-slate-100 card-hover space-y-3">
+                    <div class="flex justify-between items-center"><span class="text-xs font-black text-[#002147]">Sir Jonathan Kellington</span><span class="text-amber-400 text-xs"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></span></div>
+                    <p class="text-xs text-slate-600 italic">"Impeccable privacy standards and solid FSCS protection. Exactly what you expect from a heritage British private bank."</p>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">Verified Investor • London</p>
+                </div>
+
+                <!-- Positive 6 -->
+                <div class="bg-white/95 backdrop-blur-xs p-6 rounded-3xl shadow-sm border border-slate-100 card-hover space-y-3">
+                    <div class="flex justify-between items-center"><span class="text-xs font-black text-[#002147]">Elena Rostova</span><span class="text-amber-400 text-xs"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></span></div>
+                    <p class="text-xs text-slate-600 italic">"Managing USD and GBP liquidity simultaneously has never been easier. The dashboard metrics are pristine."</p>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">Verified Private Client • Zurich</p>
+                </div>
+
+                <!-- Positive 7 -->
+                <div class="bg-white/95 backdrop-blur-xs p-6 rounded-3xl shadow-sm border border-slate-100 card-hover space-y-3">
+                    <div class="flex justify-between items-center"><span class="text-xs font-black text-[#002147]">Captain William Darby</span><span class="text-amber-400 text-xs"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></span></div>
+                    <p class="text-xs text-slate-600 italic">"Fast responses from the AI concierge and smooth escalation to human relationship managers when making large wire transfers."</p>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">Verified Client • Bristol</p>
+                </div>
+
+                <!-- Negative 2 (Constructive) -->
+                <div class="bg-white/95 backdrop-blur-xs p-6 rounded-3xl shadow-sm border border-slate-100 card-hover space-y-3 border-l-4 border-l-amber-500">
+                    <div class="flex justify-between items-center"><span class="text-xs font-black text-[#002147]">Samantha Wright</span><span class="text-amber-400 text-xs"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i></span></div>
+                    <p class="text-xs text-slate-600 italic">"Would love a dedicated mobile application for iOS widgets, though the web client works wonderfully on Safari."</p>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">Verified Client • Leeds</p>
+                </div>
+
+                <!-- Positive 8 -->
+                <div class="bg-white/95 backdrop-blur-xs p-6 rounded-3xl shadow-sm border border-slate-100 card-hover space-y-3">
+                    <div class="flex justify-between items-center"><span class="text-xs font-black text-[#002147]">Dr. Harrison Thorne</span><span class="text-amber-400 text-xs"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></span></div>
+                    <p class="text-xs text-slate-600 italic">"Structured investments yielded robust stability during recent market fluctuations. Highly recommend their wealth advisory desk."</p>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">Verified Investor • London</p>
+                </div>
+
+                <!-- Positive 9 -->
+                <div class="bg-white/95 backdrop-blur-xs p-6 rounded-3xl shadow-sm border border-slate-100 card-hover space-y-3">
+                    <div class="flex justify-between items-center"><span class="text-xs font-black text-[#002147]">Victoria Chen</span><span class="text-amber-400 text-xs"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></span></div>
+                    <p class="text-xs text-slate-600 italic">"Seamless international wire settlement. The transparency on fee structures is refreshing for private banking."</p>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">Verified Corporate Client • Singapore</p>
+                </div>
+
+                <!-- Positive 10 -->
+                <div class="bg-white/95 backdrop-blur-xs p-6 rounded-3xl shadow-sm border border-slate-100 card-hover space-y-3">
+                    <div class="flex justify-between items-center"><span class="text-xs font-black text-[#002147]">Oliver Kensington</span><span class="text-amber-400 text-xs"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></span></div>
+                    <p class="text-xs text-slate-600 italic">"Top-notch asset security. The multi-factor authentication gives complete confidence when managing large balances."</p>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">Verified Client • Birmingham</p>
+                </div>
+
+                <!-- Positive 11 -->
+                <div class="bg-white/95 backdrop-blur-xs p-6 rounded-3xl shadow-sm border border-slate-100 card-hover space-y-3">
+                    <div class="flex justify-between items-center"><span class="text-xs font-black text-[#002147]">Francesca Moretti</span><span class="text-amber-400 text-xs"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></span></div>
+                    <p class="text-xs text-slate-600 italic">"The Triton Square office team in London is exceptionally polite and efficient whenever we need in-person consultations."</p>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">Verified Client • Milan / London</p>
+                </div>
+
+                <!-- Negative 3 (Constructive) -->
+                <div class="bg-white/95 backdrop-blur-xs p-6 rounded-3xl shadow-sm border border-slate-100 card-hover space-y-3 border-l-4 border-l-amber-500">
+                    <div class="flex justify-between items-center"><span class="text-xs font-black text-[#002147]">David Al-Farsi</span><span class="text-amber-400 text-xs"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i></span></div>
+                    <p class="text-xs text-slate-600 italic">"Telephone support queues can occasionally run long during peak financial reporting periods at end of quarter."</p>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">Verified Client • Dubai</p>
+                </div>
+
+                <!-- Positive 12 -->
+                <div class="bg-white/95 backdrop-blur-xs p-6 rounded-3xl shadow-sm border border-slate-100 card-hover space-y-3">
+                    <div class="flex justify-between items-center"><span class="text-xs font-black text-[#002147]">Lady Margaret Ashcroft</span><span class="text-amber-400 text-xs"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></span></div>
+                    <p class="text-xs text-slate-600 italic">"Generational wealth planning has been seamless. Our trust account structure was executed flawlessly."</p>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">Verified Trust Client • Oxford</p>
+                </div>
+
+                <!-- Positive 13 -->
+                <div class="bg-white/95 backdrop-blur-xs p-6 rounded-3xl shadow-sm border border-slate-100 card-hover space-y-3">
+                    <div class="flex justify-between items-center"><span class="text-xs font-black text-[#002147]">Nicholas Van Der Bilt</span><span class="text-amber-400 text-xs"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></span></div>
+                    <p class="text-xs text-slate-600 italic">"Exceptional yield rates on treasury instruments and crystal-clear transaction reporting for tax auditing."</p>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">Verified Investor • Amsterdam</p>
+                </div>
+
+                <!-- Positive 14 -->
+                <div class="bg-white/95 backdrop-blur-xs p-6 rounded-3xl shadow-sm border border-slate-100 card-hover space-y-3">
+                    <div class="flex justify-between items-center"><span class="text-xs font-black text-[#002147]">Dr. Aris Thorne</span><span class="text-amber-400 text-xs"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></span></div>
+                    <p class="text-xs text-slate-600 italic">"Reliable, discrete, and professional. The gold standard for private banking clients in the UK."</p>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">Verified Private Client • Cambridge</p>
+                </div>
+
+                <!-- Positive 15 -->
+                <div class="bg-white/95 backdrop-blur-xs p-6 rounded-3xl shadow-sm border border-slate-100 card-hover space-y-3">
+                    <div class="flex justify-between items-center"><span class="text-xs font-black text-[#002147]">Sophia Montgomery</span><span class="text-amber-400 text-xs"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></span></div>
+                    <p class="text-xs text-slate-600 italic">"The new UI updates on the dashboard combined with direct sheet balancing make financial tracking effortless."</p>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">Verified Client • Cardiff</p>
+                </div>
+
+                <!-- Positive 16 -->
+                <div class="bg-white/95 backdrop-blur-xs p-6 rounded-3xl shadow-sm border border-slate-100 card-hover space-y-3">
+                    <div class="flex justify-between items-center"><span class="text-xs font-black text-[#002147]">Christian Bellamont</span><span class="text-amber-400 text-xs"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></span></div>
+                    <p class="text-xs text-slate-600 italic">"From card applications to institutional wire transfers, everything is handled with supreme security and efficiency."</p>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">Verified Corporate Client • Belfast</p>
+                </div>
+
+                <!-- Positive 17 -->
+                <div class="bg-white/95 backdrop-blur-xs p-6 rounded-3xl shadow-sm border border-slate-100 card-hover space-y-3">
+                    <div class="flex justify-between items-center"><span class="text-xs font-black text-[#002147]">Clara Montgomery-Smythe</span><span class="text-amber-400 text-xs"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></span></div>
+                    <p class="text-xs text-slate-600 italic">"Absolute peace of mind knowing my assets are backed by centuries of heritage and robust FSCS regulation."</p>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">Verified Wealth Client • Brighton</p>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="macey-blue text-white py-8 mt-16 text-center text-xs space-y-2 border-t border-blue-900 relative z-10">
+        <p class="font-bold uppercase tracking-widest">Cater Allen Private Bank • London Registered Office</p>
+        <p class="text-slate-400 text-[11px]">2 Triton Square, Regent's Place, London, NW1 3AN, United Kingdom • Authorized by the PRA and regulated by the FCA and PRA.</p>
+    </footer>
+
+</body>
+</html>

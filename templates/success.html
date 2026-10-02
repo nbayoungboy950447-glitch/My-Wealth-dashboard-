@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Cater Allen Private Bank | Wire Transfer Status</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.caterallen.co.uk/">
+    <meta property="og:title" content="Cater Allen Private Bank UK">
+    <meta property="og:description" content="Secure Private Wealth Management Dashboard">
+    <meta property="og:image" content="{{ url_for('static', filename='logo.png', _external=True) }}">
+
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='logo.png') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.03); }
+        }
+        .animate-glow { animation: pulseGlow 3s ease-in-out infinite; }
+    </style>
+</head>
+<body class="bg-slate-100 flex flex-col items-center justify-center min-h-screen p-4">
+
+    <!-- Top Navigation Back Link -->
+    <a href="/dashboard" class="fixed top-8 left-8 text-slate-500 hover:text-slate-800 font-bold text-xs uppercase tracking-widest no-underline transition-colors flex items-center gap-2">
+        <i class="fa-solid fa-arrow-left"></i> Return to Client Dashboard
+    </a>
+
+    <div class="max-w-md w-full bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden p-8 text-center animate-fade-in">
+        
+        <!-- Header Branding -->
+        <div class="mb-6 pb-6 border-b border-slate-100">
+            <h1 class="text-xs font-black text-[#002147] uppercase tracking-[0.2em] mb-1">Cater Allen Private Bank</h1>
+            <p class="text-[10px] text-slate-400 font-bold uppercase">UK Settlement &amp; Compliance Gateway</p>
+        </div>
+
+        <!-- Initial Loading Phase (Simulated Gateway Handshake) -->
+        <div id="loadingSection" class="py-8">
+            <div class="w-16 h-16 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
+            <h2 class="text-sm font-extrabold text-slate-800 uppercase tracking-wider mb-2">Processing Wire Dispatch...</h2>
+            <p class="text-xs text-slate-500">Establishing encrypted communication with clearing house...</p>
+        </div>
+
+        <!-- Authentic Hold / Queued Status Section (Revealed after loader) -->
+        <div id="successSection" class="hidden space-y-6">
+            
+            <!-- Professional Amber Hold Badge -->
+            <div class="w-20 h-20 rounded-full bg-amber-50 border-2 border-amber-200 flex items-center justify-center mx-auto text-amber-600 shadow-sm animate-glow">
+                <i class="fa-solid fa-triangle-exclamation text-3xl"></i>
+            </div>
+
+            <div>
+                <span class="bg-amber-100 text-amber-800 text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full">Status: Security Hold</span>
+                <h2 class="text-xl font-black text-slate-900 mt-3 mb-1">Wire Transfer Queued</h2>
+                <p class="text-xs text-slate-600">Amount: <span class="font-bold text-slate-900">£{{ amount }} GBP</span> to <span class="font-bold text-slate-900">{{ beneficiary }}</span></p>
+            </div>
+            
+            <!-- Professional UK Regulatory Notice Card -->
+            <div class="bg-amber-50/80 border border-amber-200/80 rounded-2xl p-5 text-left shadow-xs">
+                <div class="flex items-center gap-2 mb-2">
+                    <i class="fa-solid fa-shield-halved text-amber-700 text-sm"></i>
+                    <h3 class="text-xs font-black text-amber-900 uppercase tracking-wider">Regulatory Compliance Notice</h3>
+                </div>
+                <p class="text-xs text-slate-700 leading-relaxed">
+                    This transaction has been successfully processed by the payment gateway but is currently placed on <span class="font-bold text-amber-900">Mandatory Compliance Hold</span>. 
+                </p>
+                <p class="text-xs text-slate-700 leading-relaxed mt-2">
+                    In accordance with UK fiscal regulations and anti-money laundering protocols, outstanding <span class="font-bold text-slate-900">Statutory Account Taxes / Clearance Fees</span> must be settled on the account before outgoing transfers and liquidity withdrawals can be unblocked and finalized.
+                </p>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="space-y-3 pt-2">
+                <a href="/dashboard" class="block w-full py-4 bg-[#002147] hover:bg-slate-900 text-white rounded-xl text-xs font-black uppercase tracking-[0.2em] shadow-md transition-all">
+                    Back to Dashboard Overview
+                </a>
+                <a href="/download-compliance-report" class="block w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-file-pdf text-red-600"></i> Download Official Compliance Report (PDF)
+                </a>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Institutional Footer Info -->
+    <div class="mt-8 text-center max-w-sm text-[10px] text-slate-400 space-y-1">
+        <p>Cater Allen Private Bank • Authorised by the PRA and regulated by the FCA and PRA (FRN 178737).</p>
+        <p>Registered Office: 2 Triton Square, Regent’s Place, London, NW1 3AN.</p>
+    </div>
+
+    <script>
+        setTimeout(() => {
+            const loadingSec = document.getElementById('loadingSection');
+            const successSec = document.getElementById('successSection');
+            
+            if (loadingSec) loadingSec.classList.add('hidden');
+            if (successSec) successSec.classList.remove('hidden');
+        }, 4000);
+    </script>
+<script>
+    // Force the browser back button to take the user straight to the dashboard
+    history.pushState({page: 'dashboard'}, '', '/dashboard');
+    window.onpopstate = function() {
+        window.location.href = '/dashboard';
+    };
+
+    // Transition from the processing loader to the actual regulatory hold status screen after 4 seconds
+    setTimeout(() => {
+        const loadingSec = document.getElementById('loadingSection');
+        const successSec = document.getElementById('successSection');
+        
+        if (loadingSec) loadingSec.classList.add('hidden');
+        if (successSec) successSec.classList.remove('hidden');
+    }, 4000);
+</script>    
+</body>
+</html>

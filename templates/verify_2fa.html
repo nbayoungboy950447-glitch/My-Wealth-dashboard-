@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cater Allen Private Bank | Security Verification</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #0b1329; color: #1e293b; }
+        
+        .loader-ring {
+            border: 3px dashed rgba(220, 38, 38, 0.25);
+            border-top: 3px solid #dc2626;
+            border-radius: 50%;
+            width: 70px;
+            height: 70px;
+            animation: spin 1.2s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="bg-[#0b1329] flex items-center justify-center min-h-screen p-4">
+
+    <div class="bg-white w-full max-w-sm rounded-3xl shadow-2xl p-8 text-center animate-slideUp">
+        
+        <!-- Default Verification State -->
+        <div id="verifyStateDefault">
+            <div class="mb-5 pb-5 border-b border-slate-100">
+                <h1 class="text-xs font-black text-[#002147] uppercase tracking-[0.2em] mb-1">Cater Allen Private Bank</h1>
+                <p class="text-[10px] text-slate-400 font-bold uppercase">Security Authorization</p>
+            </div>
+
+            <h4 class="font-black text-sm text-[#002147] mb-1 uppercase tracking-wider">Two-Factor Authentication</h4>
+            <p class="text-xs text-slate-400 mb-6 leading-relaxed">A 6-digit verification code has been sent to your registered email address. Please enter it below.</p>
+            
+            <!-- Dashed Circular Loader & Lock Icon -->
+            <div class="relative w-20 h-20 mx-auto mb-6 flex items-center justify-center">
+                <div class="absolute inset-0 border-4 border-dashed border-red-600 rounded-full animate-spin"></div>
+                <i class="fa-solid fa-lock text-red-600 text-lg"></i>
+            </div>
+
+            <!-- 6 Individual OTP Boxes -->
+            <form id="otpForm" action="{{ url_for('verify_2fa') }}" method="POST" class="mb-6">
+                <input type="hidden" name="otp_code" id="hiddenOtpInput">
+                
+                <div class="flex justify-center gap-1.5 mb-6">
+                    <input type="password" maxlength="1" class="otp-box w-10 h-12 text-center text-lg font-bold bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-red-600" autofocus>
+                    <input type="password" maxlength="1" class="otp-box w-10 h-12 text-center text-lg font-bold bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-red-600">
+                    <input type="password" maxlength="1" class="otp-box w-10 h-12 text-center text-lg font-bold bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-red-600">
+                    <input type="password" maxlength="1" class="otp-box w-10 h-12 text-center text-lg font-bold bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-red-600">
+                    <input type="password" maxlength="1" class="otp-box w-10 h-12 text-center text-lg font-bold bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-red-600">
+                    <input type="password" maxlength="1" class="otp-box w-10 h-12 text-center text-lg font-bold bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-red-600">
+                </div>
+
+                {% if error %}
+                <p class="text-xs font-bold text-red-600 mb-4 bg-red-50 p-2.5 rounded-xl border border-red-200">{{ error }}</p>
+                {% endif %}
+
+                <div class="flex gap-2">
+                    <a href="/back-to-login" class="w-1/2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-3 rounded-xl text-xs uppercase flex items-center justify-center">Back</a>
+                    <button type="button" onclick="verifyOtpCode()" class="w-1/2 bg-[#002147] hover:bg-black text-white font-bold py-3 rounded-xl text-xs uppercase shadow-md">Verify</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Status Result State -->
+        <div id="verifyStateResult" class="hidden py-8">
+            <div id="resultIcon" class="w-16 h-16 mx-auto rounded-full flex items-center justify-center text-2xl mb-4"></div>
+            <h4 id="resultTitle" class="font-black text-sm mb-1 uppercase"></h4>
+            <p id="resultDesc" class="text-xs text-slate-400"></p>
+        </div>
+
+    </div>
+
+    <script>
+        // Auto-focus next OTP box
+        document.addEventListener('input', function (e) {
+            if (e.target.classList.contains('otp-box')) {
+                const next = e.target.nextElementSibling;
+                if (next && e.target.value) {
+                    next.focus();
+                }
+            }
+        });
+
+        // Backspace support
+        document.addEventListener('keydown', function (e) {
+            if (e.target.classList.contains('otp-box') && e.key === 'Backspace') {
+                if (!e.target.value && e.target.previousElementSibling) {
+                    e.target.previousElementSibling.focus();
+                }
+            }
+        });
+
+        function verifyOtpCode() {
+            const boxes = document.querySelectorAll('.otp-box');
+            let fullCode = '';
+            boxes.forEach(b => fullCode += b.value);
+
+            if (fullCode.length < 6) {
+                alert('Please enter the complete 6-digit verification code.');
+                return;
+            }
+
+            document.getElementById('hiddenOtpInput').value = fullCode;
+
+            const defaultState = document.getElementById('verifyStateDefault');
+            const resultState = document.getElementById('verifyStateResult');
+            const resultIcon = document.getElementById('resultIcon');
+            const resultTitle = document.getElementById('resultTitle');
+            const resultDesc = document.getElementById('resultDesc');
+
+            const titleEl = defaultState.querySelector('h4');
+            const descEl = defaultState.querySelector('p');
+            titleEl.innerText = "Authenticating Gateway";
+            descEl.innerText = "Verifying 6-digit cryptographic security token...";
+            boxes.forEach(b => b.disabled = true);
+
+            // Professional 4-second loading simulation before submitting to Flask backend
+            setTimeout(() => {
+                defaultState.classList.add('hidden');
+                resultState.classList.remove('hidden');
+
+                resultIcon.className = "w-16 h-16 mx-auto rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl mb-4";
+                resultIcon.innerHTML = '<i class="fa-solid fa-check"></i>';
+                resultTitle.className = "font-black text-sm text-emerald-600 mb-1 uppercase";
+                resultTitle.innerText = "Identity Verified";
+                resultDesc.innerText = "Granting secure access to private client vault...";
+
+                setTimeout(() => {
+                    document.getElementById('otpForm').submit();
+                }, 1500);
+            }, 4000);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cater Allen Private Bank | Dashboard</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+      
+        
+        .app-container { 
+            width: 100%; 
+            max-width: 100%; 
+            margin: 0 auto; 
+            min-height: 100vh; 
+            background-color: #f4f6f9; 
+            display: flex; 
+            flex-direction: column; body {
+    font-family: 'Inter', sans-serif;
+    background-color: #112240; /* A cleaner, slightly lighter professional navy blue */
+    color: #1e293b;
+}
+            position: relative; 
+        }
+        @media (min-width: 768px) {
+            .app-container { 
+                max-width: 1200px;
+                margin: 2rem auto; 
+                border-radius: 2rem; 
+                overflow-y: auto; 
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7); 
+                min-height: 92vh;
+            }
+        }
+        .macey-blue { background-color: #002147; }
+        .modal-overlay { display: none; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); position: fixed; inset: 0; z-index: 100; align-items: flex-end; }
+        @media (min-width: 768px) { .modal-overlay { align-items: center; justify-content: center; } }
+        .modal-content { background: #ffffff; width: 100%; max-height: 85vh; border-top-left-radius: 2rem; border-top-right-radius: 2rem; overflow-y: auto; padding: 1.5rem; animation: slideUp 0.3s ease-out; }
+        @media (min-width: 768px) { .modal-content { max-width: 500px; border-radius: 2rem; } }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        
+        .loader-ring {
+            border: 3px dashed rgba(255, 255, 255, 0.25);
+            border-top: 3px solid #60a5fa;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            animation: spin 1.2s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <!-- Global Interactive Loader Overlay -->
+        <div id="actionLoader" class="fixed inset-0 bg-slate-950/70 backdrop-blur-xs z-[200] hidden flex-col items-center justify-center text-white">
+            <div class="loader-ring mb-4"></div>
+            <p id="loaderText" class="text-xs font-black uppercase tracking-[0.25em] text-blue-300">Securing Gateway...</p>
+        </div>
+
+        <!-- Header Banner -->
+        <div class="macey-blue text-white px-6 pt-6 pb-8 relative overflow-hidden">
+            <div class="absolute inset-0 bg-[url('https://upload.wikimedia.org/wikipedia/en/a/ae/Flag_of_the_United_Kingdom.svg')] bg-cover bg-center opacity-10 pointer-events-none"></div>
+            
+            <div class="flex justify-between items-center mb-5 relative z-10">
+                <button type="button" onclick="handleDashboardBack()" class="text-white/80 hover:text-white text-xs font-bold uppercase tracking-wider flex items-center gap-1 cursor-pointer">
+                    <i class="fa-solid fa-chevron-left"></i> Back
+                </button>
+                <h1 class="text-xs font-black uppercase tracking-[0.2em] text-white/90">Cater Allen Checking</h1>
+                <div class="flex items-center gap-3">
+                    <button onclick="openModal('notificationsModal')" class="relative text-white/80 hover:text-white text-sm focus:outline-none">
+                        <i class="fa-solid fa-bell"></i>
+                        <span id="notifBadge" class="absolute -top-1.5 -right-2 bg-red-600 text-white text-[9px] font-black px-1.5 py-0.2 rounded-full border border-[#002147]">
+                            {{ history|length }}
+                        </span>
+                    </button>
+                    <a href="/logout" class="text-white/80 hover:text-white text-xs" title="Logout"><i class="fa-solid fa-power-off"></i></a>
+                </div>
+            </div>
+
+            <div class="text-center relative z-10">
+                <p class="text-[10px] font-semibold text-slate-300 uppercase tracking-widest mb-1">Available Balance</p>
+                <div class="flex items-center justify-center gap-2 mb-2">
+                    <h2 id="balanceDisplay" class="text-3xl font-black tracking-tight text-white">£{{ "{:,.2f}".format(live_balance) }}</h2>
+                    <button onclick="toggleBalance()" class="text-white/70 hover:text-white text-sm focus:outline-none" title="Toggle Balance & Account">
+                        <i id="eyeIcon" class="fa-solid fa-eye-slash"></i>
+                    </button>
+                </div>
+                
+                <div class="inline-flex items-center gap-2 bg-white/10 px-3 py-1 rounded-full text-[11px] font-mono text-slate-200">
+                    <span>Sort: 20-04-15</span>
+                    <span>•</span>
+                    <span>Acc: <span id="accountNumDisplay">••••0447</span></span>
+                </div>
+                
+                <div class="mt-2">
+                    <button onclick="triggerLoadAndOpen('accountModal', 'Fetching Account Specifications...')" class="text-[11px] font-bold text-blue-300 hover:underline">
+                        View Balance Details
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Scrollable Content -->
+        <div class="flex-grow overflow-y-auto px-4 md:px-10 py-6 space-y-6 pb-28">
+
+            <!-- 6 Feature Icon Grid -->
+            <div class="grid grid-cols-2 md:grid-cols-6 gap-3">
+                <button onclick="triggerLoadAndOpen('accountModal', 'Loading Account Profile...')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-2 hover:bg-slate-50 transition-all group">
+                    <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-700 group-hover:bg-blue-100 group-hover:text-blue-700 transition-colors">
+                        <i class="fa-solid fa-building-columns text-base"></i>
+                    </div>
+                    <span class="text-[11px] font-bold text-slate-700">My Account</span>
+                </button>
+
+                <button onclick="triggerLoadAndOpen('cardModal', 'Accessing Card Issuance...')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-2 hover:bg-slate-50 transition-all group">
+                    <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-700 group-hover:bg-blue-100 group-hover:text-blue-700 transition-colors">
+                        <i class="fa-solid fa-credit-card text-base"></i>
+                    </div>
+                    <span class="text-[11px] font-bold text-slate-700">My Card</span>
+                </button>
+
+                <button onclick="triggerLoadAndOpen('transferModal', 'Initializing Transfer Hub...')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-2 hover:bg-slate-50 transition-all group">
+                    <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-700 group-hover:bg-emerald-100 group-hover:text-emerald-700 transition-colors">
+                        <i class="fa-solid fa-money-bill-transfer text-base"></i>
+                    </div>
+                    <span class="text-[11px] font-bold text-slate-700">Move Money</span>
+                </button>
+
+                <button onclick="triggerLoadAndOpen('transferModal', 'Opening Transfer services...')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-2 hover:bg-slate-50 transition-all group">
+                    <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-700 group-hover:bg-red-100 group-hover:text-red-700 transition-colors">
+                        <i class="fa-solid fa-arrow-right-arrow-left text-base"></i>
+                    </div>
+                    <span class="text-[11px] font-bold text-slate-700">Transfer</span>
+                </button>
+
+                <button onclick="triggerLoadAndOpen('billsModal', 'Connecting UK Utility Network...')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-2 hover:bg-slate-50 transition-all group">
+                    <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-700 group-hover:bg-purple-100 group-hover:text-purple-700 transition-colors">
+                        <i class="fa-solid fa-file-invoice-dollar text-base"></i>
+                    </div>
+                    <span class="text-[11px] font-bold text-slate-700">Pay Bills</span>
+                </button>
+
+                <button onclick="triggerLoadAndOpen('depositModal', 'Loading Direct Deposit...')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-2 hover:bg-slate-50 transition-all group">
+                    <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-700 group-hover:bg-blue-100 group-hover:text-blue-700 transition-colors">
+                        <i class="fa-solid fa-piggy-bank text-base"></i>
+                    </div>
+                    <span class="text-[11px] font-bold text-slate-700">Deposit</span>
+                </button>
+            </div>
+
+            <!-- Account Owner Card -->
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-[#002147] font-black text-xs border border-slate-200">
+                        LB
+                    </div>
+                    <div>
+                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Account Owner</p>
+                        <p class="text-xs font-black uppercase tracking-tight text-slate-800">LYDIA BROOKE DAINA</p>
+                    </div>
+                </div>
+                <div class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse mr-2 shadow-sm shadow-emerald-200" title="Active"></div>
+            </div>
+
+            <!-- Scheduled Transactions Widget -->
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center justify-between cursor-pointer hover:bg-slate-50">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center text-slate-600">
+                        <i class="fa-solid fa-calendar-days text-sm"></i>
+                    </div>
+                  <!-- Account Statement Widget -->
+    <a href="/statement" class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center justify-between cursor-pointer hover:bg-slate-50 no-underline">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
+                <i class="fa-solid fa-file-invoice text-sm"></i>
+            </div>
+            <div>
+                <p class="text-xs font-bold uppercase tracking-wider text-slate-800">Account Statement</p>
+                <p class="text-[10px] text-slate-400">View verified positive deposits &amp; credits</p>
+            </div>
+        </div>
+        <i class="fa-solid fa-chevron-right text-xs text-slate-400"></i>
+    </a>
+                </div>
+                <i class="fa-solid fa-chevron-right text-xs text-slate-400"></i>
+            </div>
+
+            <!-- Transaction Activity Section -->
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xs font-black uppercase tracking-wider text-slate-500">Transaction Activity</h3>
+                    <button onclick="openSearchModal()" class="text-xs font-bold text-blue-600 hover:underline">Search</button>
+                </div>
+
+                <div class="divide-y divide-slate-100" id="transactionList">
+                {% for txn in history[:30] %}
+                <div class="py-3 px-3 flex items-center justify-between gap-3 cursor-pointer hover:bg-slate-50 hover:shadow-sm transition-all rounded-xl border border-transparent hover:border-slate-100 group">
+                    
+                    <div class="flex items-center gap-3">
+                        {% if '-' in txn.amount|string %}
+                        <div class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-600 transition-colors">
+                            <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                        </div>
+                        {% else %}
+                        <div class="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 transition-colors">
+                            <i class="fa-solid fa-arrow-down-left-to-square text-xs"></i>
+                        </div>
+                        {% endif %}
+                        
+                        <div>
+                            <p class="text-xs font-extrabold text-slate-800 tracking-tight">{{ txn.description }}</p>
+                            <p class="text-[10px] text-slate-400">{{ txn.date }} • Ref: {{ txn.ref }}</p>
+                        </div>
+                    </div>
+
+                    <div class="text-right">
+                        <p class="text-xs font-bold {% if '-' in txn.amount|string %}text-red-600{% else %}text-emerald-600{% endif %}">
+                            {{ txn.amount }}
+                        </p>
+                        <span class="text-[9px] font-semibold px-2 py-0.5 rounded-full {% if txn.status == 'COMPLETED' %}bg-emerald-50 text-emerald-600{% else %}bg-amber-50 text-amber-600{% endif %}">
+                            {{ txn.status }}
+                        </span>
+                    </div>
+                </div>
+                {% endfor %}
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Expanded Bottom Navigation Bar -->
+        <nav class="macey-blue border-t border-slate-800 py-3 px-4 flex justify-around items-center absolute bottom-0 left-0 right-0 z-40 text-white">
+            <a href="/dashboard" class="flex flex-col items-center gap-0.5 text-blue-400 text-[9px] font-bold uppercase tracking-wider">
+                <i class="fa-solid fa-house text-xs"></i> Home
+            </a>
+            <button onclick="openSearchModal()" class="flex flex-col items-center gap-0.5 text-white/70 hover:text-white text-[9px] font-bold uppercase tracking-wider">
+                <i class="fa-solid fa-magnifying-glass text-xs"></i> Search
+            </button>
+            <button onclick="openChatModal()" class="flex flex-col items-center gap-0.5 text-white/70 hover:text-white text-[9px] font-bold uppercase tracking-wider">
+                <i class="fa-solid fa-comment-dots text-xs"></i> Chat
+            </button>
+            <button onclick="triggerLoadAndOpen('cardModal', 'Loading Card Hub...')" class="flex flex-col items-center gap-0.5 text-white/70 hover:text-white text-[9px] font-bold uppercase tracking-wider">
+                <i class="fa-solid fa-credit-card text-xs"></i> Cards
+            </button>
+            <button onclick="alert('Cater Allen Priority Support Desk: +44 20 7946 0990 | support@caterallen.co.uk')" class="flex flex-col items-center gap-0.5 text-white/70 hover:text-white text-[9px] font-bold uppercase tracking-wider">
+                <i class="fa-solid fa-headset text-xs"></i> Support
+            </button>
+        </nav>
+
+    </div>
+
+    <!-- NOTIFICATIONS MODAL -->
+    <div id="notificationsModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-bell text-[#002147]"></i>
+                    <h3 class="text-sm font-black uppercase text-[#002147]">Recent Activity Notifications</h3>
+                </div>
+                <button onclick="closeModal('notificationsModal')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="space-y-3 text-xs max-h-72 overflow-y-auto">
+                {% for txn in history %}
+                <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 flex justify-between items-center">
+                    <div>
+                        <p class="font-extrabold text-slate-800 uppercase">{{ txn.description }}</p>
+                        <p class="text-[10px] text-slate-500">{{ txn.date }} • Ref: {{ txn.ref }}</p>
+                    </div>
+                    <span class="font-black {% if '-' in txn.amount|string %}text-red-600{% else %}text-emerald-600{% endif %}">
+                        {{ txn.amount }}
+                    </span>
+                </div>
+                {% else %}
+                <p class="text-slate-400 text-center py-6">No unread notifications.</p>
+                {% endfor %}
+            </div>
+            <button onclick="closeModal('notificationsModal')" class="w-full mt-4 bg-[#002147] text-white py-3 rounded-xl font-bold uppercase">Mark All Read</button>
+        </div>
+    </div>
+
+    <!-- SEARCH DRAWER MODAL -->
+    <div id="searchModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
+                <h3 class="text-sm font-black uppercase text-[#002147]">Search Dashboard &amp; Activity</h3>
+                <button onclick="closeModal('searchModal')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="space-y-4 text-xs">
+                <input type="text" id="searchInput" oninput="filterDashboard(this.value)" placeholder="Type to search transactions, cards, transfers..." class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 outline-none focus:ring-2 focus:ring-blue-600">
+                <div id="searchResults" class="space-y-2 max-h-60 overflow-y-auto">
+                    <p class="text-slate-400 text-center py-4">Enter keywords to search your account history.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI SUPPORT CHAT MODAL -->
+    <div id="chatModal" class="modal-overlay">
+        <div class="modal-content flex flex-col h-[75vh]">
+            <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2">
+                    <div class="h-2 w-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                    <h3 class="text-sm font-black uppercase text-[#002147]">Cater Allen Support</h3>
+                </div>
+                <button onclick="closeModal('chatModal')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            
+            <div id="chatMessages" class="flex-grow overflow-y-auto space-y-3 p-3 bg-slate-50 rounded-xl text-xs mb-3 border border-slate-200">
+                <div class="bg-white p-3 rounded-2xl rounded-tl-none border border-slate-100 shadow-xs text-slate-700 leading-relaxed max-w-[85%]">
+                    Hello Lydia. I am your Cater Allen private banking assistant. How can I assist with your account status, liquidity transfers, or tax clearance requirements today?
+                </div>
+            </div>
+
+            <div class="flex gap-2">
+                <input type="text" id="chatInput" placeholder="Ask about balance, transfers, tax..." class="flex-grow p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#002147]" onkeypress="if(event.key === 'Enter') sendChatMessage()">
+                <button onclick="sendChatMessage()" class="bg-[#002147] text-white px-4 rounded-xl text-xs font-bold uppercase"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 1: MY ACCOUNT -->
+    <div id="accountModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
+                <h3 class="text-sm font-black uppercase text-[#002147]">Account Specifications</h3>
+                <button onclick="closeModal('accountModal')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="space-y-4 text-xs">
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <p class="text-[10px] font-black text-slate-400 uppercase">Account Holder</p>
+                    <p class="text-sm font-extrabold text-slate-800">Lydia Brooke Daina</p>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                        <p class="text-[10px] font-black text-slate-400 uppercase">Account Type</p>
+                        <p class="font-bold text-slate-800">Classic Current Account</p>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                        <p class="text-[10px] font-black text-slate-400 uppercase">Sort Code</p>
+                        <p class="font-bold text-slate-800">20-04-15</p>
+                    </div>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <p class="text-[10px] font-black text-slate-400 uppercase">Account Number / IBAN</p>
+                    <p class="font-mono font-bold text-slate-800">GB84 CATER 4029 1195 0447</p>
+                </div>
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-3 rounded-r-xl text-blue-900 text-[11px]">
+                    <p class="font-bold">FSCS Protected Institution</p>
+                    <p class="mt-0.5">Eligible deposits protected up to £85,000 by the Financial Services Compensation Scheme.</p>
+                </div>
+                <button onclick="closeModal('accountModal')" class="w-full bg-[#002147] text-white py-3 rounded-xl font-bold uppercase tracking-wider">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: MY CARD -->
+    <div id="cardModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
+                <h3 class="text-sm font-black uppercase text-[#002147]">Card Issuance &amp; Application</h3>
+                <button onclick="closeModal('cardModal')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form action="/apply_card" method="POST" class="space-y-4 text-xs">
+                <div class="bg-gradient-to-r from-slate-900 to-[#002147] text-white p-5 rounded-2xl shadow-md">
+                    <div class="flex justify-between items-start mb-6">
+                        <span class="text-[10px] font-black tracking-widest text-blue-400 uppercase">Cater Allen Bank</span>
+                        <i class="fa-solid fa-credit-card text-xl text-white/80"></i>
+                    </div>
+                    <p class="font-mono tracking-widest text-sm mb-4">•••• •••• •••• 9504</p>
+                    <div class="flex justify-between items-end">
+                        <div>
+                            <p class="text-[9px] text-slate-400 uppercase">Cardholder</p>
+                            <p class="font-bold uppercase tracking-wider text-[11px]">Lydia Brooke Daina</p>
+                        </div>
+                        <span class="text-xs font-extrabold italic">STANDARD DEBIT</span>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-black uppercase text-slate-500 mb-1">Select Debit Card</label>
+                    <select name="card_type" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-800">
+                        <option value="Visa Standard Debit">Visa Standard Debit Card</option>
+                        <option value="Mastercard Debit">Mastercard Everyday Debit</option>
+                        <option value="Contactless Virtual Card">Contactless Virtual Debit Card</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black uppercase text-slate-500 mb-1">Delivery Address</label>
+                    <input type="text" name="address" required placeholder="Enter your residential address" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800">
+                </div>
+                <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white py-3.5 rounded-xl font-black uppercase tracking-widest shadow-md">
+                    Submit Card Application
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 3: TRANSFER HUB -->
+    <div id="transferModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
+                <h3 class="text-sm font-black uppercase text-[#002147]">Select Transfer Method</h3>
+                <button onclick="closeModal('transferModal')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="space-y-3 text-xs">
+                <button onclick="openSubModal('wireModal')" class="w-full text-left p-4 rounded-2xl bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-300 flex items-center justify-between transition-all group">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-red-100 text-red-600 flex items-center justify-center font-bold"><i class="fa-solid fa-globe"></i></div>
+                        <div>
+                            <p class="font-extrabold text-slate-900 group-hover:text-red-600">International / Wire Transfer</p>
+                            <p class="text-[10px] text-slate-500">Global SWIFT, Sort Code &amp; IBAN settlement</p>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-slate-400"></i>
+                </button>
+
+                <button onclick="openSubModal('domesticModal')" class="w-full text-left p-4 rounded-2xl bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-blue-300 flex items-center justify-between transition-all group">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center font-bold"><i class="fa-solid fa-building-columns"></i></div>
+                        <div>
+                            <p class="font-extrabold text-slate-900 group-hover:text-blue-600">Domestic Bank Transfer</p>
+                            <p class="text-[10px] text-slate-500">UK Faster Payments Service (FPS)</p>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-slate-400"></i>
+                </button>
+
+                <button onclick="openSubModal('p2pHubModal')" class="w-full text-left p-4 rounded-2xl bg-slate-50 hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 flex items-center justify-between transition-all group">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold"><i class="fa-solid fa-wallet"></i></div>
+                        <div>
+                            <p class="font-extrabold text-slate-900 group-hover:text-emerald-600">Peer-to-Peer / Wallet Transfer</p>
+                            <p class="text-[10px] text-slate-500">PayPal, Cash App &amp; Western Union</p>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-slate-400"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- UPGRADED INTERNATIONAL WIRE TRANSFER FORM -->
+    <div id="wireModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2">
+                    <button onclick="backToTransferModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-arrow-left"></i></button>
+                    <h3 class="text-sm font-black uppercase text-[#002147]">Secure International Wire Transfer</h3>
+                </div>
+                <button onclick="closeModal('wireModal')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <form id="wireForm" action="{{ url_for('execute_wire') }}" method="POST" class="space-y-4 text-xs">
+                
+                <!-- Destination Country -->
+                <div>
+                    <label class="block text-[10px] uppercase font-black text-slate-500 mb-1">Destination Country</label>
+                    <select id="wireCountry" name="wire_country" onchange="updateCountryFields()" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-800">
+                        <option value="UK">United Kingdom (UK)</option>
+                        <option value="US">United States (US)</option>
+                        <option value="CA">Canada</option>
+                        <option value="AU">Australia</option>
+                        <option value="INTL">Other International (SWIFT/BIC)</option>
+                    </select>
+                </div>
+
+                <!-- Bank Name & Beneficiary Name -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[10px] uppercase font-black text-slate-500 mb-1">Bank Name / Institution</label>
+                        <input type="text" name="wire_institution" required placeholder="e.g. Royal Bank of Canada" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] uppercase font-black text-slate-500 mb-1">Beneficiary Legal Name</label>
+                        <input type="text" name="wire_beneficiary" required placeholder="Full Legal Name" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800">
+                    </div>
+                </div>
+
+                <!-- Address, City, Postal Code -->
+                <div>
+                    <label class="block text-[10px] uppercase font-black text-slate-500 mb-1">Beneficiary Street Address</label>
+                    <input type="text" name="wire_address" required placeholder="Street Address" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[10px] uppercase font-black text-slate-500 mb-1">City</label>
+                        <input type="text" name="wire_city" required placeholder="City" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] uppercase font-black text-slate-500 mb-1">Postal / Zip Code</label>
+                        <input type="text" name="wire_postal" required placeholder="Postal Code" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800">
+                    </div>
+                </div>
+
+                <!-- Dynamic Country-Specific Routing Fields -->
+                <div id="routingFieldsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <!-- Populated via JS -->
+                </div>
+
+                <!-- Account Number / IBAN -->
+                <div>
+                    <label class="block text-[10px] uppercase font-black text-slate-500 mb-1">Account Number / IBAN</label>
+                    <input type="text" name="wire_account" required placeholder="Account Number" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800">
+                </div>
+
+                <!-- Recipient Email -->
+                <div>
+                    <label class="block text-[10px] uppercase font-black text-slate-500 mb-1">Recipient Email Address</label>
+                    <input type="email" name="wire_recipient_email" required placeholder="recipient@domain.com" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800">
+                </div>
+
+                <!-- Amount -->
+                <div class="bg-slate-50 p-4 rounded-2xl text-center border border-slate-200">
+                    <label class="block text-[10px] font-black uppercase text-slate-400 mb-1">Transfer Amount (£ GBP)</label>
+                    <div class="flex items-center justify-center gap-1">
+                        <span class="text-lg font-black text-slate-600">£</span>
+                        <input type="number" step="0.01" name="wire_amount" required value="0.00" class="bg-transparent text-2xl font-black text-slate-800 w-36 text-center focus:outline-none border-b border-slate-300">
+                    </div>
+                </div>
+
+                <!-- Submit Button triggers PIN verification modal -->
+                <button type="button" onclick="triggerPinVerification()" class="w-full bg-red-600 hover:bg-red-700 text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-md transition-all">
+                    Execute Wire Transfer
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- PIN VERIFICATION & DASHED LOADING MODAL -->
+    <div id="pinModal" class="fixed inset-0 z-[300] hidden items-center justify-center bg-black/70 backdrop-blur-md p-4">
+        <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl p-6 text-center animate-slideUp">
+            <div id="pinStateDefault">
+                <h4 class="font-black text-sm text-[#002147] mb-1 uppercase tracking-wider">Security Authorization</h4>
+                <p class="text-xs text-slate-400 mb-6">Enter your 4-digit secure bank PIN to authorize transfer.</p>
+                
+                <!-- Dashed Circular Loader & Icon -->
+                <div class="relative w-20 h-20 mx-auto mb-6 flex items-center justify-center">
+                    <div class="absolute inset-0 border-4 border-dashed border-red-600 rounded-full animate-spin"></div>
+                    <i class="fa-solid fa-lock text-red-600 text-lg"></i>
+                </div>
+
+                <div class="flex justify-center gap-2 mb-6">
+                    <input type="password" maxlength="1" class="pin-box w-12 h-12 text-center text-xl font-bold bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-red-600" autofocus>
+                    <input type="password" maxlength="1" class="pin-box w-12 h-12 text-center text-xl font-bold bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-red-600">
+                    <input type="password" maxlength="1" class="pin-box w-12 h-12 text-center text-xl font-bold bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-red-600">
+                    <input type="password" maxlength="1" class="pin-box w-12 h-12 text-center text-xl font-bold bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-red-600">
+                </div>
+
+                <div class="flex gap-2">
+                    <button type="button" onclick="closePinModal()" class="w-1/2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-2.5 rounded-xl text-xs uppercase">Cancel</button>
+                    <button type="button" onclick="verifyPinCode()" class="w-1/2 bg-[#002147] hover:bg-black text-white font-bold py-2.5 rounded-xl text-xs uppercase">Authorize</button>
+                </div>
+            </div>
+
+            <!-- Status Result State (Verified / Failed) -->
+            <div id="pinStateResult" class="hidden py-8">
+                <div id="resultIcon" class="w-16 h-16 mx-auto rounded-full flex items-center justify-center text-2xl mb-4"></div>
+                <h4 id="resultTitle" class="font-bold text-sm mb-1 uppercase"></h4>
+                <p id="resultDesc" class="text-xs text-slate-400"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- DOMESTIC TRANSFER FORM -->
+    <div id="domesticModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2">
+                    <button onclick="backToTransferModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-arrow-left"></i></button>
+                    <h3 class="text-sm font-black uppercase text-[#002147]">Domestic Bank Transfer (FPS)</h3>
+                </div>
+                <button onclick="closeModal('domesticModal')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form action="/execute_wire" method="POST" class="space-y-4 text-xs" onsubmit="processGeneralPayment(event, this)">
+                <div>
+                    <label class="block text-[10px] font-black uppercase text-slate-500 mb-1">Recipient Full Name</label>
+                    <input type="text" name="wire_beneficiary" required placeholder="Account Holder Name" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[10px] font-black uppercase text-slate-500 mb-1">Sort Code</label>
+                        <input type="text" name="wire_routing" required placeholder="XX-XX-XX" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black uppercase text-slate-500 mb-1">Account Number</label>
+                        <input type="text" name="wire_account" required placeholder="8 Digits" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800">
+                    </div>
+                </div>
+                <input type="hidden" name="wire_institution" value="UK Domestic Clearing Bank">
+                <div>
+                    <label class="block text-[10px] font-black uppercase text-slate-500 mb-1">Recipient Email</label>
+                    <input type="email" name="wire_recipient_email" required placeholder="email@domain.co.uk" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800">
+                </div>
+                <div class="bg-slate-50 p-4 rounded-2xl text-center">
+                    <label class="block text-[10px] font-black uppercase text-slate-400 mb-1">Amount (£ GBP)</label>
+                    <input type="number" step="0.01" name="wire_amount" required value="0.00" class="bg-transparent text-2xl font-black text-slate-800 w-36 text-center focus:outline-none border-b border-slate-300">
+                </div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-md">
+                    Send Domestic Transfer
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- P2P HUB -->
+    <div id="p2pHubModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2">
+                    <button onclick="backToTransferModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-arrow-left"></i></button>
+                    <h3 class="text-sm font-black uppercase text-[#002147]">Select P2P / Wallet Partner</h3>
+                </div>
+                <button onclick="closeModal('p2pHubModal')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="space-y-3 text-xs">
+                <button onclick="openSubModal('paypalModal')" class="w-full text-left p-4 rounded-2xl bg-slate-50 hover:bg-blue-50 border border-slate-200 flex items-center justify-between transition-all">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold">PP</div>
+                        <div><p class="font-extrabold text-slate-900">PayPal Express Transfer</p><p class="text-[10px] text-slate-500">Fund transfer via email or mobile ID</p></div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-slate-400"></i>
+                </button>
+                <button onclick="openSubModal('cashappModal')" class="w-full text-left p-4 rounded-2xl bg-slate-50 hover:bg-emerald-50 border border-slate-200 flex items-center justify-between transition-all">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-[#00D632] text-white flex items-center justify-center font-bold">£</div>
+                        <div><p class="font-extrabold text-slate-900">Cash App Direct</p><p class="text-[10px] text-slate-500">Transfer using $Cashtag or phone</p></div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-slate-400"></i>
+                </button>
+                <button onclick="openSubModal('wuModal')" class="w-full text-left p-4 rounded-2xl bg-slate-50 hover:bg-amber-50 border border-slate-200 flex items-center justify-between transition-all">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-amber-400 text-black flex items-center justify-center font-black text-[10px]">WU</div>
+                        <div><p class="font-extrabold text-slate-900">Western Union Global</p><p class="text-[10px] text-slate-500">Instant cash pickup or bank payout</p></div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-slate-400"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAYPAL FORM -->
+    <div id="paypalModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2">
+                    <button onclick="openSubModal('p2pHubModal')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-arrow-left"></i></button>
+                    <h3 class="text-sm font-black uppercase text-[#002147]">PayPal Transfer Gateway</h3>
+                </div>
+                <button onclick="closeModal('paypalModal')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form action="/execute_wire" method="POST" class="space-y-4 text-xs" onsubmit="processGeneralPayment(event, this)">
+                <input type="hidden" name="wire_institution" value="PayPal Network Europe">
+                <div>
+                    <label class="block text-[10px] font-black uppercase text-slate-500 mb-1">PayPal Email or Mobile ID</label>
+                    <input type="text" name="wire_recipient_email" required placeholder="recipient@paypal.com" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black uppercase text-slate-500 mb-1">Recipient Full Name</label>
+                    <input type="text" name="wire_beneficiary" required placeholder="Account Holder Name" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800">
+                </div>
+                <input type="hidden" name="wire_routing" value="PP-UK-99">
+                <input type="hidden" name="wire_account" value="PAYPAL-WALLET">
+                <div class="bg-slate-50 p-4 rounded-2xl text-center">
+                    <label class="block text-[10px] font-black uppercase text-slate-400 mb-1">Transfer Amount (£ GBP)</label>
+                    <input type="number" step="0.01" name="wire_amount" required value="0.00" class="bg-transparent text-2xl font-black text-slate-800 w-36 text-center focus:outline-none border-b border-slate-300">
+                </div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-md">Send via PayPal</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- CASH APP FORM -->
+    <div id="cashappModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2">
+                    <button onclick="openSubModal('p2pHubModal')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-arrow-left"></i></button>
+                    <h3 class="text-sm font-black uppercase text-[#002147]">Cash App Transfer Gateway</h3>
+                </div>
+                <button onclick="closeModal('cashappModal')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form action="/execute_wire" method="POST" class="space-y-4 text-xs" onsubmit="processGeneralPayment(event, this)">
+                <input type="hidden" name="wire_institution" value="Cash App UK">
+                <div>
+                    <label class="block text-[10px] font-black uppercase text-slate-500 mb-1">Recipient $Cashtag or Phone</label>
+                    <input type="text" name="wire_beneficiary" required placeholder="$Cashtag" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800">
+                </div>
+                <input type="hidden" name="wire_routing" value="CA-UK-01">
+                <input type="hidden" name="wire_account" value="CASHAPP-NODE">
+                <input type="hidden" name="wire_recipient_email" value="cashapp-settlement@caterallen.co.uk">
+                <div class="bg-slate-50 p-4 rounded-2xl text-center">
+                    <label class="block text-[10px] font-black uppercase text-slate-400 mb-1">Transfer Amount (£ GBP)</label>
+                    <input type="number" step="0.01" name="wire_amount" required value="0.00" class="bg-transparent text-2xl font-black text-slate-800 w-36 text-center focus:outline-none border-b border-slate-300">
+                </div>
+                <button type="submit" class="w-full bg-[#00D632] hover:bg-emerald-600 text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-md">Send via Cash App</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- WESTERN UNION FORM -->
+    <div id="wuModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2">
+                    <button onclick="openSubModal('p2pHubModal')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-arrow-left"></i></button>
+                    <h3 class="text-sm font-black uppercase text-[#002147]">Western Union Global Payout</h3>
+                </div>
+                <button onclick="closeModal('wuModal')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form action="/execute_wire" method="POST" class="space-y-4 text-xs" onsubmit="processGeneralPayment(event, this)">
+                <input type="hidden" name="wire_institution" value="Western Union Global">
+                <div>
+                    <label class="block text-[10px] font-black uppercase text-slate-500 mb-1">Receiver Legal Full Name</label>
+                    <input type="text" name="wire_beneficiary" required placeholder="First & Last Name" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black uppercase text-slate-500 mb-1">Receiver Email</label>
+                    <input type="email" name="wire_recipient_email" required placeholder="receiver@domain.com" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800">
+                </div>
+                <input type="hidden" name="wire_routing" value="WU-GL-88">
+                <input type="hidden" name="wire_account" value="WU-CASH-PAYOUT">
+                <div class="bg-slate-50 p-4 rounded-2xl text-center">
+                    <label class="block text-[10px] font-black uppercase text-slate-400 mb-1">Transfer Amount (£ GBP)</label>
+                    <input type="number" step="0.01" name="wire_amount" required value="0.00" class="bg-transparent text-2xl font-black text-slate-800 w-36 text-center focus:outline-none border-b border-slate-300">
+                </div>
+                <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-black py-4 rounded-xl font-black uppercase tracking-widest shadow-md">Send Western Union Payout</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 4: PAY BILLS -->
+    <div id="billsModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
+                <h3 class="text-sm font-black uppercase text-[#002147]">UK Bill Pay &amp; Utilities</h3>
+                <button onclick="closeModal('billsModal')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="space-y-3 text-xs">
+                <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 flex justify-between items-center">
+                    <div><p class="font-bold text-slate-800">British Gas Energy</p><p class="text-[10px] text-slate-500">Account #GB-99283-F</p></div>
+                    <button onclick="openBillPayForm('British Gas Energy', 'GB-99283-F')" class="bg-[#002147] text-white px-3 py-1.5 rounded-lg font-bold">Pay Bill</button>
+                </div>
+                <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 flex justify-between items-center">
+                    <div><p class="font-bold text-slate-800">Thames Water</p><p class="text-[10px] text-slate-500">Account #TW-44810-W</p></div>
+                    <button onclick="openBillPayForm('Thames Water', 'TW-44810-W')" class="bg-[#002147] text-white px-3 py-1.5 rounded-lg font-bold">Pay Bill</button>
+                </div>
+                <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 flex justify-between items-center">
+                    <div><p class="font-bold text-slate-800">London Council Tax</p><p class="text-[10px] text-slate-500">Reference #CT-88372</p></div>
+                    <button onclick="openBillPayForm('London Council Tax', 'CT-88372')" class="bg-[#002147] text-white px-3 py-1.5 rounded-lg font-bold">Pay Bill</button>
+                </div>
+                <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 flex justify-between items-center">
+                    <div><p class="font-bold text-slate-800">BT Broadband &amp; Landline</p><p class="text-[10px] text-slate-500">Account #BT-11029-B</p></div>
+                    <button onclick="openBillPayForm('BT Broadband', 'BT-11029-B')" class="bg-[#002147] text-white px-3 py-1.5 rounded-lg font-bold">Pay Bill</button>
+                </div>
+                <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 flex justify-between items-center">
+                    <div><p class="font-bold text-slate-800">EE Mobile &amp; Fibre</p><p class="text-[10px] text-slate-500">Account #EE-55612-M</p></div>
+                    <button onclick="openBillPayForm('EE Mobile', 'EE-55612-M')" class="bg-[#002147] text-white px-3 py-1.5 rounded-lg font-bold">Pay Bill</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BILL PAYMENT FORM MODAL -->
+    <div id="billPayFormModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2">
+                    <button onclick="openModal('billsModal')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-arrow-left"></i></button>
+                    <h3 id="billFormTitle" class="text-sm font-black uppercase text-[#002147]">Settle Utility Bill</h3>
+                </div>
+                <button onclick="closeModal('billPayFormModal')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form action="/execute_wire" method="POST" class="space-y-4 text-xs" onsubmit="processGeneralPayment(event, this)">
+                <input type="hidden" id="bill_institution_input" name="wire_institution" value="">
+                <div>
+                    <label class="block text-[10px] font-black uppercase text-slate-500 mb-1">Billing Reference / Account</label>
+                    <input type="text" id="bill_ref_input" name="wire_account" required readonly class="w-full p-3 bg-slate-100 border border-slate-200 rounded-xl text-slate-800 font-mono">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black uppercase text-slate-500 mb-1">Biller Legal Entity</label>
+                    <input type="text" name="wire_beneficiary" required value="UK Corporate Biller Ltd" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800">
+                </div>
+                <input type="hidden" name="wire_routing" value="UK-UTILITY-CLR">
+                <input type="hidden" name="wire_recipient_email" value="billing-compliance@caterallen.co.uk">
+                <div class="bg-slate-50 p-4 rounded-2xl text-center">
+                    <label class="block text-[10px] font-black uppercase text-slate-400 mb-1">Payment Amount (£ GBP)</label>
+                    <input type="number" step="0.01" name="wire_amount" required value="0.00" class="bg-transparent text-2xl font-black text-slate-800 w-36 text-center focus:outline-none border-b border-slate-300">
+                </div>
+                <button type="submit" class="w-full bg-[#002147] hover:bg-slate-900 text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-md">Process Bill Payment</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 5: DEPOSIT -->
+    <div id="depositModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
+                <h3 class="text-sm font-black uppercase text-[#002147]">Deposit Funds</h3>
+                <button onclick="closeModal('depositModal')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form action="/process_deposit" method="POST" class="space-y-4 text-xs">
+                <div>
+                    <label class="block text-[10px] font-black uppercase text-slate-500 mb-1">Deposit Method</label>
+                    <select name="deposit_method" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-800">
+                        <option value="Debit Card Instant Deposit">Debit / Credit Card (Instant)</option>
+                        <option value="Bank Wire Deposit">Direct Bank Wire (SWIFT / CHAPS)</option>
+                        <option value="Mobile Check Deposit">Mobile Check Deposit (Front/Back)</option>
+                    </select>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                    <p class="font-bold text-slate-700 uppercase text-[10px] tracking-wider"><i class="fa-solid fa-credit-card mr-1 text-blue-600"></i> Card Funding Details</p>
+                    <input type="text" placeholder="Cardholder Name" required class="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-800">
+                    <input type="text" placeholder="Card Number (XXXX XXXX XXXX XXXX)" required class="w-full p-3 bg-white border border-slate-200 rounded-xl font-mono text-slate-800">
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="text" placeholder="MM/YY" required class="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-800">
+                        <input type="password" placeholder="CVV" maxlength="4" required class="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-800">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black uppercase text-slate-500 mb-1">Deposit Amount (£ GBP)</label>
+                    <input type="number" step="0.01" name="deposit_amount" required placeholder="0.00" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-black text-slate-800 text-lg">
+                </div>
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 rounded-xl font-black uppercase tracking-widest shadow-md">Process Instant Deposit</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript Controllers & Security Guard Scripts -->
+    <script>
+        let balanceHidden = false;
+        const actualBalance = "£{{ '%.2f'|format(live_balance) }}";
+        const actualAccountNum = "11950447";
+        const maskedAccountNum = "••••0447";
+        const currentVaultBalance = parseFloat("{{ live_balance }}") || 0.00;
+
+        // --- SECURE BACK BUTTON & HISTORY LOCKOUT GUARD ---
+        history.pushState(null, null, location.href);
+        window.onpopstate = function () {
+            window.location.href = "/logout";
+        };
+
+        function handleDashboardBack() {
+            window.location.href = "/logout";
+        }
+
+        function toggleBalance() {
+            balanceHidden = !balanceHidden;
+            const display = document.getElementById('balanceDisplay');
+            const accDisplay = document.getElementById('accountNumDisplay');
+            const icon = document.getElementById('eyeIcon');
+            
+            if (balanceHidden) {
+                display.innerText = "£••••••••";
+                accDisplay.innerText = maskedAccountNum;
+                icon.className = "fa-solid fa-eye";
+            } else {
+                display.innerText = actualBalance;
+                accDisplay.innerText = actualAccountNum;
+                icon.className = "fa-solid fa-eye-slash";
+            }
+        }
+
+        function triggerLoadAndOpen(modalId, loadingMessage) {
+            const loader = document.getElementById('actionLoader');
+            const textEl = document.getElementById('loaderText');
+            textEl.textContent = loadingMessage || 'Processing Secure Request...';
+            loader.style.display = 'flex';
+
+            setTimeout(() => {
+                loader.style.display = 'none';
+                openModal(modalId);
+            }, 4000);
+        }
+
+        function openModal(modalId) {
+            document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
+            document.getElementById(modalId).style.display = 'flex';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function openSubModal(subId) {
+            document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
+            document.getElementById(subId).style.display = 'flex';
+        }
+
+        function backToTransferModal() {
+            openModal('transferModal');
+        }
+
+        function openSearchModal() {
+            openModal('searchModal');
+        }
+
+        function openChatModal() {
+            openModal('chatModal');
+        }
+
+        function openBillPayForm(billerName, billRef) {
+            document.getElementById('billFormTitle').textContent = `Pay ${billerName}`;
+            document.getElementById('bill_institution_input').value = billerName;
+            document.getElementById('bill_ref_input').value = billRef;
+            openSubModal('billPayFormModal');
+        }
+
+        // --- Dynamic International Routing Fields ---
+        function updateCountryFields() {
+            const country = document.getElementById('wireCountry').value;
+            const container = document.getElementById('routingFieldsContainer');
+            
+            if (country === 'UK') {
+                container.innerHTML = `
+                    <div>
+                        <label class="block text-[10px] uppercase font-black text-slate-500 mb-1">Sort Code</label>
+                        <input type="text" name="wire_routing" required placeholder="XX-XX-XX" class="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-800">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] uppercase font-black text-slate-500 mb-1">Country</label>
+                        <input type="text" value="United Kingdom" readonly class="w-full p-3 bg-slate-100 border border-slate-200 rounded-xl text-slate-600 font-semibold">
+                    </div>`;
+            } else if (country === 'US') {
+                container.innerHTML = `
+                    <div>
+                        <label class="block text-[10px] uppercase font-black text-slate-500 mb-1">ABA Routing Number</label>
+                        <input type="text" name="wire_routing" required placeholder="9-digit Routing" class="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-800">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] uppercase font-black text-slate-500 mb-1">Country</label>
+                        <input type="text" value="United States" readonly class="w-full p-3 bg-slate-100 border border-slate-200 rounded-xl text-slate-600 font-semibold">
+                    </div>`;
+            } else if (country === 'CA') {
+                container.innerHTML = `
+                    <div>
+                        <label class="block text-[10px] uppercase font-black text-slate-500 mb-1">Transit &amp; Institution (Clearing Code)</label>
+                        <input type="text" name="wire_clearing" required placeholder="e.g. 003-12345" class="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-800">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] uppercase font-black text-slate-500 mb-1">SWIFT / BIC Code</label>
+                        <input type="text" name="wire_swift" required placeholder="8 or 11 characters" class="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-800">
+                    </div>`;
+            } else if (country === 'AU') {
+                container.innerHTML = `
+                    <div>
+                        <label class="block text-[10px] uppercase font-black text-slate-500 mb-1">BSB Code</label>
+                        <input type="text" name="wire_routing" required placeholder="6-digit BSB" class="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-800">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] uppercase font-black text-slate-500 mb-1">Country</label>
+                        <input type="text" value="Australia" readonly class="w-full p-3 bg-slate-100 border border-slate-200 rounded-xl text-slate-600 font-semibold">
+                    </div>`;
+            } else {
+                container.innerHTML = `
+                    <div>
+                        <label class="block text-[10px] uppercase font-black text-slate-500 mb-1">SWIFT / BIC Code</label>
+                        <input type="text" name="wire_swift" required placeholder="SWIFT Code" class="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-800">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] uppercase font-black text-slate-500 mb-1">Clearing Code</label>
+                        <input type="text" name="wire_clearing" placeholder="Institution Code" class="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-800">
+                    </div>`;
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            updateCountryFields();
+            const ibanEl = document.querySelector('.font-mono');
+            if(ibanEl) {
+                ibanEl.style.cursor = 'pointer';
+                ibanEl.title = 'Click to copy IBAN';
+                ibanEl.addEventListener('click', () => {
+                    copyToClipboard('GB84 CATER 4029 1195 0447', 'IBAN');
+                });
+            }
+        });
+
+        // --- PIN Verification Modal Handler ---
+        function triggerPinVerification() {
+            const form = document.getElementById('wireForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const amountInput = form.querySelector('input[name="wire_amount"]');
+            const enteredAmount = parseFloat(amountInput.value) || 0.00;
+
+            let errorContainer = form.querySelector('.insufficient-card');
+            if (!errorContainer) {
+                errorContainer = document.createElement('div');
+                errorContainer.className = 'insufficient-card mb-4 bg-red-50 border-l-4 border-red-600 p-4 rounded-xl text-left shadow-sm';
+                form.prepend(errorContainer);
+            }
+
+            if (enteredAmount > currentVaultBalance) {
+                errorContainer.innerHTML = `
+                    <div class="flex items-center gap-2 mb-1">
+                        <i class="fa-solid fa-circle-exclamation text-red-600 text-sm"></i>
+                        <h4 class="text-xs font-black text-red-900 uppercase tracking-wider">Insufficient Available Liquidity</h4>
+                    </div>
+                    <p class="text-xs text-red-700 leading-relaxed">
+                        Unable to execute transfer of <span class="font-bold">£${enteredAmount.toFixed(2)} GBP</span>. Your current verified ledger balance is <span class="font-bold">£${currentVaultBalance.toFixed(2)} GBP</span>.
+                    </p>
+                `;
+                errorContainer.classList.remove('hidden');
+                return;
+            }
+            errorContainer.classList.add('hidden');
+
+            document.getElementById('wireModal').style.display = 'none';
+            document.getElementById('pinModal').style.display = 'flex';
+            document.querySelectorAll('.pin-box').forEach(input => input.value = '');
+            document.querySelectorAll('.pin-box')[0].focus();
+        }
+
+        function closePinModal() {
+            document.getElementById('pinModal').style.display = 'none';
+        }
+
+        document.addEventListener('input', function (e) {
+            if (e.target.classList.contains('pin-box')) {
+                const next = e.target.nextElementSibling;
+                if (next && e.target.value) {
+                    next.focus();
+                }
+            }
+        });
+
+    function verifyPinCode() {
+    const boxes = document.querySelectorAll('.pin-box');
+    let enteredPin = '';
+    boxes.forEach(b => enteredPin += b.value);
+
+    if (enteredPin.length < 4) {
+        alert('Please enter your complete 4-digit secure PIN.');
+        return;
+    }
+
+    const defaultState = document.getElementById('pinStateDefault');
+    const resultState = document.getElementById('pinStateResult');
+    const resultIcon = document.getElementById('resultIcon');
+    const resultTitle = document.getElementById('resultTitle');
+    const resultDesc = document.getElementById('resultDesc');
+
+    // Update loader text to show professional activity
+    const titleEl = defaultState.querySelector('h4');
+    const descEl = defaultState.querySelector('p');
+    titleEl.innerText = "Authenticating Gateway";
+    descEl.innerText = "Verifying cryptographic credentials with UK clearing node...";
+
+    // Disable boxes while loading
+    boxes.forEach(b => b.disabled = true);
+
+    // Run professional 4.5 second loading delay
+    setTimeout(() => {
+        defaultState.classList.add('hidden');
+        resultState.classList.remove('hidden');
+
+        if (enteredPin === '9504') {
+            resultIcon.className = "w-16 h-16 mx-auto rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl mb-4";
+            resultIcon.innerHTML = '<i class="fa-solid fa-check"></i>';
+            resultTitle.className = "font-black text-sm text-emerald-600 mb-1 uppercase";
+            resultTitle.innerText = "Code Verified Successfully";
+            resultDesc.innerText = "Authorizing transaction and queuing securely...";
+            
+            setTimeout(() => {
+                document.getElementById('wireForm').submit();
+            }, 1500);
+        } else {
+            resultIcon.className = "w-16 h-16 mx-auto rounded-full bg-red-50 text-red-600 flex items-center justify-center text-2xl mb-4";
+            resultIcon.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+            resultTitle.className = "font-black text-sm text-red-600 mb-1 uppercase";
+            resultTitle.innerText = "Verification Failed";
+            resultDesc.innerText = "Incorrect PIN code entered. Please try again.";
+            
+            setTimeout(() => {
+                resultState.classList.add('hidden');
+                defaultState.classList.remove('hidden');
+                titleEl.innerText = "Security Authorization";
+                descEl.innerText = "Enter your 4-digit secure bank PIN to authorize transfer.";
+                boxes.forEach(b => {
+                    b.disabled = false;
+                    b.value = '';
+                });
+                boxes[0].focus();
+            }, 2000);
+        }
+    }, 4500); // 4.5 seconds professional delay
+}
+        function processGeneralPayment(event, formElement) {
+            event.preventDefault();
+            const amountInput = formElement.querySelector('input[name="wire_amount"]');
+            const enteredAmount = parseFloat(amountInput.value) || 0.00;
+
+            let errorContainer = formElement.querySelector('.insufficient-card');
+            if (!errorContainer) {
+                errorContainer = document.createElement('div');
+                errorContainer.className = 'insufficient-card mb-4 bg-red-50 border-l-4 border-red-600 p-4 rounded-xl text-left shadow-sm';
+                formElement.prepend(errorContainer);
+            }
+
+            if (enteredAmount > currentVaultBalance) {
+                errorContainer.innerHTML = `
+                    <div class="flex items-center gap-2 mb-1">
+                        <i class="fa-solid fa-circle-exclamation text-red-600 text-sm"></i>
+                        <h4 class="text-xs font-black text-red-900 uppercase tracking-wider">Insufficient Available Liquidity</h4>
+                    </div>
+                    <p class="text-xs text-red-700 leading-relaxed">
+                        Unable to execute transaction of <span class="font-bold">£${enteredAmount.toFixed(2)} GBP</span>. Your current verified ledger balance is <span class="font-bold">£${currentVaultBalance.toFixed(2)} GBP</span>.
+                    </p>
+                `;
+                errorContainer.classList.remove('hidden');
+                return false;
+            }
+
+            errorContainer.classList.add('hidden');
+            const loader = document.getElementById('actionLoader');
+            document.getElementById('loaderText').textContent = 'PERFORMING REGULATORY SCAN...';
+            loader.style.display = 'flex';
+
+            setTimeout(() => {
+                formElement.submit();
+            }, 4000);
+        }
+
+        function filterDashboard(query) {
+            const resultsBox = document.getElementById('searchResults');
+            const q = query.toLowerCase().trim();
+            if (!q) {
+                resultsBox.innerHTML = '<p class="text-slate-400 text-center py-4">Enter keywords to search your account history.</p>';
+                return;
+            }
+            resultsBox.innerHTML = '<p class="text-slate-500 text-center py-4">Searching ledger records...</p>';
+        }
+
+        async function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            const msgArea = document.getElementById('chatMessages');
+            const txt = input.value.trim();
+            if (!txt) return;
+
+            msgArea.innerHTML += `<div class="flex justify-end"><div class="bg-[#002147] text-white p-3 rounded-2xl rounded-tr-none shadow-xs max-w-[85%]">${txt}</div></div>`;
+            input.value = '';
+            msgArea.scrollTop = msgArea.scrollHeight;
+
+            try {
+                const res = await fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: txt })
+                });
+                const data = await res.json();
+                msgArea.innerHTML += `<div class="flex items-start space-x-2"><div class="bg-slate-200 h-6 w-6 rounded-full flex items-center justify-center text-[9px] font-bold">CA</div><div class="bg-white p-3 rounded-2xl rounded-tl-none border border-slate-100 shadow-xs text-slate-700 leading-relaxed max-w-[85%]">${data.reply}</div></div>`;
+            } catch (err) {
+                msgArea.innerHTML += `<div class="bg-red-50 text-red-700 p-3 rounded-xl">Network error connecting to Cater Allen Concierge.</div>`;
+            }
+            msgArea.scrollTop = msgArea.scrollHeight;
+        }
+
+        function copyToClipboard(text, label) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast(`${label} copied to clipboard successfully.`);
+            });
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-20 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs font-bold px-4 py-2.5 rounded-full shadow-2xl z-[300] flex items-center gap-2 border border-slate-700';
+            toast.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400"></i> <span>${message}</span>`;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        let inactivityTimer;
+        function resetInactivityTimer() {
+            clearTimeout(inactivityTimer);
+            inactivityTimer = setTimeout(() => {
+                window.location.href = '/logout';
+            }, 600000); // 10 minutes session timeout
+        }
+
+        window.onload = resetInactivityTimer;
+        window.onmousemove = resetInactivityTimer;
+        window.onkeypress = resetInactivityTimer;
+        window.onclick = resetInactivityTimer;
+    </script>
+</body>
+</html>

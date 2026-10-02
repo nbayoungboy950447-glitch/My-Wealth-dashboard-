@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ article.title }} | Cater Allen Market Intelligence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .macey-blue { background-color: #002147; }
+        
+        body {
+            background-color: #f8fafc;
+            background-image: linear-gradient(rgba(248, 250, 252, 0.97), rgba(248, 250, 252, 0.97)), url('https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?q=80&w=1600&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+    </style>
+</head>
+<body class="text-slate-800 font-sans selection:bg-blue-900 selection:text-white">
+    
+    <!-- Header -->
+    <header class="macey-blue text-white p-6 shadow-md flex justify-between items-center sticky top-0 z-50">
+        <a href="{{ url_for('news') }}" class="text-xs font-black uppercase tracking-widest text-blue-300 hover:text-white transition-colors"><i class="fa-solid fa-chevron-left mr-1"></i> Back to News &amp; Markets</a>
+        <h1 class="text-xs font-black uppercase tracking-[0.25em]">Publication Details</h1>
+        <a href="{{ url_for('contact') }}" class="text-xs font-bold text-white hover:underline">Contact Us</a>
+    </header>
+
+    <main class="max-w-3xl mx-auto px-6 py-12 relative z-10">
+        <article class="bg-white/95 backdrop-blur-xs p-8 md:p-12 rounded-3xl shadow-sm border border-slate-100 space-y-6">
+            <div class="flex items-center justify-between">
+                <span class="text-[10px] font-bold text-blue-600 uppercase tracking-widest bg-blue-50 px-3 py-1 rounded-full border border-blue-100">{{ article.date }}</span>
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest"><i class="fa-solid fa-shield-halved text-[#002147] mr-1"></i> Verified Publication</span>
+            </div>
+
+            <h2 class="text-2xl md:text-3xl font-black text-[#002147] uppercase tracking-tight leading-snug">{{ article.title }}</h2>
+            
+            <hr class="border-slate-100 my-4">
+
+            <div class="space-y-4 text-sm md:text-base text-slate-600 leading-relaxed">
+                <p>{{ article.content }}</p>
+                <p>Our private wealth advisory and risk management desks remain at your disposal to discuss how these macroeconomic developments intersect with your portfolio strategy and liquidity requirements.</p>
+            </div>
+
+            <div class="pt-8 border-t border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div class="space-y-0.5">
+                    <p class="text-[11px] font-black uppercase tracking-widest text-[#002147]">Cater Allen Research Desk</p>
+                    <p class="text-[11px] text-slate-400">London Registered Office • Regulated by the FCA &amp; PRA</p>
+                </div>
+                <a href="{{ url_for('news') }}" class="bg-[#002147] text-white px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-blue-900 transition-colors">Return to Market Intelligence</a>
+            </div>
+        </article>
+    </main>
+
+    <!-- Footer -->
+    <footer class="macey-blue text-white py-8 mt-16 text-center text-xs space-y-2 border-t border-blue-900 relative z-10">
+        <p class="font-bold uppercase tracking-widest">Cater Allen Private Bank • London Registered Office</p>
+        <p class="text-slate-400 text-[11px]">2 Triton Square, Regent's Place, London, NW1 3AN, United Kingdom • Authorized by the PRA and regulated by the FCA and PRA.</p>
+    </footer>
+
+</body>
+</html>

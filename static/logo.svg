@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 60" width="280" height="60">
+  <!-- Droplet / Shield Icon -->
+  <g transform="translate(4, 6)">
+    <path d="M24 2C24 2 8 18 8 28C8 36.8366 15.1634 44 24 44C32.8366 44 40 36.8366 40 28C40 18 24 2 24 2Z" fill="#002147"/>
+    <path d="M24 8C24 8 12 21 12 28C12 34.6274 17.3726 40 24 40C30.6274 40 36 34.6274 36 28C36 21 24 8 24 8Z" fill="#d71e28"/>
+  </g>
+
+  <!-- Bank Name Text -->
+  <text x="56" y="27" font-family="'Inter', 'Segoe UI', Arial, sans-serif" font-weight="900" font-size="20" fill="#002147" letter-spacing="-0.5">Cater Allen</text>
+  <text x="56" y="44" font-family="'Inter', 'Segoe UI', Arial, sans-serif" font-weight="700" font-size="10" fill="#64748b" letter-spacing="2.5">PRIVATE BANK</text>
+</svg>

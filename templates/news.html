@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Market Intelligence &amp; News | Cater Allen</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .macey-blue { background-color: #002147; }
+        .card-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 15px 25px -5px rgba(0, 33, 71, 0.08); }
+        
+        body {
+            background-color: #f8fafc;
+            background-image: linear-gradient(rgba(248, 250, 252, 0.97), rgba(248, 250, 252, 0.97)), url('https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?q=80&w=1600&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+    </style>
+</head>
+<body class="text-slate-800 font-sans selection:bg-blue-900 selection:text-white">
+    
+    <!-- Header -->
+    <header class="macey-blue text-white p-6 shadow-md flex justify-between items-center sticky top-0 z-50">
+        <a href="{{ url_for('login') }}" class="text-xs font-black uppercase tracking-widest text-blue-300 hover:text-white transition-colors"><i class="fa-solid fa-chevron-left mr-1"></i> Back to Home</a>
+        <h1 class="text-xs font-black uppercase tracking-[0.25em]">Cater Allen Market Intelligence</h1>
+        <a href="{{ url_for('contact') }}" class="text-xs font-bold text-white hover:underline">Contact Us</a>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-6 py-10 space-y-12 relative z-10">
+        
+        <!-- Live Market Watch / Stock Trackers -->
+        <div class="space-y-4">
+            <div class="flex justify-between items-end">
+                <div>
+                    <span class="bg-blue-50 text-[#002147] text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border border-blue-100">Live Equities &amp; Assets</span>
+                    <h2 class="text-xl font-black text-[#002147] uppercase tracking-tight mt-2">Global Wealth Portfolio Trackers</h2>
+                </div>
+                <span class="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-xl border border-emerald-100 flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Markets Active</span>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+                
+                <!-- Tesla -->
+                <div class="bg-white/95 backdrop-blur-xs p-4 rounded-2xl border border-slate-100 card-hover space-y-1">
+                    <p class="text-[10px] font-black uppercase text-slate-400">Tesla Inc.</p>
+                    <p class="text-sm font-black text-slate-900">TSLA</p>
+                    <div class="flex justify-between items-baseline pt-1">
+                        <span class="text-xs font-bold text-[#002147]">$248.50</span>
+                        <span class="text-[10px] font-bold text-emerald-600">+3.4%</span>
+                    </div>
+                </div>
+
+                <!-- Coca-Cola -->
+                <div class="bg-white/95 backdrop-blur-xs p-4 rounded-2xl border border-slate-100 card-hover space-y-1">
+                    <p class="text-[10px] font-black uppercase text-slate-400">Coca-Cola</p>
+                    <p class="text-sm font-black text-slate-900">KO</p>
+                    <div class="flex justify-between items-baseline pt-1">
+                        <span class="text-xs font-bold text-[#002147]">$67.20</span>
+                        <span class="text-[10px] font-bold text-emerald-600">+0.8%</span>
+                    </div>
+                </div>
+
+                <!-- Apple -->
+                <div class="bg-white/95 backdrop-blur-xs p-4 rounded-2xl border border-slate-100 card-hover space-y-1">
+                    <p class="text-[10px] font-black uppercase text-slate-400">Apple Inc.</p>
+                    <p class="text-sm font-black text-slate-900">AAPL</p>
+                    <div class="flex justify-between items-baseline pt-1">
+                        <span class="text-xs font-bold text-[#002147]">$224.10</span>
+                        <span class="text-[10px] font-bold text-emerald-600">+1.2%</span>
+                    </div>
+                </div>
+
+                <!-- NVIDIA -->
+                <div class="bg-white/95 backdrop-blur-xs p-4 rounded-2xl border border-slate-100 card-hover space-y-1">
+                    <p class="text-[10px] font-black uppercase text-slate-400">NVIDIA Corp.</p>
+                    <p class="text-sm font-black text-slate-900">NVDA</p>
+                    <div class="flex justify-between items-baseline pt-1">
+                        <span class="text-xs font-bold text-[#002147]">$128.80</span>
+                        <span class="text-[10px] font-bold text-emerald-600">+4.5%</span>
+                    </div>
+                </div>
+
+                <!-- Microsoft -->
+                <div class="bg-white/95 backdrop-blur-xs p-4 rounded-2xl border border-slate-100 card-hover space-y-1">
+                    <p class="text-[10px] font-black uppercase text-slate-400">Microsoft</p>
+                    <p class="text-sm font-black text-slate-900">MSFT</p>
+                    <div class="flex justify-between items-baseline pt-1">
+                        <span class="text-xs font-bold text-[#002147]">$442.90</span>
+                        <span class="text-[10px] font-bold text-red-600">-0.4%</span>
+                    </div>
+                </div>
+
+                <!-- Gold -->
+                <div class="bg-white/95 backdrop-blur-xs p-4 rounded-2xl border border-slate-100 card-hover space-y-1">
+                    <p class="text-[10px] font-black uppercase text-slate-400">Gold Bullion</p>
+                    <p class="text-sm font-black text-slate-900">XAU</p>
+                    <div class="flex justify-between items-baseline pt-1">
+                        <span class="text-xs font-bold text-[#002147]">$2,654.00</span>
+                        <span class="text-[10px] font-bold text-emerald-600">+0.9%</span>
+                    </div>
+                </div>
+
+                <!-- S&P 500 -->
+                <div class="bg-white/95 backdrop-blur-xs p-4 rounded-2xl border border-slate-100 card-hover space-y-1">
+                    <p class="text-[10px] font-black uppercase text-slate-400">S&amp;P 500 Index</p>
+                    <p class="text-sm font-black text-slate-900">SPX</p>
+                    <div class="flex justify-between items-baseline pt-1">
+                        <span class="text-xs font-bold text-[#002147]">$5,720.50</span>
+                        <span class="text-[10px] font-bold text-emerald-600">+0.6%</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Banking Publications Grid -->
+        <div class="space-y-6">
+            <div class="border-b border-slate-200 pb-3">
+                <span class="bg-blue-50 text-[#002147] text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border border-blue-100">Editorial &amp; Insights</span>
+                <h2 class="text-2xl font-black text-[#002147] uppercase tracking-tight mt-2">Private Wealth &amp; Banking Publications</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {% for item in articles %}
+                <a href="/news/{{ item.id }}" class="bg-white/95 backdrop-blur-xs p-6 rounded-3xl shadow-sm border border-slate-100 card-hover flex flex-col justify-between group space-y-4">
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <span class="text-[10px] font-bold text-blue-600 uppercase tracking-widest bg-blue-50 px-2.5 py-1 rounded-lg">{{ item.date }}</span>
+                            <i class="fa-solid fa-arrow-right text-xs text-slate-400 group-hover:text-[#002147] group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                        <h3 class="text-base font-black text-slate-900 group-hover:text-[#002147] uppercase tracking-tight">{{ item.title }}</h3>
+                        <p class="text-xs text-slate-600 leading-relaxed">{{ item.summary }}</p>
+                    </div>
+                    <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-[#002147]">
+                        <span>Read Full Analysis</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-400"></i>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="macey-blue text-white py-8 mt-16 text-center text-xs space-y-2 border-t border-blue-900 relative z-10">
+        <p class="font-bold uppercase tracking-widest">Cater Allen Private Bank • London Registered Office</p>
+        <p class="text-slate-400 text-[11px]">2 Triton Square, Regent's Place, London, NW1 3AN, United Kingdom • Authorized by the PRA and regulated by the FCA and PRA.</p>
+    </footer>
+
+</body>
+</html>

