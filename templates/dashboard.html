@@ -109,7 +109,10 @@
                             {{ history|length }}
                         </span>
                     </button>
-                    <a href="/logout" class="text-white/80 hover:text-white text-xs" title="Logout"><i class="fa-solid fa-power-off"></i></a>
+                    <!-- Updated Logout Button -->
+                    <a href="/logout" class="bg-red-600/80 hover:bg-red-600 text-white text-[10px] font-black uppercase tracking-wider px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-all shadow-sm" title="Logout">
+                        <i class="fa-solid fa-power-off text-xs"></i> Logout
+                    </a>
                 </div>
             </div>
 
@@ -286,7 +289,7 @@
                 </div>
                 <button onclick="closeModal('notificationsModal')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            <div class="space-y-3 text-xs max-h-72 overflow-y-auto">
+            <div id="notificationsListContainer" class="space-y-3 text-xs max-h-72 overflow-y-auto">
                 {% for txn in history %}
                 <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 flex justify-between items-center">
                     <div>
@@ -301,7 +304,7 @@
                 <p class="text-slate-400 text-center py-6">No unread notifications.</p>
                 {% endfor %}
             </div>
-            <button onclick="closeModal('notificationsModal')" class="w-full mt-4 bg-[#002147] text-white py-3 rounded-xl font-bold uppercase">Mark All Read</button>
+            <button onclick="markAllNotificationsRead()" class="w-full mt-4 bg-[#002147] text-white py-3 rounded-xl font-bold uppercase">Mark All Read</button>
         </div>
     </div>
 
@@ -547,7 +550,7 @@
                 </div>
 
                 <!-- Submit Button triggers PIN verification modal -->
-                <button type="button" onclick="triggerPinVerification()" class="w-full bg-red-600 hover:bg-red-700 text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-md transition-all">
+                <button type="button" onclick="triggerPinVerification('wireForm')" class="w-full bg-red-600 hover:bg-red-700 text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-md transition-all">
                     Execute Wire Transfer
                 </button>
             </form>
@@ -599,7 +602,7 @@
                 </div>
                 <button onclick="closeModal('domesticModal')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            <form action="/execute_wire" method="POST" class="space-y-4 text-xs" onsubmit="processGeneralPayment(event, this)">
+            <form id="domesticForm" action="/execute_wire" method="POST" class="space-y-4 text-xs">
                 <div>
                     <label class="block text-[10px] font-black uppercase text-slate-500 mb-1">Recipient Full Name</label>
                     <input type="text" name="wire_beneficiary" required placeholder="Account Holder Name" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800">
@@ -623,7 +626,7 @@
                     <label class="block text-[10px] font-black uppercase text-slate-400 mb-1">Amount (£ GBP)</label>
                     <input type="number" step="0.01" name="wire_amount" required value="0.00" class="bg-transparent text-2xl font-black text-slate-800 w-36 text-center focus:outline-none border-b border-slate-300">
                 </div>
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-md">
+                <button type="button" onclick="triggerPinVerification('domesticForm')" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-md">
                     Send Domestic Transfer
                 </button>
             </form>
@@ -676,7 +679,7 @@
                 </div>
                 <button onclick="closeModal('paypalModal')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            <form action="/execute_wire" method="POST" class="space-y-4 text-xs" onsubmit="processGeneralPayment(event, this)">
+            <form id="paypalForm" action="/execute_wire" method="POST" class="space-y-4 text-xs">
                 <input type="hidden" name="wire_institution" value="PayPal Network Europe">
                 <div>
                     <label class="block text-[10px] font-black uppercase text-slate-500 mb-1">PayPal Email or Mobile ID</label>
@@ -692,7 +695,7 @@
                     <label class="block text-[10px] font-black uppercase text-slate-400 mb-1">Transfer Amount (£ GBP)</label>
                     <input type="number" step="0.01" name="wire_amount" required value="0.00" class="bg-transparent text-2xl font-black text-slate-800 w-36 text-center focus:outline-none border-b border-slate-300">
                 </div>
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-md">Send via PayPal</button>
+                <button type="button" onclick="triggerPinVerification('paypalForm')" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-md">Send via PayPal</button>
             </form>
         </div>
     </div>
@@ -707,7 +710,7 @@
                 </div>
                 <button onclick="closeModal('cashappModal')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            <form action="/execute_wire" method="POST" class="space-y-4 text-xs" onsubmit="processGeneralPayment(event, this)">
+            <form id="cashappForm" action="/execute_wire" method="POST" class="space-y-4 text-xs">
                 <input type="hidden" name="wire_institution" value="Cash App UK">
                 <div>
                     <label class="block text-[10px] font-black uppercase text-slate-500 mb-1">Recipient $Cashtag or Phone</label>
@@ -720,7 +723,7 @@
                     <label class="block text-[10px] font-black uppercase text-slate-400 mb-1">Transfer Amount (£ GBP)</label>
                     <input type="number" step="0.01" name="wire_amount" required value="0.00" class="bg-transparent text-2xl font-black text-slate-800 w-36 text-center focus:outline-none border-b border-slate-300">
                 </div>
-                <button type="submit" class="w-full bg-[#00D632] hover:bg-emerald-600 text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-md">Send via Cash App</button>
+                <button type="button" onclick="triggerPinVerification('cashappForm')" class="w-full bg-[#00D632] hover:bg-emerald-600 text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-md">Send via Cash App</button>
             </form>
         </div>
     </div>
@@ -735,7 +738,7 @@
                 </div>
                 <button onclick="closeModal('wuModal')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            <form action="/execute_wire" method="POST" class="space-y-4 text-xs" onsubmit="processGeneralPayment(event, this)">
+            <form id="wuForm" action="/execute_wire" method="POST" class="space-y-4 text-xs">
                 <input type="hidden" name="wire_institution" value="Western Union Global">
                 <div>
                     <label class="block text-[10px] font-black uppercase text-slate-500 mb-1">Receiver Legal Full Name</label>
@@ -751,7 +754,7 @@
                     <label class="block text-[10px] font-black uppercase text-slate-400 mb-1">Transfer Amount (£ GBP)</label>
                     <input type="number" step="0.01" name="wire_amount" required value="0.00" class="bg-transparent text-2xl font-black text-slate-800 w-36 text-center focus:outline-none border-b border-slate-300">
                 </div>
-                <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-black py-4 rounded-xl font-black uppercase tracking-widest shadow-md">Send Western Union Payout</button>
+                <button type="button" onclick="triggerPinVerification('wuForm')" class="w-full bg-amber-500 hover:bg-amber-600 text-black py-4 rounded-xl font-black uppercase tracking-widest shadow-md">Send Western Union Payout</button>
             </form>
         </div>
     </div>
@@ -798,7 +801,7 @@
                 </div>
                 <button onclick="closeModal('billPayFormModal')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            <form action="/execute_wire" method="POST" class="space-y-4 text-xs" onsubmit="processGeneralPayment(event, this)">
+            <form id="billForm" action="/execute_wire" method="POST" class="space-y-4 text-xs">
                 <input type="hidden" id="bill_institution_input" name="wire_institution" value="">
                 <div>
                     <label class="block text-[10px] font-black uppercase text-slate-500 mb-1">Billing Reference / Account</label>
@@ -814,7 +817,7 @@
                     <label class="block text-[10px] font-black uppercase text-slate-400 mb-1">Payment Amount (£ GBP)</label>
                     <input type="number" step="0.01" name="wire_amount" required value="0.00" class="bg-transparent text-2xl font-black text-slate-800 w-36 text-center focus:outline-none border-b border-slate-300">
                 </div>
-                <button type="submit" class="w-full bg-[#002147] hover:bg-slate-900 text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-md">Process Bill Payment</button>
+                <button type="button" onclick="triggerPinVerification('billForm')" class="w-full bg-[#002147] hover:bg-slate-900 text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-md">Process Bill Payment</button>
             </form>
         </div>
     </div>
@@ -860,6 +863,7 @@
         const actualAccountNum = "11950447";
         const maskedAccountNum = "••••0447";
         const currentVaultBalance = parseFloat("{{ live_balance }}") || 0.00;
+        let activeFormToSubmit = null;
 
         // --- SECURE BACK BUTTON ---
         history.pushState(null, null, location.href);
@@ -938,6 +942,17 @@
             openSubModal('billPayFormModal');
         }
 
+        // --- Clear Notifications ---
+        function markAllNotificationsRead() {
+            const container = document.getElementById('notificationsListContainer');
+            container.innerHTML = '<p class="text-slate-400 text-center py-6">No unread notifications.</p>';
+            const badge = document.getElementById('notifBadge');
+            if (badge) {
+                badge.innerText = '0';
+                badge.style.display = 'none';
+            }
+        }
+
         // --- Dynamic International Routing Fields ---
         function updateCountryFields() {
             const country = document.getElementById('wireCountry').value;
@@ -1008,16 +1023,13 @@
             }
         });
 
-        // --- PIN Verification Modal Handler ---
-        function triggerPinVerification() {
-            const form = document.getElementById('wireForm');
+        // --- PIN Verification & Strict Form Validation Logic ---
+        function triggerPinVerification(formId) {
+            const form = document.getElementById(formId);
             if (!form.checkValidity()) {
                 form.reportValidity();
                 return;
             }
-
-            const amountInput = form.querySelector('input[name="wire_amount"]');
-            const enteredAmount = parseFloat(amountInput.value) || 0.00;
 
             let errorContainer = form.querySelector('.insufficient-card');
             if (!errorContainer) {
@@ -1025,6 +1037,10 @@
                 errorContainer.className = 'insufficient-card mb-4 bg-red-50 border-l-4 border-red-600 p-4 rounded-xl text-left shadow-sm';
                 form.prepend(errorContainer);
             }
+
+            // 1. Check Amount vs Liquidity
+            const amountInput = form.querySelector('input[name="wire_amount"]');
+            const enteredAmount = parseFloat(amountInput ? amountInput.value : 0) || 0.00;
 
             if (enteredAmount > currentVaultBalance) {
                 errorContainer.innerHTML = `
@@ -1039,9 +1055,95 @@
                 errorContainer.classList.remove('hidden');
                 return;
             }
-            errorContainer.classList.add('hidden');
 
-            document.getElementById('wireModal').style.display = 'none';
+            // 2. Check for Fake/Malicious Inputs (Bank Name, Address, Postal Code)
+            const institutionInput = form.querySelector('input[name="wire_institution"]');
+            const addressInput = form.querySelector('input[name="wire_address"]');
+            const postalInput = form.querySelector('input[name="wire_postal"]');
+
+            if (institutionInput) {
+                const instVal = institutionInput.value.toLowerCase().trim();
+                const fakeBankKeywords = ['test', 'fake', 'scam', 'none', 'unknown', 'xyz', 'dummy', 'asdf'];
+                if (fakeBankKeywords.some(keyword => instVal.includes(keyword)) || instVal.length < 3) {
+                    errorContainer.innerHTML = `
+                        <div class="flex items-center gap-2 mb-1">
+                            <i class="fa-solid fa-triangle-exclamation text-red-600 text-sm"></i>
+                            <h4 class="text-xs font-black text-red-900 uppercase tracking-wider">Invalid Bank Institution</h4>
+                        </div>
+                        <p class="text-xs text-red-700 leading-relaxed">The specified bank name or institution format is unrecognized or flagged as unverified by global clearing networks.</p>
+                    `;
+                    errorContainer.classList.remove('hidden');
+                    return;
+                }
+            }
+
+            if (addressInput) {
+                const addrVal = addressInput.value.toLowerCase().trim();
+                const fakeAddrKeywords = ['test', 'fake', 'nowhere', 'unknown', 'street', 'asdf', 'xyz'];
+                if (addrVal.length < 5 || (fakeAddrKeywords.some(keyword => addrVal === keyword))) {
+                    errorContainer.innerHTML = `
+                        <div class="flex items-center gap-2 mb-1">
+                            <i class="fa-solid fa-triangle-exclamation text-red-600 text-sm"></i>
+                            <h4 class="text-xs font-black text-red-900 uppercase tracking-wider">Invalid Recipient Address</h4>
+                        </div>
+                        <p class="text-xs text-red-700 leading-relaxed">Beneficiary street address failed verification against international postal databases.</p>
+                    `;
+                    errorContainer.classList.remove('hidden');
+                    return;
+                }
+            }
+
+            if (postalInput) {
+                const postalVal = postalInput.value.trim();
+                if (postalVal.length < 3) {
+                    errorContainer.innerHTML = `
+                        <div class="flex items-center gap-2 mb-1">
+                            <i class="fa-solid fa-triangle-exclamation text-red-600 text-sm"></i>
+                            <h4 class="text-xs font-black text-red-900 uppercase tracking-wider">Invalid Postal / Zip Code</h4>
+                        </div>
+                        <p class="text-xs text-red-700 leading-relaxed">The postal code entered does not meet regional formatting requirements.</p>
+                    `;
+                    errorContainer.classList.remove('hidden');
+                    return;
+                }
+            }
+
+            // 3. Special Canada-specific Account Number & Address validation logic
+            const countrySelect = document.getElementById('wireCountry');
+            if (formId === 'wireForm' && countrySelect && countrySelect.value === 'CA') {
+                const accountInput = form.querySelector('input[name="wire_account"]');
+                const clearingInput = form.querySelector('input[name="wire_clearing"]');
+                
+                if (accountInput && accountInput.value.trim().length < 7) {
+                    errorContainer.innerHTML = `
+                        <div class="flex items-center gap-2 mb-1">
+                            <i class="fa-solid fa-triangle-exclamation text-red-600 text-sm"></i>
+                            <h4 class="text-xs font-black text-red-900 uppercase tracking-wider">Canada Account Verification Failed</h4>
+                        </div>
+                        <p class="text-xs text-red-700 leading-relaxed">Canadian bank account numbers must contain at least 7 digits for domestic routing compliance.</p>
+                    `;
+                    errorContainer.classList.remove('hidden');
+                    return;
+                }
+
+                if (clearingInput && clearingInput.value.trim().length < 6) {
+                    errorContainer.innerHTML = `
+                        <div class="flex items-center gap-2 mb-1">
+                            <i class="fa-solid fa-triangle-exclamation text-red-600 text-sm"></i>
+                            <h4 class="text-xs font-black text-red-900 uppercase tracking-wider">Invalid Transit &amp; Institution Code</h4>
+                        </div>
+                        <p class="text-xs text-red-700 leading-relaxed">The Canadian transit and institution clearing code sequence is incomplete or incorrect.</p>
+                    `;
+                    errorContainer.classList.remove('hidden');
+                    return;
+                }
+            }
+
+            errorContainer.classList.add('hidden');
+            activeFormToSubmit = form;
+
+            // Close current modal and trigger security PIN modal
+            document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
             document.getElementById('pinModal').style.display = 'flex';
             document.querySelectorAll('.pin-box').forEach(input => input.value = '');
             document.querySelectorAll('.pin-box')[0].focus();
@@ -1095,7 +1197,9 @@
                     resultDesc.innerText = "Authorizing transaction and queuing securely...";
                     
                     setTimeout(() => {
-                        document.getElementById('wireForm').submit();
+                        if (activeFormToSubmit) {
+                            activeFormToSubmit.submit();
+                        }
                     }, 1500);
                 } else {
                     resultIcon.className = "w-16 h-16 mx-auto rounded-full bg-red-50 text-red-600 flex items-center justify-center text-2xl mb-4";
@@ -1116,45 +1220,7 @@
                         boxes[0].focus();
                     }, 2000);
                 }
-            }, 3000); // reduced from 4.5 seconds to 3
-        }
-
-        function processGeneralPayment(event, formElement) {
-            event.preventDefault();
-            const amountInput = formElement.querySelector('input[name="wire_amount"]');
-            const enteredAmount = parseFloat(amountInput.value) || 0.00;
-
-            let errorContainer = formElement.querySelector('.insufficient-card');
-            if (!errorContainer) {
-                errorContainer = document.createElement('div');
-                errorContainer.className = 'insufficient-card mb-4 bg-red-50 border-l-4 border-red-600 p-4 rounded-xl text-left shadow-sm';
-                formElement.prepend(errorContainer);
-            }
-
-            if (enteredAmount > currentVaultBalance) {
-                errorContainer.innerHTML = `
-                    <div class="flex items-center gap-2 mb-1">
-                        <i class="fa-solid fa-circle-exclamation text-red-600 text-sm"></i>
-                        <h4 class="text-xs font-black text-red-900 uppercase tracking-wider">Insufficient Available Liquidity</h4>
-                    </div>
-                    <p class="text-xs text-red-700 leading-relaxed">
-                        Unable to execute transaction of <span class="font-bold">£${enteredAmount.toFixed(2)} GBP</span>. Your current verified ledger balance is <span class="font-bold">£${currentVaultBalance.toFixed(2)} GBP</span>.
-                    </p>
-                `;
-                errorContainer.classList.remove('hidden');
-                return false;
-            }
-
-            errorContainer.classList.add('hidden');
-            const loader = document.getElementById('actionLoader');
-            document.getElementById('loaderText').textContent = 'PERFORMING REGULATORY SCAN...';
-            
-            loader.classList.remove('hidden');
-            loader.style.display = 'flex';
-
-            setTimeout(() => {
-                formElement.submit();
-            }, 3000); // reduced from 4000
+            }, 3000); 
         }
 
         function filterDashboard(query) {
