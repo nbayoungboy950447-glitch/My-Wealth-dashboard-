@@ -245,7 +245,12 @@
 
                     <div class="text-right">
                         <p class="text-xs font-bold {% if '-' in txn.amount|string %}text-red-600{% else %}text-emerald-600{% endif %}">
-                            {{ txn.amount }}
+                            {% set raw_amt = txn.amount|string %}
+                            {% if '-' in raw_amt %}
+                                -£{{ raw_amt.replace('-', '').replace('£', '').strip() }}
+                            {% else %}
+                                +£{{ raw_amt.replace('+', '').replace('£', '').strip() }}
+                            {% endif %}
                         </p>
                         <span class="text-[9px] font-semibold px-2 py-0.5 rounded-full {% if txn.status == 'COMPLETED' %}bg-emerald-50 text-emerald-600{% else %}bg-amber-50 text-amber-600{% endif %}">
                             {{ txn.status }}
@@ -297,7 +302,12 @@
                         <p class="text-[10px] text-slate-500">{{ txn.date }} • Ref: {{ txn.ref }}</p>
                     </div>
                     <span class="font-black {% if '-' in txn.amount|string %}text-red-600{% else %}text-emerald-600{% endif %}">
-                        {{ txn.amount }}
+                        {% set raw_amt = txn.amount|string %}
+                        {% if '-' in raw_amt %}
+                            -£{{ raw_amt.replace('-', '').replace('£', '').strip() }}
+                        {% else %}
+                            +£{{ raw_amt.replace('+', '').replace('£', '').strip() }}
+                        {% endif %}
                     </span>
                 </div>
                 {% else %}
