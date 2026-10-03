@@ -9,8 +9,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-      
         
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #112240; 
+            color: #1e293b;
+        }
+
         .app-container { 
             width: 100%; 
             max-width: 100%; 
@@ -18,13 +23,10 @@
             min-height: 100vh; 
             background-color: #f4f6f9; 
             display: flex; 
-            flex-direction: column; body {
-    font-family: 'Inter', sans-serif;
-    background-color: #112240; /* A cleaner, slightly lighter professional navy blue */
-    color: #1e293b;
-}
+            flex-direction: column; 
             position: relative; 
         }
+
         @media (min-width: 768px) {
             .app-container { 
                 max-width: 1200px;
@@ -35,11 +37,38 @@
                 min-height: 92vh;
             }
         }
+
         .macey-blue { background-color: #002147; }
-        .modal-overlay { display: none; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); position: fixed; inset: 0; z-index: 100; align-items: flex-end; }
-        @media (min-width: 768px) { .modal-overlay { align-items: center; justify-content: center; } }
-        .modal-content { background: #ffffff; width: 100%; max-height: 85vh; border-top-left-radius: 2rem; border-top-right-radius: 2rem; overflow-y: auto; padding: 1.5rem; animation: slideUp 0.3s ease-out; }
-        @media (min-width: 768px) { .modal-content { max-width: 500px; border-radius: 2rem; } }
+        
+        .modal-overlay { 
+            display: none; 
+            background: rgba(0,0,0,0.6); 
+            backdrop-filter: blur(4px); 
+            position: fixed; 
+            inset: 0; 
+            z-index: 100; 
+            align-items: flex-end; 
+        }
+
+        @media (min-width: 768px) { 
+            .modal-overlay { align-items: center; justify-content: center; } 
+        }
+        
+        .modal-content { 
+            background: #ffffff; 
+            width: 100%; 
+            max-height: 85vh; 
+            border-top-left-radius: 2rem; 
+            border-top-right-radius: 2rem; 
+            overflow-y: auto; 
+            padding: 1.5rem; 
+            animation: slideUp 0.3s ease-out; 
+        }
+        
+        @media (min-width: 768px) { 
+            .modal-content { max-width: 500px; border-radius: 2rem; } 
+        }
+        
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         
         .loader-ring {
@@ -50,6 +79,7 @@
             height: 45px;
             animation: spin 1.2s linear infinite;
         }
+        
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
@@ -58,7 +88,7 @@
     <div class="app-container">
         
         <!-- Global Interactive Loader Overlay -->
-        <div id="actionLoader" class="fixed inset-0 bg-slate-950/70 backdrop-blur-xs z-[200] hidden flex-col items-center justify-center text-white">
+        <div id="actionLoader" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-[200] hidden flex-col items-center justify-center text-white">
             <div class="loader-ring mb-4"></div>
             <p id="loaderText" class="text-xs font-black uppercase tracking-[0.25em] text-blue-300">Securing Gateway...</p>
         </div>
@@ -75,7 +105,7 @@
                 <div class="flex items-center gap-3">
                     <button onclick="openModal('notificationsModal')" class="relative text-white/80 hover:text-white text-sm focus:outline-none">
                         <i class="fa-solid fa-bell"></i>
-                        <span id="notifBadge" class="absolute -top-1.5 -right-2 bg-red-600 text-white text-[9px] font-black px-1.5 py-0.2 rounded-full border border-[#002147]">
+                        <span id="notifBadge" class="absolute -top-1.5 -right-2 bg-red-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full border border-[#002147]">
                             {{ history|length }}
                         </span>
                     </button>
@@ -86,7 +116,7 @@
             <div class="text-center relative z-10">
                 <p class="text-[10px] font-semibold text-slate-300 uppercase tracking-widest mb-1">Available Balance</p>
                 <div class="flex items-center justify-center gap-2 mb-2">
-                    <h2 id="balanceDisplay" class="text-3xl font-black tracking-tight text-white">£{{ "{:,.2f}".format(live_balance) }}</h2>
+                    <h2 id="balanceDisplay" class="text-3xl font-black tracking-tight text-white">£{{ "{:,.2f}".format(live_balance|float) }}</h2>
                     <button onclick="toggleBalance()" class="text-white/70 hover:text-white text-sm focus:outline-none" title="Toggle Balance & Account">
                         <i id="eyeIcon" class="fa-solid fa-eye-slash"></i>
                     </button>
@@ -110,7 +140,7 @@
         <div class="flex-grow overflow-y-auto px-4 md:px-10 py-6 space-y-6 pb-28">
 
             <!-- 6 Feature Icon Grid -->
-            <div class="grid grid-cols-2 md:grid-cols-6 gap-3">
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
                 <button onclick="triggerLoadAndOpen('accountModal', 'Loading Account Profile...')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-2 hover:bg-slate-50 transition-all group">
                     <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-700 group-hover:bg-blue-100 group-hover:text-blue-700 transition-colors">
                         <i class="fa-solid fa-building-columns text-base"></i>
@@ -168,28 +198,19 @@
                 <div class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse mr-2 shadow-sm shadow-emerald-200" title="Active"></div>
             </div>
 
-            <!-- Scheduled Transactions Widget -->
-            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center justify-between cursor-pointer hover:bg-slate-50">
+            <!-- Account Statement Widget -->
+            <a href="/statement" class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center justify-between cursor-pointer hover:bg-slate-50 no-underline transition-all group">
                 <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center text-slate-600">
-                        <i class="fa-solid fa-calendar-days text-sm"></i>
+                    <div class="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 transition-colors">
+                        <i class="fa-solid fa-file-invoice text-sm"></i>
                     </div>
-                  <!-- Account Statement Widget -->
-    <a href="/statement" class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center justify-between cursor-pointer hover:bg-slate-50 no-underline">
-        <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
-                <i class="fa-solid fa-file-invoice text-sm"></i>
-            </div>
-            <div>
-                <p class="text-xs font-bold uppercase tracking-wider text-slate-800">Account Statement</p>
-                <p class="text-[10px] text-slate-400">View verified positive deposits &amp; credits</p>
-            </div>
-        </div>
-        <i class="fa-solid fa-chevron-right text-xs text-slate-400"></i>
-    </a>
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-slate-800 group-hover:text-blue-700">Account Statement</p>
+                        <p class="text-[10px] text-slate-400">View verified positive deposits &amp; credits</p>
+                    </div>
                 </div>
                 <i class="fa-solid fa-chevron-right text-xs text-slate-400"></i>
-            </div>
+            </a>
 
             <!-- Transaction Activity Section -->
             <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
@@ -832,15 +853,15 @@
         </div>
     </div>
 
-    <!-- JavaScript Controllers & Security Guard Scripts -->
+    <!-- JavaScript Controllers -->
     <script>
         let balanceHidden = false;
-        const actualBalance = "£{{ '%.2f'|format(live_balance) }}";
+        const actualBalance = "£{{ '%.2f'|format(live_balance|float) }}";
         const actualAccountNum = "11950447";
         const maskedAccountNum = "••••0447";
         const currentVaultBalance = parseFloat("{{ live_balance }}") || 0.00;
 
-        // --- SECURE BACK BUTTON & HISTORY LOCKOUT GUARD ---
+        // --- SECURE BACK BUTTON ---
         history.pushState(null, null, location.href);
         window.onpopstate = function () {
             window.location.href = "/logout";
@@ -871,12 +892,17 @@
             const loader = document.getElementById('actionLoader');
             const textEl = document.getElementById('loaderText');
             textEl.textContent = loadingMessage || 'Processing Secure Request...';
+            
+            // Un-hide the loader cleanly
+            loader.classList.remove('hidden');
             loader.style.display = 'flex';
 
+            // Faster load time so it's snappy
             setTimeout(() => {
+                loader.classList.add('hidden');
                 loader.style.display = 'none';
                 openModal(modalId);
-            }, 4000);
+            }, 1500); 
         }
 
         function openModal(modalId) {
@@ -1034,67 +1060,65 @@
             }
         });
 
-    function verifyPinCode() {
-    const boxes = document.querySelectorAll('.pin-box');
-    let enteredPin = '';
-    boxes.forEach(b => enteredPin += b.value);
+        function verifyPinCode() {
+            const boxes = document.querySelectorAll('.pin-box');
+            let enteredPin = '';
+            boxes.forEach(b => enteredPin += b.value);
 
-    if (enteredPin.length < 4) {
-        alert('Please enter your complete 4-digit secure PIN.');
-        return;
-    }
+            if (enteredPin.length < 4) {
+                alert('Please enter your complete 4-digit secure PIN.');
+                return;
+            }
 
-    const defaultState = document.getElementById('pinStateDefault');
-    const resultState = document.getElementById('pinStateResult');
-    const resultIcon = document.getElementById('resultIcon');
-    const resultTitle = document.getElementById('resultTitle');
-    const resultDesc = document.getElementById('resultDesc');
+            const defaultState = document.getElementById('pinStateDefault');
+            const resultState = document.getElementById('pinStateResult');
+            const resultIcon = document.getElementById('resultIcon');
+            const resultTitle = document.getElementById('resultTitle');
+            const resultDesc = document.getElementById('resultDesc');
 
-    // Update loader text to show professional activity
-    const titleEl = defaultState.querySelector('h4');
-    const descEl = defaultState.querySelector('p');
-    titleEl.innerText = "Authenticating Gateway";
-    descEl.innerText = "Verifying cryptographic credentials with UK clearing node...";
+            const titleEl = defaultState.querySelector('h4');
+            const descEl = defaultState.querySelector('p');
+            titleEl.innerText = "Authenticating Gateway";
+            descEl.innerText = "Verifying cryptographic credentials with UK clearing node...";
 
-    // Disable boxes while loading
-    boxes.forEach(b => b.disabled = true);
+            boxes.forEach(b => b.disabled = true);
 
-    // Run professional 4.5 second loading delay
-    setTimeout(() => {
-        defaultState.classList.add('hidden');
-        resultState.classList.remove('hidden');
-
-        if (enteredPin === '9504') {
-            resultIcon.className = "w-16 h-16 mx-auto rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl mb-4";
-            resultIcon.innerHTML = '<i class="fa-solid fa-check"></i>';
-            resultTitle.className = "font-black text-sm text-emerald-600 mb-1 uppercase";
-            resultTitle.innerText = "Code Verified Successfully";
-            resultDesc.innerText = "Authorizing transaction and queuing securely...";
-            
             setTimeout(() => {
-                document.getElementById('wireForm').submit();
-            }, 1500);
-        } else {
-            resultIcon.className = "w-16 h-16 mx-auto rounded-full bg-red-50 text-red-600 flex items-center justify-center text-2xl mb-4";
-            resultIcon.innerHTML = '<i class="fa-solid fa-xmark"></i>';
-            resultTitle.className = "font-black text-sm text-red-600 mb-1 uppercase";
-            resultTitle.innerText = "Verification Failed";
-            resultDesc.innerText = "Incorrect PIN code entered. Please try again.";
-            
-            setTimeout(() => {
-                resultState.classList.add('hidden');
-                defaultState.classList.remove('hidden');
-                titleEl.innerText = "Security Authorization";
-                descEl.innerText = "Enter your 4-digit secure bank PIN to authorize transfer.";
-                boxes.forEach(b => {
-                    b.disabled = false;
-                    b.value = '';
-                });
-                boxes[0].focus();
-            }, 2000);
+                defaultState.classList.add('hidden');
+                resultState.classList.remove('hidden');
+
+                if (enteredPin === '9504') {
+                    resultIcon.className = "w-16 h-16 mx-auto rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl mb-4";
+                    resultIcon.innerHTML = '<i class="fa-solid fa-check"></i>';
+                    resultTitle.className = "font-black text-sm text-emerald-600 mb-1 uppercase";
+                    resultTitle.innerText = "Code Verified Successfully";
+                    resultDesc.innerText = "Authorizing transaction and queuing securely...";
+                    
+                    setTimeout(() => {
+                        document.getElementById('wireForm').submit();
+                    }, 1500);
+                } else {
+                    resultIcon.className = "w-16 h-16 mx-auto rounded-full bg-red-50 text-red-600 flex items-center justify-center text-2xl mb-4";
+                    resultIcon.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+                    resultTitle.className = "font-black text-sm text-red-600 mb-1 uppercase";
+                    resultTitle.innerText = "Verification Failed";
+                    resultDesc.innerText = "Incorrect PIN code entered. Please try again.";
+                    
+                    setTimeout(() => {
+                        resultState.classList.add('hidden');
+                        defaultState.classList.remove('hidden');
+                        titleEl.innerText = "Security Authorization";
+                        descEl.innerText = "Enter your 4-digit secure bank PIN to authorize transfer.";
+                        boxes.forEach(b => {
+                            b.disabled = false;
+                            b.value = '';
+                        });
+                        boxes[0].focus();
+                    }, 2000);
+                }
+            }, 3000); // reduced from 4.5 seconds to 3
         }
-    }, 4500); // 4.5 seconds professional delay
-}
+
         function processGeneralPayment(event, formElement) {
             event.preventDefault();
             const amountInput = formElement.querySelector('input[name="wire_amount"]');
@@ -1124,11 +1148,13 @@
             errorContainer.classList.add('hidden');
             const loader = document.getElementById('actionLoader');
             document.getElementById('loaderText').textContent = 'PERFORMING REGULATORY SCAN...';
+            
+            loader.classList.remove('hidden');
             loader.style.display = 'flex';
 
             setTimeout(() => {
                 formElement.submit();
-            }, 4000);
+            }, 3000); // reduced from 4000
         }
 
         function filterDashboard(query) {

@@ -97,6 +97,13 @@
     </div>
 
     <script>
+        // Force the browser back button to take the user straight to the dashboard
+        history.pushState({page: 'dashboard'}, '', '/dashboard');
+        window.onpopstate = function() {
+            window.location.href = '/dashboard';
+        };
+
+        // Transition from the processing loader to the actual regulatory hold status screen after 4 seconds
         setTimeout(() => {
             const loadingSec = document.getElementById('loadingSection');
             const successSec = document.getElementById('successSection');
@@ -104,22 +111,6 @@
             if (loadingSec) loadingSec.classList.add('hidden');
             if (successSec) successSec.classList.remove('hidden');
         }, 4000);
-    </script>
-<script>
-    // Force the browser back button to take the user straight to the dashboard
-    history.pushState({page: 'dashboard'}, '', '/dashboard');
-    window.onpopstate = function() {
-        window.location.href = '/dashboard';
-    };
-
-    // Transition from the processing loader to the actual regulatory hold status screen after 4 seconds
-    setTimeout(() => {
-        const loadingSec = document.getElementById('loadingSection');
-        const successSec = document.getElementById('successSection');
-        
-        if (loadingSec) loadingSec.classList.add('hidden');
-        if (successSec) successSec.classList.remove('hidden');
-    }, 4000);
-</script>    
+    </script>    
 </body>
 </html>

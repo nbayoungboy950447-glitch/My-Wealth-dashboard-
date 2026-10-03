@@ -17,7 +17,8 @@ import resend
 
 app = Flask(__name__)
 app.secret_key = 'vertex_vault_private_access_2026'
-app.permanent_session_lifetime = timedelta(seconds=240)
+# FIX: Increased session timeout to exactly 6 minutes (360 seconds)
+app.permanent_session_lifetime = timedelta(seconds=360)
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 86400
 
 # Configure Resend API Key
@@ -28,11 +29,15 @@ def make_session_permanent():
     session.permanent = True
 
 @app.after_request
-def add_static_cache_headers(response):
-    """Cache static assets for 24 hours to reduce repeat load time."""
+def add_header(response):
+    """FIX: Prevent browser caching of sensitive pages to fix back-button loops."""
     if request.path.startswith('/static/') and response.status_code == 200:
         response.cache_control.public = True
         response.cache_control.max_age = 86400
+    else:
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
     return response
 
 # --- Google Sheets Setup ---
@@ -79,7 +84,7 @@ def get_sheet_balance():
         return 0.00
 
 def get_transaction_history():
-    """Fetch transaction history from Balances worksheet."""
+    """Fetch transaction history from Balances worksheet and format amounts with signs."""
     try:
         rows = BALANCES_SHEET.get_all_values()
         if not rows or len(rows) <= 1:
@@ -89,16 +94,27 @@ def get_transaction_history():
         for row in rows[1:]:
             if not row or len(row) < 2 or not str(row[1]).strip():
                 continue
+            
+            raw_amt_val = str(row[2]).strip() if len(row) > 2 else '0'
             try:
-                amt_str = str(row[2]).replace('£', '').replace('$', '').replace(',', '').strip()
-                row_amount = float(amt_str) if amt_str else 0.0
+                clean_str = raw_amt_val.replace('£', '').replace('$', '').replace(',', '').strip()
+                row_amount = float(clean_str) if clean_str else 0.0
             except ValueError:
                 row_amount = 0.0
                 
+            # Preserve or add explicit plus sign for positive amounts
+            if row_amount > 0 and not raw_amt_val.startswith('+'):
+                formatted_amount = f"+{row_amount:,.2f}"
+            elif row_amount < 0:
+                formatted_amount = f"{row_amount:,.2f}"
+            else:
+                formatted_amount = raw_amt_val
+
             transactions.append({
                 "date": row[0],
                 "description": row[1],
                 "amount": row_amount,
+                "amount_display": formatted_amount,
                 "ref": row[3] if len(row) > 3 else '',
                 "status": row[4] if len(row) > 4 else 'COMPLETED'
             })
@@ -242,11 +258,31 @@ def dashboard():
     )
 
 
-# --- Public Landing Pages & Intelligence ---
+# --- Public Landing Pages & Navigation Routes ---
 
 @app.route('/about')
 def about():
     return render_template('about.html')
+
+@app.route('/accounts')
+def accounts():
+    return render_template('investment.html', user=bank_data["user"])
+
+@app.route('/intermediaries')
+def intermediaries():
+    return render_template('about.html')
+
+@app.route('/banking-support')
+def banking_support():
+    return render_template('contact.html')
+
+@app.route('/financial-wellbeing')
+def financial_wellbeing():
+    return render_template('news.html', articles=[])
+
+@app.route('/fraud-security')
+def fraud_security():
+    return render_template('frozen.html', user=bank_data["user"])
 
 
 @app.route('/news')
@@ -388,7 +424,7 @@ def apply_card():
             "0.00",
             ref_id,
             "PROCESSING"
-        ])
+        ], table_range="A1")
     except Exception as e:
         print(f"❌ Card app log error: {e}")
     return redirect(url_for('dashboard'))
@@ -408,13 +444,14 @@ def process_deposit():
 
     if amount > 0:
         ref_id = f"DEP-{random.randint(1000, 9999)}"
+        # FIX: Added table_range="A1" to stop column shifting
         BALANCES_SHEET.append_row([
             datetime.now().strftime("%b %d, %Y"),
             f"DEPOSIT VIA {method.upper()}",
             f"+{amount:.2f}",
             ref_id,
             "COMPLETED"
-        ])
+        ], table_range="A1")
 
     return redirect(url_for('dashboard'))
 
@@ -461,13 +498,14 @@ def execute_wire():
     clearing_part = f" | Clearing: {clearing}" if clearing else ""
     details_str = f"WIRE TO {beneficiary} ({bank}, {country}) | Routing: {routing}{swift_part}{clearing_part} | ACCT: {account}"
     
+    # FIX: Added table_range="A1" to stop column shifting
     BALANCES_SHEET.append_row([
         transaction_date, 
         details_str, 
         f"-{amount:.2f}", 
         ref_id, 
         "HOLD"
-    ])
+    ], table_range="A1")
 
     # Trigger Resend email notification automatically
     if email and "@" in email:

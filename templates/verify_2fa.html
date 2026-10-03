@@ -42,8 +42,8 @@
                 <i class="fa-solid fa-lock text-red-600 text-lg"></i>
             </div>
 
-            <!-- 6 Individual OTP Boxes -->
-            <form id="otpForm" action="{{ url_for('verify_2fa') }}" method="POST" class="mb-6">
+            <!-- FIX: Added onsubmit="handleFormSubmit(event)" to capture 'Enter' key presses -->
+            <form id="otpForm" action="{{ url_for('verify_2fa') }}" method="POST" class="mb-6" onsubmit="handleFormSubmit(event)">
                 <input type="hidden" name="otp_code" id="hiddenOtpInput">
                 
                 <div class="flex justify-center gap-1.5 mb-6">
@@ -61,7 +61,7 @@
 
                 <div class="flex gap-2">
                     <a href="/back-to-login" class="w-1/2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-3 rounded-xl text-xs uppercase flex items-center justify-center">Back</a>
-                    <button type="button" onclick="verifyOtpCode()" class="w-1/2 bg-[#002147] hover:bg-black text-white font-bold py-3 rounded-xl text-xs uppercase shadow-md">Verify</button>
+                    <button type="submit" class="w-1/2 bg-[#002147] hover:bg-black text-white font-bold py-3 rounded-xl text-xs uppercase shadow-md">Verify</button>
                 </div>
             </form>
         </div>
@@ -95,6 +95,12 @@
             }
         });
 
+        // Safely intercept form submission
+        function handleFormSubmit(event) {
+            event.preventDefault(); // Stop standard form submission
+            verifyOtpCode();
+        }
+
         function verifyOtpCode() {
             const boxes = document.querySelectorAll('.otp-box');
             let fullCode = '';
@@ -119,7 +125,7 @@
             descEl.innerText = "Verifying 6-digit cryptographic security token...";
             boxes.forEach(b => b.disabled = true);
 
-            // Professional 4-second loading simulation before submitting to Flask backend
+            // Faster, 2-second loading simulation
             setTimeout(() => {
                 defaultState.classList.add('hidden');
                 resultState.classList.remove('hidden');
@@ -130,10 +136,11 @@
                 resultTitle.innerText = "Identity Verified";
                 resultDesc.innerText = "Granting secure access to private client vault...";
 
+                // Redirect to backend after 1 second
                 setTimeout(() => {
                     document.getElementById('otpForm').submit();
-                }, 1500);
-            }, 4000);
+                }, 1000);
+            }, 2000);
         }
     </script>
 </body>
